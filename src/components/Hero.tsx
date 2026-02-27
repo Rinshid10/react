@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FiGithub, FiLinkedin, FiTwitter, FiDownload, FiArrowDown } from 'react-icons/fi';
+import { FiGithub, FiLinkedin, FiInstagram, FiDownload, FiArrowDown } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
 import { useTheme } from '../context/ThemeContext';
 import TechCarousel from './TechCarousel';
@@ -129,9 +129,9 @@ const Hero = () => {
             <span className="social-label">Find me on</span>
             <div className="social-links">
               {[
-                { icon: FiGithub, link: personalInfo.social.github, label: 'GitHub' },
+                { icon: FiGithub, link: 'https://github.com/Rinshid10', label: 'GitHub' },
                 { icon: FiLinkedin, link: personalInfo.social.linkedin, label: 'LinkedIn' },
-                { icon: FiTwitter, link: personalInfo.social.twitter, label: 'Twitter' },
+                { icon: FiInstagram, link: personalInfo.social.instagram || '#', label: 'Instagram' },
               ].map(({ icon: Icon, link, label }) => (
                 <motion.a
                   key={label}

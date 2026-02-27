@@ -52,7 +52,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     name: 'Rinshid',
     title: 'Flutter Developer',
     tagline: 'Building Beautiful Cross-Platform Experiences',
-    email: 'rinshid@example.com',
+    email: 'rinshidch10@gmail.com',
     location: 'India',
     bio: `Passionate Flutter Developer with expertise in building beautiful,
     performant cross-platform mobile applications. Experienced in backend
@@ -64,6 +64,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       github: 'https://github.com/rinshid',
       linkedin: 'https://linkedin.com/in/rinshid',
       twitter: 'https://twitter.com/rinshid',
+      instagram: 'https://www.instagram.com/rnshiid',
     },
     resumeUrl: '/resume.pdf',
   };
@@ -76,15 +77,11 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     { name: 'Node.js', icon: SiNodedotjs, color: '#339933', category: 'Backend' },
     { name: 'Firebase', icon: SiFirebase, color: '#FFCA28', category: 'Backend' },
     { name: 'Supabase', icon: SiSupabase, color: '#3ECF8E', category: 'Backend' },
-    { name: 'Java', icon: FaJava, color: '#ED8B00', category: 'Language' },
-    { name: 'Spring Boot', icon: SiSpringboot, color: '#6DB33F', category: 'Backend' },
     { name: 'PostgreSQL', icon: SiPostgresql, color: '#4169E1', category: 'Database' },
-    { name: 'MySQL', icon: SiMysql, color: '#4479A1', category: 'Database' },
     { name: 'MongoDB', icon: SiMongodb, color: '#47A248', category: 'Database' },
     { name: 'TypeScript', icon: SiTypescript, color: '#3178C6', category: 'Language' },
     { name: 'JavaScript', icon: SiJavascript, color: '#F7DF1E', category: 'Language' },
     { name: 'Git', icon: SiGit, color: '#F05032', category: 'Tools' },
-    { name: 'Docker', icon: SiDocker, color: '#2496ED', category: 'Tools' },
   ];
 
   // Skills - Customize your skill levels
@@ -92,7 +89,6 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     // Mobile Development
     { name: 'Flutter', level: 95, category: 'Mobile' },
     { name: 'Dart', level: 92, category: 'Mobile' },
-    { name: 'React Native', level: 70, category: 'Mobile' },
 
     // State Management
     { name: 'Provider', level: 90, category: 'State Management' },
@@ -101,6 +97,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     { name: 'GetX', level: 88, category: 'State Management' },
 
     // Frontend
+    { name: 'Flutter', level: 95, category: 'Mobile' },
     { name: 'React', level: 80, category: 'Frontend' },
     { name: 'TypeScript', level: 75, category: 'Frontend' },
     { name: 'JavaScript', level: 82, category: 'Frontend' },
@@ -109,7 +106,6 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     { name: 'Node.js', level: 78, category: 'Backend' },
     { name: 'Firebase', level: 85, category: 'Backend' },
     { name: 'Supabase', level: 82, category: 'Backend' },
-    { name: 'Spring Boot', level: 65, category: 'Backend' },
 
     // Database
     { name: 'PostgreSQL', level: 75, category: 'Database' },
@@ -118,50 +114,58 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
 
     // Tools
     { name: 'Git', level: 88, category: 'Tools' },
-    { name: 'Docker', level: 65, category: 'Tools' },
+
+    // AI
+    { name: 'Claude', level: 90, category: 'AI' },
+    { name: 'CLI', level: 85, category: 'AI' },
+    { name: 'Cursor AI', level: 88, category: 'AI' },
+    { name: 'Figma', level: 85, category: 'AI' },
+    { name: 'MCP', level: 80, category: 'AI' },
   ];
 
   // Projects - Add your projects here
   const projects: Project[] = [
     {
       id: 1,
-      title: 'E-Commerce Mobile App',
-      description: 'A full-featured shopping app with cart, payments, and order tracking.',
-      longDescription: 'Built a complete e-commerce solution with product catalog, cart management, secure payments integration, and real-time order tracking.',
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600',
-      technologies: ['Flutter', 'Firebase', 'Provider', 'Stripe'],
-      github: 'https://github.com/rinshid/ecommerce-app',
-      playStore: 'https://play.google.com/store/apps/details?id=com.rinshid.ecommerce',
+      title: 'Online Check Writer',
+      description: 'A cloud-based payment app to simplify your accounts payable and account receivable in one go. Pay or get paid the way you want- Printable Check, eChecks, Check by mail, Credit, Debit, ACH, Wallet-to Wallet, Wire, etc. Easy navigation to help you quickly access features and tools to make payments on the go. Make transactions through our military-grade secure platform to prevent check frauds from ever hitting your account. This way, you spend less time on payment tasks and more time on work that really matters. You can also get in touch with our dedicated customer support team available round the clock to help you.',
+      image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600',
+      technologies: ['Flutter', 'Riverpod'],
+      // github: 'https://github.com/rinshid/task-manager',
       featured: true,
+      playStore: 'https://play.google.com/store/apps/details?id=com.onlinecheckwriter.m',
       category: 'Mobile',
     },
     {
       id: 2,
-      title: 'Task Management App',
-      description: 'Productivity app with task organization, reminders, and team collaboration.',
-      image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600',
-      technologies: ['Flutter', 'Riverpod', 'Supabase', 'Notifications'],
-      github: 'https://github.com/rinshid/task-manager',
+      title: 'Check Mail',
+      description: 'Effortlessly manage and send checks via email from your bank accounts, credit cards, and wallets. Secure, fast, and reliable payment solutions at your fingertips.',
+      longDescription: 'Send and manage digital checks instantly via email using your bank accounts, credit cards, or wallets.Secure, fast, and reliable payment solutions designed for convenience and control.',
+      image: '/app_logo.svg',
+      technologies: ['Flutter', 'Getx'],
+      playStore: 'https://play.google.com/store/apps/details?id=com.checkmail.app',
       featured: true,
       category: 'Mobile',
     },
+
     {
       id: 3,
-      title: 'Real-time Chat Application',
-      description: 'Messaging app with group chats, media sharing, and real-time updates.',
+      title: 'International Payment',
+      description: 'International Payment is a fast, secure, and efficient solution for U.S. businesses to send money globally in just minutes. Powered by Zil Money and OnlineCheckWriter.com, the app enables direct wallet-to-bank transfers to 9+ countries including the UK, France, Germany, India, China, Australia, and more.',
       image: 'https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=600',
       technologies: ['Flutter', 'Firebase', 'Bloc', 'WebSocket'],
-      github: 'https://github.com/rinshid/chat-app',
+      // github: 'https://github.com/rinshid/chat-app',
+      playStore: 'https://play.google.com/store/apps/details?id=com.internationalpayments.app',
       featured: true,
       category: 'Mobile',
     },
     {
       id: 4,
-      title: 'Fitness Tracker',
-      description: 'Health and fitness app with workout plans and progress tracking.',
+      title: 'GetPaid Link',
+      description: 'GetPaid Link - Effortless Payment Links for BusinessGetPaid Link is a powerful, secure payment link app designed for businesses of all sizes. Whether you\'re a freelancer, small business, or large enterprise, GetPaid Link allows you to send instant payment links to clients, accept payments securely, and manage recurring payments with ease.With GetPaid Link, you can quickly create and send one-time or recurring payment links via email or SMS, making it simple for your clients to pay directly from their bank accounts or credit cards. No more complicated invoicing or long payment processes – just fast,',
       image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600',
-      technologies: ['Flutter', 'GetX', 'SQLite', 'Charts'],
-      github: 'https://github.com/rinshid/fitness-tracker',
+      technologies: ['Flutter', 'Getx'],
+      playStore: 'https://play.google.com/store/apps/details?id=com.getpaidlink.app',
       featured: false,
       category: 'Mobile',
     },
@@ -177,15 +181,31 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     },
     {
       id: 6,
-      title: 'Portfolio Website',
-      description: 'Modern portfolio website built with React and TypeScript.',
+      title: 'Chat Flow - Web & Mobile',
+      description: 'real-time web chat platform that enables instant messaging with smooth, secure, and seamless communication. It ensures fast message delivery, live updates, and an interactive user experience across devices.',
       image: 'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=600',
-      technologies: ['React', 'TypeScript', 'Framer Motion'],
-      github: 'https://github.com/rinshid/portfolio',
-      live: 'https://rinshid.dev',
+      technologies: ['Flutter', 'Provider', 'Firebase', 'WebSocket'],
+      github: 'https://github.com/Rinshid10/chat-App',
+      
+      live: 'https://rinshdss.vercel.app/',
       featured: false,
       category: 'Web',
+      
     },
+    {
+      id: 6,
+      title: 'Shop Easy - E-commerce',
+      description: 'modern e-commerce platform that offers a seamless online shopping experience with secure payments, fast checkout, and a user-friendly interface. Discover, compare, and purchase products بسهولة from anywhere, anytime.',
+      image: 'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=600',
+      technologies: ['Flutter', 'Provider', 'Firebase', 'WebSocket'],
+      github: 'https://github.com/Rinshid10/chat-App',
+      
+      live: 'https://rinshdss.vercel.app/',
+      featured: false,
+      category: 'Web',
+      
+    },
+    
   ];
 
   // Experience - Add your work experience

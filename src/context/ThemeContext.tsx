@@ -27,8 +27,18 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   // Initialize dark mode from localStorage or default to true
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : true;
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('darkMode');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return typeof parsed === 'boolean' ? parsed : true;
+        }
+      }
+    } catch (error) {
+      console.warn('Error reading theme from localStorage:', error);
+    }
+    return true;
   });
 
   // Track the currently visible section for navigation highlighting

@@ -32,7 +32,8 @@ export type SkillCategory =
   | 'Backend'
   | 'Database'
   | 'State Management'
-  | 'Tools';
+  | 'Tools'
+  | 'AI';
 
 export interface Project {
   id: number;
