@@ -1,0 +1,87 @@
+/* ===== Animated Cursor ===== */
+.animated-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              border-color 0.3s ease,
+              background 0.3s ease;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+
+.animated-cursor.hovering {
+  width: 50px;
+  height: 50px;
+  border-color: var(--color-accent-light);
+  background: rgba(99, 102, 241, 0.15);
+  border-width: 2.5px;
+}
+
+.animated-cursor-trail {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 9998;
+  transition: width 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              height 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              background 0.3s ease,
+              box-shadow 0.3s ease;
+  mix-blend-mode: difference;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5),
+              0 0 20px rgba(99, 102, 241, 0.3);
+  will-change: transform;
+}
+
+.animated-cursor-trail.hovering {
+  width: 30px;
+  height: 30px;
+  background: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.8),
+              0 0 40px rgba(99, 102, 241, 0.4);
+}
+
+/* Hide cursor on mobile/touch devices */
+@media (hover: none) {
+  .animated-cursor,
+  .animated-cursor-trail {
+    display: none;
+  }
+}
+
+/* Smooth pulse animation for cursor */
+@keyframes cursor-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.animated-cursor {
+  animation: cursor-pulse 2s ease-in-out infinite;
+}
+
+/* Hide default cursor when animated cursor is active */
+body {
+  cursor: none;
+}
+
+@media (hover: none) {
+  body {
+    cursor: auto;
+  }
+}

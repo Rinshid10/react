@@ -193,7 +193,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       
     },
     {
-      id: 6,
+      id: 7,
       title: 'Shop Easy - E-commerce',
       description: 'modern e-commerce platform that offers a seamless online shopping experience with secure payments, fast checkout, and a user-friendly interface. Discover, compare, and purchase products بسهولة from anywhere, anytime.',
       image: 'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=600',

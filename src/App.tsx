@@ -9,6 +9,7 @@ import Projects from './components/Projects';
 import Experience from './components/Experience';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import AnimatedCursor from './components/AnimatedCursor';
 import './styles/global.css';
 
 // Main app content with scroll tracking
@@ -39,6 +40,7 @@ const AppContent = () => {
 
   return (
     <>
+      <AnimatedCursor />
       <Navbar />
       <main>
         <Hero />

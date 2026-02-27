@@ -1,61 +1,47 @@
-import { useRef, useState } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { FiGithub, FiExternalLink, FiPlay, FiSmartphone, FiGlobe, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useRef, useState, useMemo } from 'react';
+import { motion, useInView, AnimatePresence, Variants } from 'framer-motion';
+import { FiGithub, FiExternalLink, FiSmartphone, FiGlobe, FiArrowUpRight } from 'react-icons/fi';
 import { SiGoogleplay, SiAppstore } from 'react-icons/si';
 import { usePortfolio } from '../context/PortfolioContext';
 import '../styles/Projects.css';
 
-/**
- * Projects Component
- * Interactive project gallery with horizontal scrolling
- */
 const Projects = () => {
   const { projects } = usePortfolio();
   const ref = useRef<HTMLElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
-  const [showAllProjects, setShowAllProjects] = useState<boolean>(false);
+  const [activeFilter, setActiveFilter] = useState<string>('All');
 
-  // Limit projects initially, show all when button is clicked
-  const displayedProjects = showAllProjects ? projects : projects.slice(0, 4);
+  // Get unique categories
+  const categories = useMemo(() => {
+    const cats = ['All', ...new Set(projects.map((p) => p.category))];
+    return cats;
+  }, [projects]);
 
-  // Handle view all projects
-  const handleViewAllProjects = () => {
-    setShowAllProjects(true);
-  };
-
-  // Scroll functions
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: -400,
-        behavior: 'smooth',
-      });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: 400,
-        behavior: 'smooth',
-      });
-    }
-  };
+  // Filter projects
+  const filteredProjects = useMemo(() => {
+    if (activeFilter === 'All') return projects;
+    return projects.filter((p) => p.category === activeFilter);
+  }, [projects, activeFilter]);
 
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15 },
+      transition: { staggerChildren: 0.1 },
     },
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+  };
+
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: 'easeOut' } },
+    exit: { opacity: 0, scale: 0.9, transition: { duration: 0.3 } },
   };
 
   return (
@@ -77,110 +63,81 @@ const Projects = () => {
           </p>
         </motion.div>
 
-        {/* Scroll Indicator */}
-        <motion.div 
-          className="scroll-indicator"
-          variants={itemVariants}
-        >
-          <motion.div
-            animate={{
-              x: [-5, 5, -5],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <FiChevronLeft />
-          </motion.div>
-          <span>Scroll to explore</span>
-          <motion.div
-            animate={{
-              x: [-5, 5, -5],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <FiChevronRight />
-          </motion.div>
+        {/* Filter Tabs */}
+        <motion.div className="project-filters" variants={itemVariants}>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`filter-tab ${activeFilter === cat ? 'active' : ''}`}
+              onClick={() => setActiveFilter(cat)}
+            >
+              {cat}
+              {activeFilter === cat && (
+                <motion.div
+                  className="filter-tab-indicator"
+                  layoutId="activeFilter"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+            </button>
+          ))}
         </motion.div>
 
-        {/* Projects Horizontal Scroll Container with Arrow Buttons */}
-        <div className="projects-scroll-wrapper">
-          {/* Left Arrow Button */}
-          <motion.button
-            className="scroll-arrow scroll-arrow-left"
-            onClick={scrollLeft}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Scroll left"
-          >
-            <FiChevronLeft />
-          </motion.button>
+        {/* Projects Grid */}
+        <motion.div className="projects-grid" layout>
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project, index) => (
+              <motion.article
+                key={`${project.id}-${project.title}`}
+                className={`project-card ${project.featured ? 'featured' : ''}`}
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                layout
+                transition={{ delay: index * 0.05 }}
+                onMouseEnter={() => setHoveredProject(project.id)}
+                onMouseLeave={() => setHoveredProject(null)}
+                onTouchStart={() => setHoveredProject(project.id)}
+              >
+                {/* Card Glow Effect */}
+                <motion.div
+                  className="card-glow"
+                  animate={{
+                    opacity: hoveredProject === project.id ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
 
-          <motion.div 
-            className="projects-scroll-container" 
-            ref={scrollContainerRef}
-            layout
-          >
-            <motion.div className="projects-horizontal-grid">
-              <AnimatePresence mode="popLayout">
-                {displayedProjects.map((project, index) => (
-                  <motion.article
-                  key={project.id}
-                  className={`project-card ${project.featured ? 'featured' : ''}`}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  onMouseEnter={() => setHoveredProject(project.id)}
-                  onMouseLeave={() => setHoveredProject(null)}
-                >
-                {/* Project Image / Icon */}
-                <div className="project-image-container">
+                {/* Project Visual */}
+                <div className="project-visual">
                   {project.category === 'Mobile' ? (
-                    <motion.div
-                      className="project-image project-icon-wrapper"
-                      animate={{
-                        scale: hoveredProject === project.id ? 1.1 : 1,
-                      }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <FiSmartphone className="mobile-icon" />
-                    </motion.div>
+                    <div className="project-icon-bg">
+                      <FiSmartphone className="project-type-icon" />
+                    </div>
                   ) : project.category === 'Web' ? (
-                    <motion.div
-                      className="project-image project-icon-wrapper"
-                      animate={{
-                        scale: hoveredProject === project.id ? 1.1 : 1,
-                      }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <FiGlobe className="mobile-icon" />
-                    </motion.div>
+                    <div className="project-icon-bg">
+                      <FiGlobe className="project-type-icon" />
+                    </div>
                   ) : (
                     <motion.img
                       src={project.image}
                       alt={project.title}
-                      className="project-image"
+                      className="project-img"
                       animate={{
-                        scale: hoveredProject === project.id ? 1.1 : 1,
+                        scale: hoveredProject === project.id ? 1.08 : 1,
                       }}
-                      transition={{ duration: 0.4 }}
+                      transition={{ duration: 0.5 }}
                     />
                   )}
 
-                  {/* Overlay with Links */}
+                  {/* Overlay */}
                   <motion.div
                     className="project-overlay"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: hoveredProject === project.id ? 1 : 0 }}
                     transition={{ duration: 0.3 }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <div className="project-links">
                       {project.github && (
@@ -189,11 +146,13 @@ const Projects = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="project-link"
-                          whileHover={{ scale: 1.2 }}
+                          whileHover={{ scale: 1.15, y: -2 }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={(e) => e.stopPropagation()}
                           title="View Code"
                         >
                           <FiGithub />
+                          <span>Code</span>
                         </motion.a>
                       )}
                       {project.live && (
@@ -202,11 +161,13 @@ const Projects = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="project-link"
-                          whileHover={{ scale: 1.2 }}
+                          whileHover={{ scale: 1.15, y: -2 }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={(e) => e.stopPropagation()}
                           title="Live Demo"
                         >
                           <FiExternalLink />
+                          <span>Live</span>
                         </motion.a>
                       )}
                       {project.playStore && (
@@ -215,11 +176,13 @@ const Projects = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="project-link"
-                          whileHover={{ scale: 1.2 }}
+                          whileHover={{ scale: 1.15, y: -2 }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={(e) => e.stopPropagation()}
                           title="Play Store"
                         >
                           <SiGoogleplay />
+                          <span>Play</span>
                         </motion.a>
                       )}
                       {project.appStore && (
@@ -228,11 +191,13 @@ const Projects = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="project-link"
-                          whileHover={{ scale: 1.2 }}
+                          whileHover={{ scale: 1.15, y: -2 }}
                           whileTap={{ scale: 0.9 }}
+                          onClick={(e) => e.stopPropagation()}
                           title="App Store"
                         >
                           <SiAppstore />
+                          <span>Store</span>
                         </motion.a>
                       )}
                     </div>
@@ -240,56 +205,46 @@ const Projects = () => {
 
                   {/* Featured Badge */}
                   {project.featured && (
-                    <span className="featured-badge">Featured</span>
+                    <span className="featured-badge">
+                      <span className="featured-dot" />
+                      Featured
+                    </span>
                   )}
+
+                  {/* Category Pill */}
+                  <span className="category-pill">{project.category}</span>
                 </div>
 
-                {/* Project Content */}
-                <div className="project-content">
-                  <span className="project-category">{project.category}</span>
-                  <h3 className="project-title">{project.title}</h3>
+                {/* Project Info */}
+                <div className="project-info">
+                  <div className="project-info-header">
+                    <h3 className="project-title">{project.title}</h3>
+                    <motion.div
+                      className="project-arrow"
+                      animate={{
+                        x: hoveredProject === project.id ? 4 : 0,
+                        y: hoveredProject === project.id ? -4 : 0,
+                      }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <FiArrowUpRight />
+                    </motion.div>
+                  </div>
                   <p className="project-description">{project.description}</p>
 
-                  {/* Technologies */}
-                  <div className="project-technologies">
+                  {/* Tech Stack */}
+                  <div className="project-tech-stack">
                     {project.technologies.map((tech) => (
-                      <span key={tech} className="tech-tag">
+                      <span key={tech} className="tech-chip">
                         {tech}
                       </span>
                     ))}
                   </div>
                 </div>
-                </motion.article>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </motion.div>
-
-          {/* Right Arrow Button */}
-          <motion.button
-            className="scroll-arrow scroll-arrow-right"
-            onClick={scrollRight}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            aria-label="Scroll right"
-          >
-            <FiChevronRight />
-          </motion.button>
-        </div>
-
-        {/* View All Projects Button */}
-        {!showAllProjects && projects.length > 4 && (
-          <motion.div className="projects-cta" variants={itemVariants}>
-            <motion.button
-              onClick={handleViewAllProjects}
-              className="btn btn-secondary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              View All Projects
-            </motion.button>
-          </motion.div>
-        )}
+              </motion.article>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </motion.div>
     </section>
   );
