@@ -6,7 +6,7 @@ const AnimatedCursor = () => {
   const [trailPosition, setTrailPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     // Check if device supports hover (desktop)
