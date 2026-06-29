@@ -1,4 +1,5 @@
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { API_BASE_URL } from '../config';
 import {
   SiFlutter,
   SiDart,
@@ -48,7 +49,7 @@ interface PortfolioProviderProps {
  */
 export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   // Personal Information - Edit these details
-  const personalInfo: PersonalInfo = {
+  const defaultPersonalInfo: PersonalInfo = {
     name: 'Rinshid',
     title: 'Flutter Developer',
     tagline: 'Building Beautiful Cross-Platform Experiences',
@@ -85,7 +86,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   ];
 
   // Skills - Customize your skill levels
-  const skills: Skill[] = [
+  const defaultSkills: Skill[] = [
     // Mobile Development
     { name: 'Flutter', level: 95, category: 'Mobile' },
     { name: 'Dart', level: 92, category: 'Mobile' },
@@ -124,7 +125,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   ];
 
   // Projects - Add your projects here
-  const projects: Project[] = [
+  const defaultProjects: Project[] = [
     {
       id: 1,
       title: 'Online Check Writer',
@@ -209,7 +210,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   ];
 
   // Experience - Add your work experience
-  const experience: Experience[] = [
+  const defaultExperience: Experience[] = [
     {
       id: 1,
       role: 'Flutter Developer',
@@ -250,6 +251,85 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       type: 'Internship',
     },
   ];
+
+  // Live content from the admin backend overrides the defaults above. If the
+  // API is unreachable, the hardcoded defaults are used as a graceful fallback.
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfo>(defaultPersonalInfo);
+  const [skills, setSkills] = useState<Skill[]>(defaultSkills);
+  const [projects, setProjects] = useState<Project[]>(defaultProjects);
+  const [experience, setExperience] = useState<Experience[]>(defaultExperience);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/portfolio`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (data.personalInfo) {
+          setPersonalInfo({ ...defaultPersonalInfo, ...data.personalInfo });
+        }
+        if (Array.isArray(data.skills) && data.skills.length) {
+          setSkills(
+            data.skills.map((s: Partial<Skill>) => ({
+              name: s.name ?? '',
+              level: Number(s.level ?? 0),
+              category: (s.category ?? 'Tools') as Skill['category'],
+              icon: s.icon,
+            }))
+          );
+        }
+        if (Array.isArray(data.projects) && data.projects.length) {
+          setProjects(
+            data.projects.map((p: Record<string, unknown>, i: number) => ({
+              id: i + 1,
+              title: (p.title as string) ?? '',
+              description: (p.description as string) ?? '',
+              longDescription: p.longDescription as string | undefined,
+              image: (p.image as string) ?? '',
+              technologies: (p.technologies as string[]) ?? [],
+              github: (p.github as string) || undefined,
+              live: (p.live as string) || undefined,
+              playStore: (p.playStore as string) || undefined,
+              appStore: (p.appStore as string) || undefined,
+              featured: Boolean(p.featured),
+              category: (p.category as Project['category']) ?? 'Mobile',
+            }))
+          );
+        }
+        if (Array.isArray(data.experience) && data.experience.length) {
+          setExperience(
+            data.experience.map((e: Record<string, unknown>, i: number) => ({
+              id: i + 1,
+              role: (e.role as string) ?? '',
+              company: (e.company as string) ?? '',
+              companyUrl: (e.companyUrl as string) || undefined,
+              location: (e.location as string) ?? '',
+              period: (e.period as string) ?? '',
+              startDate: (e.startDate as string) ?? '',
+              endDate: (e.endDate as string) || undefined,
+              current: Boolean(e.current),
+              description: (e.description as string) ?? '',
+              responsibilities: (e.responsibilities as string[]) ?? [],
+              technologies: (e.technologies as string[]) ?? [],
+              type: (e.type as Experience['type']) ?? 'Full-time',
+            }))
+          );
+        }
+      } catch {
+        // Backend offline — keep defaults.
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const value: PortfolioContextType = {
     personalInfo,
