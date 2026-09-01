@@ -3,26 +3,47 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { PortfolioProvider } from './context/PortfolioContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import Services from './components/Services';
 import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
+import CaseStudies from './components/CaseStudies';
+import Process from './components/Process';
 import Experience from './components/Experience';
+import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AnimatedCursor from './components/AnimatedCursor';
 import './styles/global.css';
 
-// Main app content with scroll tracking
+// Section order, top to bottom. Also drives the scroll-spy below, so it must
+// stay in sync with what is rendered.
+//
+// The order follows a freelance funnel rather than a CV:
+//   who I am -> what you can buy -> why me -> proof (build) -> proof (growth)
+//   -> what working together looks like -> background -> social proof -> hire.
+const SECTION_IDS = [
+  'hero',
+  'services',
+  'about',
+  'skills',
+  'projects',
+  'case-studies',
+  'process',
+  'experience',
+  'testimonials',
+  'contact',
+];
+
 const AppContent = () => {
   const { setActiveSection } = useTheme();
 
   // Track scroll position to update active section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['hero', 'about', 'skills', 'projects', 'experience', 'contact'];
       const scrollPosition = window.scrollY + 150;
 
-      for (const sectionId of sections) {
+      for (const sectionId of SECTION_IDS) {
         const element = document.getElementById(sectionId);
         if (element) {
           const { offsetTop, offsetHeight } = element;
@@ -44,10 +65,14 @@ const AppContent = () => {
       <Navbar />
       <main>
         <Hero />
+        <Services />
         <About />
         <Skills />
         <Projects />
+        <CaseStudies />
+        <Process />
         <Experience />
+        <Testimonials />
         <Contact />
       </main>
       <Footer />

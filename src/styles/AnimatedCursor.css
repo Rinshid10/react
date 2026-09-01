@@ -20,7 +20,7 @@
   width: 50px;
   height: 50px;
   border-color: var(--color-accent-light);
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(255, 255, 255, 0.15);
   border-width: 2.5px;
 }
 
@@ -38,17 +38,17 @@
               background 0.3s ease,
               box-shadow 0.3s ease;
   mix-blend-mode: difference;
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5),
-              0 0 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+              0 0 20px rgba(255, 255, 255, 0.3);
   will-change: transform;
 }
 
 .animated-cursor-trail.hovering {
   width: 30px;
   height: 30px;
-  background: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.8),
-              0 0 40px rgba(99, 102, 241, 0.4);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+              0 0 40px rgba(255, 255, 255, 0.4);
 }
 
 /* Hide cursor on mobile/touch devices */

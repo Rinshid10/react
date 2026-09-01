@@ -1,0 +1,196 @@
+/* Services — editorial index
+   ---------------------------------------------------------------------------
+   Rows separated by hairlines rather than six bordered cards. The three
+   columns are fixed in meaning: index, what it is, what it costs — so a
+   visitor can read straight down the right-hand column and rule themselves in
+   or out without reading any of the copy.
+--------------------------------------------------------------------------- */
+
+.services { padding: 7rem 2rem; background: var(--color-bg-secondary); }
+.services-container { max-width: 1180px; margin: 0 auto; }
+
+/* --- Track filter ---------------------------------------------------------- */
+/* Text tabs with an underline, matching the navbar, instead of filled pills. */
+
+.services-filters {
+  display: flex;
+  justify-content: center;
+  gap: 2.25rem;
+  margin-bottom: 3.5rem;
+}
+
+.service-filter {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.5rem 0.15rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: color 0.25s;
+}
+.service-filter:hover { color: var(--color-text-secondary); }
+.service-filter.active { color: var(--color-text-primary); }
+
+.service-filter-count { font-size: 0.68rem; font-weight: 500; color: var(--color-text-muted); }
+
+.service-filter-underline {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: var(--color-text-primary);
+}
+
+/* --- Rows ------------------------------------------------------------------ */
+
+.services-list { border-top: 1px solid var(--line); }
+
+.service-row {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) 13rem;
+  gap: 0 2.5rem;
+  align-items: start;
+  padding: 2.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.3s;
+}
+.service-row:hover { background: var(--surface-soft); }
+
+.service-index {
+  padding-top: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.service-eyebrow { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.85rem; }
+
+/* Hairline circle rather than a filled tile — same treatment as the social
+   buttons and stat icons elsewhere on the page. */
+.service-icon {
+  display: grid;
+  place-items: center;
+  width: 34px; height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+}
+
+.service-track {
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-text-primary);
+}
+/* Value, not hue, separates the tracks — there is no colour to use. */
+.service-track.track-marketing { color: var(--color-success); }
+
+.service-title {
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+
+.service-description {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 58ch;
+  margin-bottom: 1.25rem;
+}
+
+/* Two columns so five deliverables do not stretch the row. */
+.service-deliverables {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 1.75rem;
+}
+.service-deliverables li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+.deliverable-check {
+  flex-shrink: 0;
+  margin-top: 0.28rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* --- Price column ---------------------------------------------------------- */
+
+.service-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  padding-top: 0.25rem;
+  text-align: right;
+}
+
+.service-price {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.service-timeline { font-size: 0.78rem; color: var(--color-text-muted); }
+
+.service-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
+.service-cta:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.service-cta svg { transition: transform 0.25s; }
+.service-cta:hover svg { transform: translate(2px, -2px); }
+
+/* --- Responsive ------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .services { padding: 5rem 1.25rem; }
+  .service-row {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0 1.25rem;
+    padding: 2rem 0.25rem;
+  }
+  /* The price column moves under the copy rather than shrinking to nothing. */
+  .service-aside {
+    grid-column: 2;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+    padding-top: 0;
+    text-align: left;
+  }
+  .service-deliverables { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .services-filters { gap: 1.5rem; }
+  .service-filter { font-size: 0.875rem; }
+  .service-row { grid-template-columns: 1fr; }
+  .service-index { display: none; }
+  .service-aside { grid-column: 1; }
+  .service-cta { width: 100%; justify-content: center; }
+}

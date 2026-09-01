@@ -3,7 +3,7 @@
 .skills-categories { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem; }
 .category-btn { padding: 0.5rem 1.5rem; background: var(--color-bg-tertiary); border: 1px solid transparent; border-radius: 50px; color: var(--color-text-secondary); font-size: 0.875rem; font-weight: 500; transition: all 0.3s; }
 .category-btn:hover { color: var(--color-text-primary); border-color: var(--color-accent); }
-.category-btn.active { background: var(--gradient-primary); color: white; }
+.category-btn.active { background: var(--gradient-primary); color: var(--color-on-accent); }
 .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
 .skill-item { background: var(--color-bg-secondary); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
 .skill-item:hover { border-color: var(--color-accent); }
@@ -17,3 +17,10 @@
 .marquee-content { display: flex; gap: 3rem; animation: marquee 30s linear infinite; }
 .marquee-item { font-size: 1rem; color: var(--color-text-muted); font-weight: 500; white-space: nowrap; }
 @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* Track switch (Development / Marketing) */
+.skills-tracks { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
+.track-btn { position: relative; padding: 0.5rem 0.25rem; font-size: 1.05rem; font-weight: 700; color: var(--color-text-muted); transition: color 0.25s; }
+.track-btn:hover { color: var(--color-text-secondary); }
+.track-btn.active { color: var(--color-text-primary); }
+.track-underline { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: var(--radius-full); background: var(--gradient-primary); }

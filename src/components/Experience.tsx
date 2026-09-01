@@ -2,7 +2,9 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { FiCalendar, FiMapPin, FiBriefcase } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
+import ScrollMask from './effects/ScrollMask';
 import '../styles/Experience.css';
+import TextReveal3D from './effects/TextReveal3D';
 
 const Experience = () => {
   const { experience } = usePortfolio();
@@ -19,11 +21,16 @@ const Experience = () => {
         <motion.div className="section-header">
           <span className="section-tag">Experience</span>
           <h2 className="section-title">
-            My <span className="highlight">Journey</span>
+            <TextReveal3D>
+              My <span className="highlight">Journey</span>
+            </TextReveal3D>
           </h2>
           <p className="section-subtitle">Professional experience and career path</p>
         </motion.div>
 
+        {/* The timeline is long; fading its edges stops it ending in a hard
+            cut and keeps the eye on whatever is centred. */}
+        <ScrollMask fade={10}>
         <div className="timeline">
           {experience.map((exp, index) => (
             <motion.div
@@ -71,6 +78,7 @@ const Experience = () => {
             </motion.div>
           ))}
         </div>
+        </ScrollMask>
       </motion.div>
     </section>
   );

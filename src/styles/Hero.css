@@ -1,29 +1,305 @@
-.hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 6rem 2rem 2rem; overflow: hidden; }
-.hero-background { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
-.gradient-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; animation: float 8s ease-in-out infinite; }
-.orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(99,102,241,0.4) 0%, transparent 70%); top: -200px; right: -200px; }
-.orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%); bottom: -150px; left: -150px; animation-delay: -2s; }
-.orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -4s; }
-.grid-pattern { position: absolute; inset: 0; background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px); background-size: 50px 50px; }
-@keyframes float { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-30px) scale(1.1); } }
-.hero-wrapper { max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-.hero-content { z-index: 1; }
-.hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 50px; font-size: 0.875rem; color: var(--color-accent-light); margin-bottom: 1.5rem; }
-.badge-wave { animation: wave 2s ease-in-out infinite; }
-@keyframes wave { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(20deg); } 75% { transform: rotate(-20deg); } }
-.hero-title { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; line-height: 1.1; margin-bottom: 1rem; }
-.hero-subtitle { font-size: clamp(1.25rem, 3vw, 1.75rem); font-weight: 600; color: var(--color-accent); margin-bottom: 1rem; }
-.hero-tagline { font-size: 1.25rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; }
-.tagline-word { display: inline-block; }
-.hero-description { font-size: 1rem; color: var(--color-text-muted); margin-bottom: 2rem; max-width: 500px; }
-.hero-cta { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-.hero-social { display: flex; align-items: center; gap: 1rem; }
-.social-label { font-size: 0.875rem; color: var(--color-text-muted); }
-.social-links { display: flex; gap: 0.75rem; }
-.social-link { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--color-bg-tertiary); border-radius: 50%; color: var(--color-text-secondary); font-size: 1.25rem; transition: all 0.3s; }
-.social-link:hover { background: var(--color-accent); color: white; }
-.hero-visual { display: flex; justify-content: center; align-items: center; }
-.scroll-indicator { position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--color-text-muted); font-size: 0.875rem; cursor: pointer; background: none; border: none; }
-.scroll-indicator svg { font-size: 1.5rem; }
-@media (max-width: 992px) { .hero-wrapper { grid-template-columns: 1fr; text-align: center; } .hero-content { order: 2; } .hero-visual { order: 1; margin-bottom: 2rem; } .hero-cta, .hero-social { justify-content: center; } .hero-description { margin: 0 auto 2rem; } }
-@media (max-width: 480px) { .hero-cta { flex-direction: column; } .hero-cta .btn { width: 100%; } }
+/* Hero — one full screen
+   ---------------------------------------------------------------------------
+   A single centred column shares one left edge: oversized wordmark, then name,
+   description and CTA beneath it. The cut-out subject sits behind the word
+   (z-index 1 vs 2), taller than it, so the head clears the letters and the
+   tail runs out below — that intersection is the whole composition.
+
+   Everything scales in `cqw` against `.hero`, which is a container context, so
+   the layout holds its proportions at any width.
+--------------------------------------------------------------------------- */
+
+.hero {
+  container-type: inline-size;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem clamp(1.25rem, 4vw, 4rem) 5.5rem;
+  background: var(--color-bg-primary);
+  overflow: hidden;
+}
+
+/* Screen-reader-only heading — the wordmark is decorative. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Background decoration ------------------------------------------------ */
+
+.hero-deco { position: absolute; inset: 0; pointer-events: none; }
+
+/* Soft pool of light behind the subject. */
+.deco-glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  margin: -30cqw 0 0 -30cqw;
+  width: 60cqw; height: 60cqw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.07) 0%, transparent 68%);
+}
+.light-mode .deco-glow {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.05) 0%, transparent 68%);
+}
+
+/* Dot grid on the left. */
+.deco-dots {
+  position: absolute;
+  top: 30%;
+  left: clamp(1.25rem, 4vw, 4rem);
+  width: 13cqw;
+  height: 16cqw;
+  background-image: radial-gradient(var(--line-strong) 1px, transparent 1px);
+  background-size: 1.35cqw 1.35cqw;
+  opacity: 0.75;
+}
+
+/* --- Stage ---------------------------------------------------------------- */
+
+.hero-stage {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Out of flow so its height can never feed back into the column and push the
+   hero past one viewport. `contain` keeps the whole figure in frame. */
+/* Offset to the right of centre on purpose. The column below the wordmark is
+   left-aligned, so a centred figure would stand directly behind the name,
+   description and button. Sitting right-of-centre it still crosses the back
+   half of the word while leaving the copy on clear ground. */
+/* Sized for a SQUARE head-and-shoulders crop, so the box is square too —
+   `contain` inside a tall box would letterbox a headshot and shrink the face
+   to a fraction of the width. The box is placed so the head clears the top of
+   the wordmark and the shoulders pass behind the letters. */
+.art-cutout {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  /* Just right of centre: far enough that the head sits over the middle of the
+     word rather than its end, where the script accent lives. */
+  margin-left: 0.5cqw;              /* computed, not transform-centred */
+  top: 50%;
+  width: 27cqw;
+  height: 27cqw;
+  margin-top: -22cqw;               /* head above the word, shoulders behind it */
+  max-width: 400px;
+  pointer-events: none;
+}
+.art-cutout img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  /* Fully desaturated — the palette is monochrome, so a colour photograph
+     would be the only hue on the page. */
+  filter: grayscale(1) contrast(1.1) brightness(0.95);
+  /* A background-removed photo ends in a hard horizontal cut where the crop
+     stopped, which reads as a sticker pasted onto the page. Fading the lower
+     third dissolves the torso into the ground instead. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 94%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 58%, transparent 94%);
+}
+
+.art-column {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Font-size lives on the wrapper so the script accent can be placed in `em`
+   relative to the wordmark. */
+.art-word {
+  position: relative;
+  font-size: clamp(2.75rem, 12cqw, 10.5rem);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.art-wordmark {
+  display: block;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: var(--color-text-primary);
+}
+
+/* Sits above the START of the word, not the end. With a portrait in the
+   composition the head occupies the top-right corner, and the script was
+   landing across the face; the space above the first letters is empty. */
+.art-script {
+  position: absolute;
+  left: 0.08em;
+  top: -0.32em;
+  font-family: 'Caveat', 'Segoe Script', cursive;
+  font-size: 0.3em;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0 0.2em 0.12em;
+  border-bottom: 1px solid var(--color-text-primary);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.art-name {
+  margin-top: 1.1rem;
+  font-size: clamp(1.1rem, 1.65cqw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.art-desc {
+  margin-top: 0.6rem;
+  font-size: clamp(0.9rem, 1.05cqw, 1.0625rem);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  /* Kept narrow so the text box stops short of the figure on its right. */
+  max-width: 32ch;
+}
+
+.art-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+  padding: 0.85rem 1.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
+.art-cta:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.art-cta svg { font-size: 1.05rem; }
+
+/* --- Corners -------------------------------------------------------------- */
+
+.hero-socials {
+  position: absolute;
+  left: clamp(1.25rem, 4vw, 4rem);
+  bottom: clamp(1.5rem, 4vh, 2.75rem);
+  display: flex;
+  gap: 1.5rem;
+  font-size: 1.15rem;
+}
+.hero-socials a { color: var(--color-text-secondary); transition: color 0.25s, transform 0.25s; }
+.hero-socials a:hover { color: var(--color-text-primary); transform: translateY(-2px); }
+
+.hero-update {
+  position: absolute;
+  right: clamp(1.25rem, 4vw, 4rem);
+  bottom: clamp(1.5rem, 4vh, 2.75rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: var(--surface-soft);
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+}
+.update-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
+  animation: pulse-dot 2.4s infinite;
+}
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5); }
+  70%  { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+.light-mode .update-dot { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); }
+
+/* --- Right-edge scroll rail ----------------------------------------------- */
+
+.scroll-rail {
+  position: absolute;
+  right: clamp(1rem, 2.2vw, 2.25rem);
+  top: 50%;
+  margin-top: -13rem;               /* computed, not transform-centred */
+  height: 26rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rail-dots { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+.rail-dots i {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+.rail-dots i.active { background: var(--color-text-primary); }
+
+.rail-line { flex: 1; width: 1px; background: var(--line); }
+
+/* Set on its side, reading bottom-to-top like the reference. */
+.rail-text {
+  writing-mode: vertical-rl;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--color-text-muted);
+  transition: color 0.25s;
+}
+.rail-text:hover { color: var(--color-text-primary); }
+
+.rail-arrow { display: flex; font-size: 0.9rem; color: var(--color-text-muted); }
+
+/* --- Responsive ----------------------------------------------------------- */
+
+@media (max-width: 1000px) {
+  .scroll-rail { display: none; }
+  .deco-dots { display: none; }
+}
+
+@media (max-width: 700px) {
+  .hero { padding: 5.5rem 1.25rem 5rem; }
+
+  .art-word { font-size: 17cqw; }
+  .art-script { font-size: 0.28em; left: 0.06em; }
+
+  /* On a phone there is no room beside the copy, so the figure cannot be
+     dodged — it can only sit behind everything. It becomes a watermark:
+     full-height, centred, and dropped in opacity so the paragraph and button
+     stay legible on top of it.
+     The opacity is set on the <img>, not the wrapper: Framer Motion animates
+     the wrapper's opacity to 1 inline and would cancel it out. */
+  /* Square box here too, or the headshot letterboxes inside a 66%-tall one. */
+  .art-cutout {
+    width: 66cqw;
+    height: 66cqw;
+    margin-left: -33cqw;
+    top: 10%;
+    margin-top: 0;
+    max-width: none;
+  }
+  .art-cutout img { opacity: 0.3; }
+
+  .art-name { font-size: 1.15rem; }
+  .art-desc { font-size: 0.9rem; }
+  .art-cta { width: 100%; justify-content: center; }
+
+  .hero-socials { gap: 1.25rem; font-size: 1.05rem; }
+  .hero-update { padding: 0.45rem 0.9rem; font-size: 0.72rem; }
+}

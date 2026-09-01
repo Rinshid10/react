@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSun, FiMoon, FiMenu, FiX } from 'react-icons/fi';
+import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
 import '../styles/Navbar.css';
 
 // Navigation items configuration
 const navItems = [
   { id: 'hero', label: 'Home' },
+  { id: 'services', label: 'Services' },
   { id: 'about', label: 'About' },
   { id: 'skills', label: 'Skills' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Work' },
+  { id: 'case-studies', label: 'Results' },
+  { id: 'process', label: 'Process' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -57,9 +59,7 @@ const Navbar = () => {
           whileTap={{ scale: 0.95 }}
           onClick={() => scrollToSection('hero')}
         >
-          <span className="logo-text">R</span>
-          <span className="logo-dot">.</span>
-          <span className="logo-name">Rinshid</span>
+          <span className="logo-script">Rinshid</span>
         </motion.div>
 
         {/* Desktop Navigation */}
@@ -86,8 +86,19 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Actions: Theme Toggle & Mobile Menu */}
+        {/* Actions: Hire CTA, Theme Toggle & Mobile Menu */}
         <div className="nav-actions">
+          {/* Always-visible hire CTA — a lead should never have to hunt for it */}
+          <motion.button
+            className="nav-cta"
+            onClick={() => scrollToSection('contact')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Let's Connect
+            <FiArrowUpRight />
+          </motion.button>
+
           <motion.button
             className="theme-toggle"
             onClick={toggleTheme}
@@ -132,6 +143,12 @@ const Navbar = () => {
                 {item.label}
               </motion.button>
             ))}
+            <button
+              className="mobile-nav-cta"
+              onClick={() => scrollToSection('contact')}
+            >
+              Let's Connect
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

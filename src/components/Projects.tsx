@@ -3,7 +3,11 @@ import { motion, useInView, AnimatePresence, Variants } from 'framer-motion';
 import { FiGithub, FiExternalLink, FiSmartphone, FiGlobe, FiArrowUpRight } from 'react-icons/fi';
 import { SiGoogleplay, SiAppstore } from 'react-icons/si';
 import { usePortfolio } from '../context/PortfolioContext';
+import { Project } from '../types';
+import ParallaxCard from './effects/ParallaxCard';
+import CardModal from './effects/CardModal';
 import '../styles/Projects.css';
+import TextReveal3D from './effects/TextReveal3D';
 
 const Projects = () => {
   const { projects } = usePortfolio();
@@ -11,6 +15,8 @@ const Projects = () => {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('All');
+  // The card the reader has expanded into a modal, if any.
+  const [openProject, setOpenProject] = useState<Project | null>(null);
 
   const categories = useMemo(() => {
     return ['All', ...new Set(projects.map((p) => p.category))];
@@ -120,7 +126,9 @@ const Projects = () => {
           </motion.span>
 
           <motion.h2 className="section-title" variants={titleVariants}>
-            Featured <span className="highlight">Projects</span>
+            <TextReveal3D>
+              Featured <span className="highlight">Projects</span>
+            </TextReveal3D>
           </motion.h2>
 
           <motion.p className="section-subtitle" variants={subtitleVariants}>
@@ -159,17 +167,29 @@ const Projects = () => {
               const isHovered = hoveredProject === project.id;
 
               return (
+                // Parallax drift staggered by column, not at random, so rows
+                // still read as rows. Columns 1/2/3 lag by different amounts.
+                <ParallaxCard key={`${project.id}-${project.title}`} offset={[26, 46, 34][index % 3]}>
                 <motion.article
-                  key={`${project.id}-${project.title}`}
                   className={`project-card ${project.featured ? 'featured' : ''}`}
+                  layoutId={`project-${project.id}`}
                   variants={cardVariants}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
-                  layout
                   transition={{ delay: index * 0.08 }}
                   onMouseEnter={() => setHoveredProject(project.id)}
                   onMouseLeave={() => setHoveredProject(null)}
+                  onClick={() => setOpenProject(project)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${project.title} — open details`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setOpenProject(project);
+                    }
+                  }}
                 >
                   {/* Card Glow */}
                   <motion.div
@@ -359,11 +379,63 @@ const Projects = () => {
                     </div>
                   </div>
                 </motion.article>
+                </ParallaxCard>
               );
             })}
           </AnimatePresence>
         </motion.div>
       </motion.div>
+
+      {/* Card expands into a full detail view. The grid truncates
+          descriptions at three lines, so this is where the whole thing —
+          and every store / repo / live link — actually becomes readable. */}
+      <CardModal
+        layoutId={openProject ? `project-${openProject.id}` : ''}
+        open={Boolean(openProject)}
+        onClose={() => setOpenProject(null)}
+        title={openProject?.title ?? ''}
+      >
+        {openProject && (
+          <div className="project-modal">
+            <span className="category-pill project-modal-pill">{openProject.category}</span>
+            <h3 className="project-modal-title">{openProject.title}</h3>
+            <p className="project-modal-desc">
+              {openProject.longDescription || openProject.description}
+            </p>
+
+            <div className="project-modal-tech">
+              {openProject.technologies.map((tech) => (
+                <span key={tech} className="tech-chip">
+                  {tech}
+                </span>
+              ))}
+            </div>
+
+            <div className="project-modal-links">
+              {openProject.github && (
+                <a href={openProject.github} target="_blank" rel="noopener noreferrer">
+                  <FiGithub /> Source code
+                </a>
+              )}
+              {openProject.live && (
+                <a href={openProject.live} target="_blank" rel="noopener noreferrer">
+                  <FiExternalLink /> Live site
+                </a>
+              )}
+              {openProject.playStore && (
+                <a href={openProject.playStore} target="_blank" rel="noopener noreferrer">
+                  <SiGoogleplay /> Play Store
+                </a>
+              )}
+              {openProject.appStore && (
+                <a href={openProject.appStore} target="_blank" rel="noopener noreferrer">
+                  <SiAppstore /> App Store
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </CardModal>
     </section>
   );
 };

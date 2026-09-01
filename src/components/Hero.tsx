@@ -1,181 +1,180 @@
 import { motion } from 'framer-motion';
-import { FiGithub, FiLinkedin, FiInstagram, FiDownload, FiArrowDown } from 'react-icons/fi';
+import { FiArrowUpRight, FiArrowDown, FiGithub, FiLinkedin, FiInstagram } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
 import { useTheme } from '../context/ThemeContext';
-import TechCarousel from './TechCarousel';
 import '../styles/Hero.css';
 
 /**
  * Hero Component
- * Main landing section with animated text, social links, and tech carousel
+ *
+ * One full screen, laid out as a single centred column that shares a left
+ * edge: the oversized wordmark, then the name, description and CTA beneath
+ * it. A background-removed subject sits behind the word — head above the
+ * letters, tail below — with a faint ring and dot grid behind that.
+ *
+ * The corners carry the small stuff: socials bottom-left, an update pill
+ * bottom-right, and a vertical scroll rail down the right edge.
  */
+
+// A generic word survives being intersected by the subject; a person's name
+// would just end up obscured. The name sits under it in full.
+const WORDMARK = 'Portfolio';
+
 const Hero = () => {
   const { personalInfo } = usePortfolio();
   const { setActiveSection } = useTheme();
+  const year = new Date().getFullYear();
 
-  // Scroll to about section
-  const scrollToAbout = () => {
-    const element = document.getElementById('about');
+  const scrollTo = (id: string) => {
+    const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      setActiveSection('about');
+      setActiveSection(id);
     }
   };
 
-  // Animation variants for staggered children
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
-    },
-  };
-
-  // Typing effect for tagline
-  const taglineWords = personalInfo.tagline.split(' ');
+  const socials = [
+    { icon: FiLinkedin, link: personalInfo.social.linkedin, label: 'LinkedIn' },
+    { icon: FiGithub, link: personalInfo.social.github, label: 'GitHub' },
+    { icon: FiInstagram, link: personalInfo.social.instagram || '#', label: 'Instagram' },
+  ];
 
   return (
     <section id="hero" className="hero">
-      {/* Animated Background */}
-      <div className="hero-background">
-        <div className="gradient-orb orb-1" />
-        <div className="gradient-orb orb-2" />
-        <div className="gradient-orb orb-3" />
-        <div className="grid-pattern" />
+      {/* The visible wordmark is decorative, so the real heading is here. */}
+      <h1 className="sr-only">
+        {personalInfo.name} — {personalInfo.title}
+      </h1>
+
+      {/* Background decoration, all purely visual. */}
+      <div className="hero-deco" aria-hidden="true">
+        <span className="deco-glow" />
+        <span className="deco-dots" />
       </div>
 
-      <div className="hero-wrapper">
-        {/* Left Content */}
+      <div className="hero-stage">
+        {/* Behind the word: head above the letters, tail below. */}
+        {personalInfo.portraitUrl && (
+          <motion.div
+            className="art-cutout"
+            aria-hidden="true"
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <img src={personalInfo.portraitUrl} alt="" />
+          </motion.div>
+        )}
+
+        {/* Word, name, description and CTA all share one left edge. */}
         <motion.div
-          className="hero-content"
-          variants={containerVariants}
+          className="art-column"
           initial="hidden"
           animate="visible"
+          transition={{ staggerChildren: 0.12, delayChildren: 0.25 }}
         >
-          {/* Greeting Badge */}
-          <motion.div className="hero-badge" variants={itemVariants}>
-            <span className="badge-wave">👋</span>
-            <span>Welcome to my portfolio</span>
+          <motion.div
+            className="art-word"
+            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {personalInfo.heroScript && (
+              <span className="art-script">{personalInfo.heroScript}</span>
+            )}
+            <span className="art-wordmark" aria-hidden="true">
+              {WORDMARK}
+            </span>
           </motion.div>
 
-          {/* Name */}
-          <motion.h1 className="hero-title" variants={itemVariants}>
-            Hi, I'm{' '}
-            <span className="highlight">{personalInfo.name}</span>
-          </motion.h1>
-
-          {/* Title */}
-          <motion.h2 className="hero-subtitle" variants={itemVariants}>
-            {personalInfo.title}
-          </motion.h2>
-
-          {/* Animated Tagline */}
-          <motion.p className="hero-tagline" variants={itemVariants}>
-            {taglineWords.map((word, index) => (
-              <motion.span
-                key={index}
-                className="tagline-word"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 + index * 0.1 }}
-              >
-                {word}{' '}
-              </motion.span>
-            ))}
+          <motion.p
+            className="art-name"
+            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+            transition={{ duration: 0.6 }}
+          >
+            {personalInfo.name}
           </motion.p>
 
-          {/* Description */}
-          <motion.p className="hero-description" variants={itemVariants}>
-            Specialized in Flutter development with expertise in backend technologies.
-            Creating seamless mobile experiences with clean architecture and modern practices.
+          <motion.p
+            className="art-desc"
+            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+            transition={{ duration: 0.6 }}
+          >
+            Flutter developer and digital marketer.
+            <br />
+            {personalInfo.tagline}
           </motion.p>
 
-          {/* CTA Buttons */}
-          <motion.div className="hero-cta" variants={itemVariants}>
-            <motion.button
-              className="btn btn-primary"
-              whileHover={{ scale: 1.05, boxShadow: '0 10px 40px rgba(99, 102, 241, 0.4)' }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              View My Work
-            </motion.button>
-            <motion.a
-              href={personalInfo.resumeUrl}
-              className="btn btn-secondary"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              download
-            >
-              <FiDownload />
-              Download CV
-            </motion.a>
-          </motion.div>
-
-          {/* Social Links */}
-          <motion.div className="hero-social" variants={itemVariants}>
-            <span className="social-label">Find me on</span>
-            <div className="social-links">
-              {[
-                { icon: FiGithub, link: 'https://github.com/Rinshid10', label: 'GitHub' },
-                { icon: FiLinkedin, link: personalInfo.social.linkedin, label: 'LinkedIn' },
-                { icon: FiInstagram, link: personalInfo.social.instagram || '#', label: 'Instagram' },
-              ].map(({ icon: Icon, link, label }) => (
-                <motion.a
-                  key={label}
-                  href={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-link"
-                  whileHover={{ scale: 1.2, y: -3 }}
-                  whileTap={{ scale: 0.9 }}
-                  aria-label={label}
-                >
-                  <Icon />
-                </motion.a>
-              ))}
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* Right Side - Tech Carousel */}
-        <motion.div
-          className="hero-visual"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-        >
-          <TechCarousel />
+          <motion.button
+            className="art-cta"
+            onClick={() => scrollTo('projects')}
+            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+            transition={{ duration: 0.6 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            View My Work
+            <FiArrowUpRight />
+          </motion.button>
         </motion.div>
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.button
-        className="scroll-indicator"
-        onClick={scrollToAbout}
+      {/* Bottom-left socials */}
+      <motion.div
+        className="hero-socials"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1, y: [0, 10, 0] }}
-        transition={{
-          opacity: { delay: 1.5 },
-          y: { duration: 1.5, repeat: Infinity },
-        }}
-        aria-label="Scroll to about section"
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.7, delay: 0.9 }}
       >
-        <FiArrowDown />
-        <span>Scroll Down</span>
-      </motion.button>
+        {socials.map(({ icon: Icon, link, label }) => (
+          <a
+            key={label}
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+          >
+            <Icon />
+          </a>
+        ))}
+      </motion.div>
+
+      {/* Bottom-right update pill */}
+      <motion.span
+        className="hero-update"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.7, delay: 1 }}
+      >
+        <span className="update-dot" aria-hidden="true" />
+        Update : {year}
+      </motion.span>
+
+      {/* Right-edge scroll rail */}
+      <motion.div
+        className="scroll-rail"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.7, delay: 1.1 }}
+      >
+        <span className="rail-dots" aria-hidden="true">
+          <i className="active" />
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="rail-line" aria-hidden="true" />
+        <button className="rail-text" onClick={() => scrollTo('services')}>
+          Scroll to explore
+        </button>
+        <motion.span
+          className="rail-arrow"
+          aria-hidden="true"
+          animate={{ y: [0, 6, 0] }}
+          transition={{ duration: 1.6, repeat: Infinity }}
+        >
+          <FiArrowDown />
+        </motion.span>
+      </motion.div>
     </section>
   );
 };

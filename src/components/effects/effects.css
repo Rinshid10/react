@@ -1,0 +1,125 @@
+/* Scroll and card effects
+   ---------------------------------------------------------------------------
+   Native equivalents of the four @reactbits-starter components, written
+   against this project's CSS custom properties so they inherit the monochrome
+   theme in both light and dark mode.
+
+   Every effect degrades to a plain, static layout under
+   `prefers-reduced-motion` — the content must never depend on the animation.
+--------------------------------------------------------------------------- */
+
+/* --- ScrollStack ---------------------------------------------------------- */
+
+.scroll-stack { position: relative; }
+
+/* Sticky pinning dies silently if any ancestor sets `overflow: hidden`, so
+   the section wrapping this must leave overflow alone. */
+.scroll-stack-item {
+  position: sticky;
+  margin-bottom: 1.5rem;
+}
+
+.scroll-stack-card {
+  /* The card underneath shrinks toward its own top edge, so the stacked
+     edges stay aligned as they pile up. */
+  transform-origin: center top;
+  will-change: transform, opacity;
+}
+
+/* --- ScrollMask ----------------------------------------------------------- */
+
+.scroll-mask { position: relative; }
+
+/* --- ParallaxCard --------------------------------------------------------- */
+
+.parallax-card { will-change: transform; }
+
+/* --- CardModal ------------------------------------------------------------ */
+
+.card-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+.card-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+}
+.light-mode .card-modal-backdrop { background: rgba(0, 0, 0, 0.42); }
+
+.card-modal-panel {
+  position: relative;
+  width: min(100%, 780px);
+  max-height: min(88vh, 900px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.75);
+}
+.card-modal-panel:focus { outline: none; }
+.card-modal-panel:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+.card-modal-body { overflow-y: auto; padding: clamp(1.5rem, 3vw, 2.5rem); }
+
+.card-modal-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 38px; height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
+  transition: color 0.25s, border-color 0.25s;
+}
+.card-modal-close:hover { color: var(--color-text-primary); border-color: var(--line-strong); }
+
+/* --- Reduced motion -------------------------------------------------------
+   Pinning and parallax are motion the reader did not ask for. Under the
+   reduced-motion preference the stack becomes an ordinary column, the
+   parallax drift stops, and the mask is removed so nothing is dimmed. */
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-stack-item { position: static; }
+  .scroll-stack-card { transform: none !important; opacity: 1 !important; }
+  .parallax-card { transform: none !important; }
+  .scroll-mask { mask-image: none !important; -webkit-mask-image: none !important; }
+}
+
+/* --- TextReveal3D ---------------------------------------------------------- */
+
+/* Perspective lives on the container so every word hinges toward the same
+   vanishing point; set per-word it would give each one its own, and the line
+   would splay. */
+.text-reveal-3d {
+  display: inline-block;
+  perspective: 900px;
+  perspective-origin: 50% 60%;
+}
+
+.reveal-word {
+  display: inline-block;
+  /* Hinges from its own baseline rather than its centre. */
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-reveal-3d { perspective: none; }
+  .reveal-word { transform: none !important; opacity: 1 !important; }
+}
