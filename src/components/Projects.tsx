@@ -6,6 +6,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { Project } from '../types';
 import ParallaxCard from './effects/ParallaxCard';
 import CardModal from './effects/CardModal';
+import TiltCard from './effects/TiltCard';
 import '../styles/Projects.css';
 import TextReveal3D from './effects/TextReveal3D';
 
@@ -170,6 +171,8 @@ const Projects = () => {
                 // Parallax drift staggered by column, not at random, so rows
                 // still read as rows. Columns 1/2/3 lag by different amounts.
                 <ParallaxCard key={`${project.id}-${project.title}`} offset={[26, 46, 34][index % 3]}>
+                {/* Two axes of depth: parallax from scrolling, tilt from pointing. */}
+                <TiltCard>
                 <motion.article
                   className={`project-card ${project.featured ? 'featured' : ''}`}
                   layoutId={`project-${project.id}`}
@@ -379,6 +382,7 @@ const Projects = () => {
                     </div>
                   </div>
                 </motion.article>
+                </TiltCard>
                 </ParallaxCard>
               );
             })}

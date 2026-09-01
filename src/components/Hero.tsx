@@ -3,6 +3,7 @@ import { FiArrowUpRight, FiArrowDown, FiGithub, FiLinkedin, FiInstagram } from '
 import { usePortfolio } from '../context/PortfolioContext';
 import { useTheme } from '../context/ThemeContext';
 import '../styles/Hero.css';
+import Magnetic from './effects/Magnetic';
 
 /**
  * Hero Component
@@ -104,6 +105,7 @@ const Hero = () => {
             {personalInfo.tagline}
           </motion.p>
 
+          <Magnetic>
           <motion.button
             className="art-cta"
             onClick={() => scrollTo('projects')}
@@ -115,6 +117,7 @@ const Hero = () => {
             View My Work
             <FiArrowUpRight />
           </motion.button>
+          </Magnetic>
         </motion.div>
       </div>
 

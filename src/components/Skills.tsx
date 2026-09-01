@@ -4,6 +4,7 @@ import { Track } from '../types';
 import { usePortfolio } from '../context/PortfolioContext';
 import '../styles/Skills.css';
 import TextReveal3D from './effects/TextReveal3D';
+import CountUp from './effects/CountUp';
 
 /**
  * Skills Component
@@ -127,7 +128,9 @@ const Skills = () => {
             >
               <div className="skill-header">
                 <span className="skill-name">{skill.name}</span>
-                <span className="skill-level">{skill.level}%</span>
+                <span className="skill-level">
+                  <CountUp value={`${skill.level}%`} duration={1.1} />
+                </span>
               </div>
 
               <div className="skill-progress-container">

@@ -39,7 +39,10 @@ const CountUp = ({ value, duration = 1.6 }: CountUpProps) => {
   const [progress, setProgress] = useState(0);
 
   // Split into alternating text / number tokens, keeping the separators.
-  const tokens = useMemo(() => value.split(/(\d+(?:\.\d+)?)/), [value]);
+  // The digit pattern swallows thousands separators, so "₹25,000" stays one
+  // token — split naively on /\d+/ it becomes "25" and "000", and the second
+  // renders as "0" once parsed, silently turning 25,000 into 25,0.
+  const tokens = useMemo(() => value.split(/(\d[\d,]*(?:\.\d+)?)/), [value]);
 
   useEffect(() => {
     if (!isInView) return;
@@ -61,9 +64,24 @@ const CountUp = ({ value, duration = 1.6 }: CountUpProps) => {
 
   const rendered = tokens
     .map((token) => {
-      if (!/^\d+(?:\.\d+)?$/.test(token)) return token;
+      if (!/^\d[\d,]*(?:\.\d+)?$/.test(token)) return token;
+
+      // At rest, hand back the authored token verbatim. Reformatting a
+      // finished number risks changing its grouping (1,200,000 vs 12,00,000
+      // between locales); the final state must read exactly as written.
+      if (progress >= 1) return token;
+
       const decimals = token.includes('.') ? token.split('.')[1].length : 0;
-      return (Number(token) * progress).toFixed(decimals);
+      const target = Number(token.replace(/,/g, ''));
+      const current = target * progress;
+
+      // Keep the separators while counting if the source had them.
+      return token.includes(',')
+        ? current.toLocaleString('en-IN', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })
+        : current.toFixed(decimals);
     })
     .join('');
 

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
 import '../styles/Navbar.css';
+import Magnetic from './effects/Magnetic';
 
 // Navigation items configuration
 const navItems = [
@@ -89,6 +90,7 @@ const Navbar = () => {
         {/* Actions: Hire CTA, Theme Toggle & Mobile Menu */}
         <div className="nav-actions">
           {/* Always-visible hire CTA — a lead should never have to hunt for it */}
+          <Magnetic>
           <motion.button
             className="nav-cta"
             onClick={() => scrollToSection('contact')}
@@ -98,6 +100,7 @@ const Navbar = () => {
             Let's Connect
             <FiArrowUpRight />
           </motion.button>
+          </Magnetic>
 
           <motion.button
             className="theme-toggle"

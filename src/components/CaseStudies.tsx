@@ -5,6 +5,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import ScrollStack from './effects/ScrollStack';
 import '../styles/CaseStudies.css';
 import TextReveal3D from './effects/TextReveal3D';
+import CountUp from './effects/CountUp';
 
 /**
  * CaseStudies Component
@@ -92,7 +93,9 @@ const CaseStudies = () => {
                       whileHover={{ y: -4 }}
                     >
                       <FiTrendingUp className="metric-icon" />
-                      <span className="metric-value">{metric.value}</span>
+                      <span className="metric-value">
+                        <CountUp value={metric.value} />
+                      </span>
                       <span className="metric-label">{metric.label}</span>
                       {metric.note && <span className="metric-note">{metric.note}</span>}
                     </motion.div>

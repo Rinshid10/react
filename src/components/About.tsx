@@ -11,6 +11,7 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import '../styles/About.css';
 import TextReveal3D from './effects/TextReveal3D';
+import CountUp from './effects/CountUp';
 
 /**
  * About Component
@@ -111,7 +112,9 @@ const About = () => {
               <div className="quick-stats">
                 {stats.map((stat) => (
                   <div className="stat" key={stat.label}>
-                    <span className="stat-number">{stat.value}</span>
+                    <span className="stat-number">
+                      <CountUp value={stat.value} />
+                    </span>
                     <span className="stat-label">{stat.label}</span>
                   </div>
                 ))}

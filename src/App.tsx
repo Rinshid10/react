@@ -14,6 +14,7 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AnimatedCursor from './components/AnimatedCursor';
+import ScrollProgress from './components/effects/ScrollProgress';
 import './styles/global.css';
 
 // Section order, top to bottom. Also drives the scroll-spy below, so it must
@@ -62,6 +63,7 @@ const AppContent = () => {
   return (
     <>
       <AnimatedCursor />
+      <ScrollProgress />
       <Navbar />
       <main>
         <Hero />
