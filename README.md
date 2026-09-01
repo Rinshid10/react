@@ -118,7 +118,7 @@ src/
 │   ├── Experience.tsx         # Work timeline
 │   ├── Testimonials.tsx       # Client quotes
 │   ├── Contact.tsx            # Qualifying enquiry form
-│   ├── effects/               # ScrollStack, ScrollMask, ParallaxCard, CardModal, TextReveal3D
+│   ├── effects/               # 9 scroll, pointer and reveal effects
 │   ├── Footer.tsx
 │   ├── AnimatedCursor.tsx
 │   └── TechCarousel.tsx
@@ -184,7 +184,7 @@ Assets: `public/rinshid-portrait.png` is the hero cut-out. Typefaces are Inter, 
 
 ### Scroll and card effects
 
-Five effects live in `src/components/effects/`:
+Nine effects live in `src/components/effects/`:
 
 | Effect | Where | What it does |
 | --- | --- | --- |
@@ -193,6 +193,10 @@ Five effects live in `src/components/effects/`:
 | `CardModal` | Work grid | A card expands into a full detail view via a shared `layoutId`, showing the untruncated description and every store / repo / live link |
 | `ScrollMask` | Experience timeline | Fades the block's top and bottom edges with `mask-image`, so a long list stops ending in a hard cut |
 | `TextReveal3D` | All nine section titles | Reveals a heading word by word, each hinging up from flat through a shared perspective |
+| `CountUp` | About stats, case-study metrics, skill levels | Counts every number in a string up from zero when it scrolls into view |
+| `Magnetic` | Hero and navbar CTAs | Pulls the control gently toward the cursor, then springs back |
+| `TiltCard` | Work grid | Tips a card toward the pointer in 3D, on top of the grid's parallax |
+| `ScrollProgress` | Fixed, page-wide | Hairline at the top of the viewport that fills as the page scrolls |
 
 These were requested as `@reactbits-starter/*` shadcn components (`scroll-mask-tw`, `scroll-stack-tw`, `parallax-cards-tw`, `modal-cards-tw`, `3d-text-reveal-tw`). That registry is **ReactBits Pro** — it needs a paid licence key in `.env.local` plus a Tailwind/shadcn setup this project does not have, and the components are Tailwind (`-tw`) builds. They are therefore written natively against Framer Motion (already a dependency) and this project's CSS custom properties. **No new dependencies were added.**
 
@@ -204,7 +208,11 @@ Notes for editing them:
 - `CardModal` locks body scroll (compensating for the scrollbar so the page doesn't shift), closes on Escape and on backdrop click, moves focus into the panel and returns it to the trigger, and carries `role="dialog"` + `aria-modal`.
 - Project cards are now controls: `role="button"`, `tabIndex`, Enter/Space handlers and a visible focus ring.
 - `TextReveal3D` splits by **word, not character** — a per-character stagger reads as a slot machine and hands a screen reader a pile of single letters. It recurses through children and only touches text nodes, so `<span className="highlight">` wrappers survive intact and animate along with the rest. The full sentence is exposed via `aria-label` and the animated pieces are `aria-hidden`, so assistive tech reads the heading, not fragments. `perspective` sits on the container, never per word — set per word, each gets its own vanishing point and the line splays.
-- All five collapse to a plain static layout under `prefers-reduced-motion`.
+- `CountUp` counts **every** numeric run in a string, so ranges like `2K → 47K` and `4 → 37` both animate and the surrounding characters (`₹`, `%`, `x`, `+`, arrows) are preserved. Its digit pattern deliberately swallows thousands separators — split naively on `\d+`, `₹25,000` becomes `25` and `000`, and the second renders as `0`, silently turning it into `₹25,0`. At rest it returns the authored token verbatim rather than reformatting, so the final value can never drift with locale grouping.
+- `Magnetic` and `TiltCard` attach their handlers only under `(hover: hover) and (pointer: fine)`. On touch, `mousemove` fires once on tap and would leave the element stuck displaced or at an angle.
+- `TiltCard` puts `perspective` on the wrapper and rotation on the child — an element cannot be the source of its own perspective, so both on one node renders flat.
+- `ScrollProgress` animates `scaleX`, not `width`, so it is composited rather than laying out on every frame.
+- All nine collapse to a plain static layout under `prefers-reduced-motion`.
 
 ### Theming
 

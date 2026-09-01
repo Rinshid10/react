@@ -44,12 +44,13 @@ const CountUp = ({ value, duration = 1.6 }: CountUpProps) => {
   // renders as "0" once parsed, silently turning 25,000 into 25,0.
   const tokens = useMemo(() => value.split(/(\d[\d,]*(?:\.\d+)?)/), [value]);
 
+  // Read once at mount rather than setting state from inside the effect —
+  // a synchronous setState there triggers a second render pass for every
+  // counter on the page.
+  const [reducedMotion] = useState(prefersReducedMotion);
+
   useEffect(() => {
-    if (!isInView) return;
-    if (prefersReducedMotion()) {
-      setProgress(1);
-      return;
-    }
+    if (!isInView || reducedMotion) return;
 
     let raf = 0;
     const start = performance.now();
@@ -60,7 +61,9 @@ const CountUp = ({ value, duration = 1.6 }: CountUpProps) => {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [isInView, duration]);
+  }, [isInView, duration, reducedMotion]);
+
+  const shown = reducedMotion ? 1 : progress;
 
   const rendered = tokens
     .map((token) => {
@@ -69,11 +72,11 @@ const CountUp = ({ value, duration = 1.6 }: CountUpProps) => {
       // At rest, hand back the authored token verbatim. Reformatting a
       // finished number risks changing its grouping (1,200,000 vs 12,00,000
       // between locales); the final state must read exactly as written.
-      if (progress >= 1) return token;
+      if (shown >= 1) return token;
 
       const decimals = token.includes('.') ? token.split('.')[1].length : 0;
       const target = Number(token.replace(/,/g, ''));
-      const current = target * progress;
+      const current = target * shown;
 
       // Keep the separators while counting if the source had them.
       return token.includes(',')
