@@ -192,9 +192,21 @@
   border-top: 1px solid var(--line);
 }
 
-.service-pricing { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.service-pricing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  min-width: 0;
+}
 
+/* Always two lines tall, wrapped or not. The longest price
+   ("From ₹25,000/mo + ad spend") wraps while the rest fit on one line, and a
+   footer that is a line taller on one card pushes its rule up out of line with
+   the others. Held in `em` so it tracks the font size rather than a magic pixel
+   value that a later type change would silently invalidate. */
 .service-price {
+  min-height: 2.5em;
   font-size: 1.02rem;
   font-weight: 700;
   letter-spacing: -0.01em;

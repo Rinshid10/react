@@ -7,10 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "appwrite:setup": "node scripts/setup-appwrite.mjs",
+    "appwrite:check": "node scripts/setup-appwrite.mjs --check",
+    "appwrite:verify": "node scripts/verify-appwrite.mjs",
+    "appwrite:seed": "node scripts/seed-appwrite.mjs"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
+    "appwrite": "^26.2.0",
     "framer-motion": "^12.23.26",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -26,6 +30,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "node-appwrite": "^28.0.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"

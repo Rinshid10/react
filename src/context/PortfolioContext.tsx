@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { API_BASE_URL } from '../config';
+import { fetchPortfolioContent } from '../lib/appwrite';
 import {
   SiFlutter,
   SiDart,
@@ -689,10 +689,8 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
 
     const load = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/portfolio`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled) return;
+        const data = await fetchPortfolioContent();
+        if (!data || cancelled) return;
 
         if (data.personalInfo) {
           setPersonalInfo({ ...defaultPersonalInfo, ...data.personalInfo });
@@ -822,7 +820,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
           );
         }
       } catch {
-        // Backend offline - keep defaults.
+        // Appwrite offline or unconfigured - keep defaults.
       }
     };
 

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ThemeContextType } from '../types';
-import { API_BASE_URL } from '../config';
+import { fetchThemeSettings } from '../lib/appwrite';
 
 // Convert "#rrggbb" to "r, g, b" for use inside rgba(...) CSS.
 const hexToRgb = (hex: string): string => {
@@ -66,9 +66,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 
     const applyTheme = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/portfolio/theme`);
-        if (!res.ok) return;
-        const t = await res.json();
+        const t = await fetchThemeSettings();
         if (cancelled || !t) return;
 
         const root = document.documentElement;
@@ -93,7 +91,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
           setIsDarkMode(t.defaultDarkMode);
         }
       } catch {
-        // Backend offline — keep CSS defaults.
+        // Appwrite offline or unconfigured — keep CSS defaults.
       }
     };
 

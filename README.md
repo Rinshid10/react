@@ -2,7 +2,7 @@
 
 A single-page freelance portfolio built with **React 19**, **TypeScript** and **Vite**, animated with **Framer Motion**.
 
-The site sells two tracks under one offer — **Development** (Flutter, React, backend) and **Marketing** (SEO, paid ads, social, branding) — and is structured as a client funnel rather than a CV. Content and theme colors can be driven live from a Node.js admin backend; if that API is unreachable, the site falls back to its built-in data, so it always renders.
+The site sells two tracks under one offer — **Development** (Flutter, React, backend) and **Marketing** (SEO, paid ads, social, branding) — and is structured as a client funnel rather than a CV. Content and theme colours are driven live from Appwrite Cloud; if Appwrite is unreachable or unconfigured, the site falls back to its built-in data, so it always renders.
 
 ## Page flow
 
@@ -29,7 +29,7 @@ The section order is a deliberate freelance funnel — who I am → what you can
 - **Qualifying contact form** — service and budget dropdowns fed from the same data as the Services section
 - **Dark / light mode** persisted in `localStorage` (dark by default)
 - **Scroll spy** navbar with a persistent `Hire Me` CTA
-- **Remote content + theming** from an admin API, with graceful fallback
+- **Remote content + theming** from Appwrite, with per-section graceful fallback
 - Animated custom cursor, tech carousel, scroll-reveal animations throughout
 - SEO and Open Graph meta, responsive mobile-first layout
 
@@ -78,26 +78,54 @@ Sections marked `TODO(real-data)` in `src/context/PortfolioContext.tsx` contain 
 
 Three honest case studies convert better than six you have to hedge about. If you don't have real numbers yet, delete `<CaseStudies />` and `<Testimonials />` from `src/App.tsx` until you do.
 
-The contact form also **does not send anything yet** — see Notes below.
+The contact form writes to Appwrite, and falls back to a prefilled `mailto:` draft when Appwrite is unreachable or unconfigured.
 
 ## Configuration
 
-Create a `.env` in the project root to point the site at a deployed admin backend:
+Copy `.env.example` to `.env.local` and fill in the values from your Appwrite console (Project → Settings → Overview):
 
 ```bash
-VITE_API_BASE_URL=https://your-api.com/api
+VITE_APPWRITE_ENDPOINT=https://<REGION>.cloud.appwrite.io/v1
+VITE_APPWRITE_PROJECT_ID=your-project-id
+VITE_APPWRITE_DATABASE_ID=portfolio
 ```
 
-Default when unset: `http://localhost:4000/api` (see `src/config.ts`).
+All three are **public by design** — the browser sends the project id on every request, so they are visible in devtools regardless of how they are stored. Nothing is leaked by inlining them.
 
-### API endpoints consumed
+> **Never** give an Appwrite API key a `VITE_` prefix. Vite inlines every `VITE_` variable into the public bundle, and a `standard_…` key grants server-side privileges. Table ids are constants in `src/config.ts` rather than env vars — a table id is part of the schema contract, like a column name.
 
-| Endpoint | Used by | Purpose |
+**With the vars unset, everything still works.** `isAppwriteConfigured` goes false, the site renders its built-in content, no request is made, and the Appwrite SDK chunk is never downloaded. The contact form falls back to opening a `mailto:` draft. A fresh clone needs no setup at all.
+
+Also register your hostnames: **Project → Settings → Platforms → Add Web App**, for `localhost` *and* your production domain. Skipping this causes CORS failures that look exactly like permission bugs.
+
+### Appwrite tables consumed
+
+Database `portfolio`. Every list table carries a required integer `order` and is read with `Query.orderAsc('order')` — **ordering is load-bearing**, not cosmetic, because `PortfolioContext` derives each item's `id` / `step` from its array index.
+
+| Table | Read as | Fills |
 | --- | --- | --- |
-| `GET /portfolio` | `PortfolioContext` | `personalInfo`, `skills`, `services`, `guarantees`, `projects`, `caseStudies`, `experience`, `testimonials`, `process`, `stats` |
-| `GET /portfolio/theme` | `ThemeContext` | `primaryColor`, `secondaryColor`, `accentColor`, `darkBackground`, `defaultDarkMode` |
+| `personal_info` | `getRow('main')` | `personalInfo` — `social` is stored flat as `socialGithub` / `socialLinkedin` / … and re-nested by the adapter |
+| `services` | `listRows` | `services` |
+| `projects` | `listRows` | `projects` |
+| `case_studies` | `listRows` | `caseStudies` — `results` is a string array of `label\|value\|note` |
+| `testimonials` | `listRows` | `testimonials` |
+| `experience` | `listRows` | `experience` |
+| `stats` | `listRows` | `stats` |
+| `theme` | `getRow('main')` | CSS custom properties, via `ThemeContext` |
+| `contact_submissions` | `createRow` | **write-only** — enquiries |
 
-Both requests fail silently. A missing or offline backend simply leaves the hardcoded defaults and the CSS palette in place. Each array in the `/portfolio` payload is optional and overrides its default independently. `defaultDarkMode` is only honored when the visitor has no saved preference yet.
+`skills`, `guarantees`, `process` and `budgetRanges` deliberately have no table; they stay as defaults in `PortfolioContext.tsx`, because the hand-authoring cost outweighs how rarely they change. `techIcons` cannot be stored at all — its `icon` field is a React component reference, not data.
+
+**Permissions.** Content tables get Role `Any` → **Read** only. `contact_submissions` gets Role `Any` → **Create** only, Row Security off, and no `permissions` argument passed to `createRow`. Granting read on that table would expose every lead's name, email and message to anyone holding the public project id.
+
+Content requests fail silently and independently, so a broken table falls back to that one section's defaults while the rest stay live. In dev only, each failure logs an `[appwrite]` warning — without that, a misconfiguration produces a site that looks perfect and serves built-in defaults forever.
+
+### How the data layer is wired
+
+`src/lib/appwrite.ts` assembles the exact JSON shape the old `GET /portfolio` endpoint returned, so `PortfolioContext` keeps its existing defaulting and coercion untouched and changes by three lines. Two consequences worth knowing:
+
+- The SDK is loaded with a dynamic `import()`, so it lands in its own chunk (~24 kB gzipped) rather than the main bundle, and is never fetched when Appwrite is unconfigured.
+- `fetchPortfolioContent()` is memoised on its in-flight promise, so React StrictMode's double-invoked effect awaits the same request instead of firing a second one.
 
 ## Project Structure
 
@@ -105,7 +133,7 @@ Both requests fail silently. A missing or offline backend simply leaves the hard
 src/
 ├── App.tsx                    # Providers, section order, scroll tracking
 ├── main.tsx                   # React entry point
-├── config.ts                  # API base URL
+├── config.ts                  # Appwrite endpoint, project/database ids, table ids
 ├── components/
 │   ├── Navbar.tsx             # Nav with active-section highlight + Hire Me CTA
 │   ├── Hero.tsx               # Art screen + pitch below the fold
@@ -122,9 +150,11 @@ src/
 │   ├── Footer.tsx
 │   ├── AnimatedCursor.tsx
 │   └── TechCarousel.tsx
+├── lib/
+│   └── appwrite.ts            # Appwrite SDK singleton, content adapter, enquiry write
 ├── context/
 │   ├── ThemeContext.tsx       # Dark mode, active section, remote theme vars
-│   └── PortfolioContext.tsx   # ALL content lives here
+│   └── PortfolioContext.tsx   # Default content + merge of the Appwrite payload
 ├── styles/                    # global.css, mobile.css + one stylesheet per component
 └── types/index.ts             # Shared interfaces and union types
 ```
@@ -198,7 +228,7 @@ Ten effects live in `src/components/effects/`:
 | `Magnetic` | Hero and navbar CTAs | Pulls the control gently toward the cursor, then springs back |
 | `TiltCard` | Work grid | Tips a card toward the pointer in 3D, on top of the grid's parallax |
 | `ScrollProgress` | Fixed, page-wide | Hairline at the top of the viewport that fills as the page scrolls |
-| `ParallaxCarousel` | Services | Horizontal snap rail where each card's contents drift against its frame as it scrolls |
+| `ParallaxCarousel` | Services | Horizontal snap rail where cards recede toward the edges as it scrolls |
 
 These were requested as `@reactbits-starter/*` shadcn components (`scroll-mask-tw`, `scroll-stack-tw`, `parallax-cards-tw`, `modal-cards-tw`, `3d-text-reveal-tw`, `parallax-carousel-tw`). That registry is **ReactBits Pro** — it needs a paid licence key in `.env.local` plus a Tailwind/shadcn setup this project does not have, and the components are Tailwind (`-tw`) builds. They are therefore written natively against Framer Motion (already a dependency) and this project's CSS custom properties. **No new dependencies were added.**
 
@@ -225,6 +255,7 @@ Notes for editing them:
 - `TiltCard` puts `perspective` on the wrapper and rotation on the child — an element cannot be the source of its own perspective, so both on one node renders flat.
 - `ScrollProgress` animates `scaleX`, not `width`, so it is composited rather than laying out on every frame.
 - `ParallaxCarousel` is built on native overflow scrolling with CSS scroll snapping, not a transform-driven track — that brings touch swiping, trackpad gestures, keyboard scrolling and correct scrollbar semantics for free. The arrows step by exactly one card + gap so they always land on a snap point, and it carries `overscroll-behavior-x: contain` so swiping past the last card cannot hand the scroll to the page. A snapped rail does not rest at scrollLeft 0 (the rail's own padding offsets the first snap point), so the end-detection uses a 16px tolerance rather than an exact comparison.
+- The carousel expresses depth as **opacity alone**, which is a deliberate constraint rather than an oversight. Translating a card's contents moves the text relative to its own border, so it reads as broken padding, not parallax — and at the rail's edges the copy is pushed past the border and clipped. Scaling the whole card fixes that but breaks something else: cards scaled by different amounts no longer share a top edge, and a row of bordered cards with a ragged top reads as misaligned. Opacity is the only channel that conveys distance without disturbing the geometry of a card grid.
 - All ten collapse to a plain static layout under `prefers-reduced-motion`.
 
 ### Mobile
@@ -261,23 +292,24 @@ Design rules that follow from it:
 
 - **Value, not hue, separates the two tracks.** With no colour available, Development reads as white and Marketing as a step down the same grey scale (`--color-success`). Track chips share the same tinted background; only the label's value differs.
 - **Photographs are desaturated.** The hero cut-out carries `filter: grayscale(1)` — a colour photo would otherwise be the only hue on the page.
-- **No gradients or coloured glows.** `--gradient-primary` is kept as a variable (the admin API can override it) but resolves to near-flat white.
+- **No gradients or coloured glows.** `--gradient-primary` is kept as a variable (the `theme` table can override it) but resolves to near-flat white.
 - **Softly rounded.** `--radius-lg` is `10px` (buttons, icon tiles) and `--radius-xl` is `16px` (cards, panels).
 - **Light mode is the exact inverse**, not a different palette.
 
 Anything filled with `--color-accent` must take `color: var(--color-on-accent)`, never a literal `white` or `black` — one of the two modes will make it invisible. Light and dark are applied via a `dark-mode` / `light-mode` class on `<body>`.
 
-Note: `ThemeContext` applies `primaryColor` / `secondaryColor` from the admin API as CSS variables at runtime. If that backend is connected and serving colours, it will reintroduce hue. Leave those fields greyscale (or unset) to keep the theme monochrome.
+Note: `ThemeContext` applies `primaryColor` / `secondaryColor` from the Appwrite `theme` row as CSS variables at runtime, so populating them with an actual hue will visibly break this monochrome design. Every colour branch is guarded, so leaving those columns **empty** is a clean no-op — populate only `defaultDarkMode`.
 ## Build & Deploy
 
 ```bash
 npm run build
 ```
 
-Outputs a static bundle to `dist/`, deployable to any static host (Vercel, Netlify, GitHub Pages, Cloudflare Pages). Set `VITE_API_BASE_URL` in the host's environment if you use the admin backend — Vite inlines it at build time.
+Outputs a static bundle to `dist/`, deployable to any static host (Vercel, Netlify, GitHub Pages, Cloudflare Pages). Set the three `VITE_APPWRITE_*` variables in the host's environment — Vite inlines them at build time, so they must be present when you build, not just at runtime.
 
 ## Notes
 
-- **The contact form does not send anything.** `handleSubmit` in `Contact.tsx` simulates a 1.5s delay then shows success — enquiries are silently lost. `@emailjs/browser` is installed and ready to wire up, or POST to the admin backend.
+- **The contact form writes to Appwrite** (`contact_submissions`). On failure it keeps the visitor's typed message, shows a non-dismissing error, and offers a `mailto:` link carrying the whole enquiry — so a submission is never silently lost. A honeypot field and a minimum fill time guard the endpoint, which necessarily accepts writes from anyone.
 - `npm run lint` currently reports 5 pre-existing errors (unused imports in `Experience.tsx` / `TechCarousel.tsx`, a `set-state-in-effect` warning in `AnimatedCursor.tsx`, and two `react-refresh/only-export-components` errors from the context files). None block the build.
-- The admin backend is a separate Node.js service and is not part of this repository.
+- Content is authored in the Appwrite console; there is no separate admin service in this repository.
+- Email notification on a new enquiry is not wired up. The right place for it is an Appwrite **Function** on the `rows.*.create` event, which keeps SMTP credentials server-side.

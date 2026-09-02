@@ -32,3 +32,35 @@
 .contact-form select:focus { outline: none; border-color: var(--color-accent); }
 .contact-form select option { background: var(--color-bg-secondary); color: var(--color-text-primary); }
 .whatsapp-btn { display: inline-flex; margin: 1.5rem 0 0; width: fit-content; }
+
+/* Submission error
+   ---------------------------------------------------------------------------
+   The palette is strictly monochrome — there is no red to reach for, and
+   --color-success is grey. Urgency is carried by the rule and the weight
+   instead of by hue, which is also how this reads for anyone who cannot
+   distinguish the colour anyway.
+--------------------------------------------------------------------------- */
+.form-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0 0.75rem 0.9rem;
+  border-left: 2px solid var(--color-text-primary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+.form-error a {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Spam trap. Positioned off-screen rather than `display: none`, because some
+   bots deliberately skip hidden inputs. `aria-hidden` plus tabIndex -1 on the
+   input keeps it away from screen readers and the tab order. */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

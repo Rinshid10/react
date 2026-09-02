@@ -12,11 +12,11 @@ import './effects.css';
 /**
  * ParallaxCarousel
  *
- * A horizontal rail of cards where each card's contents drift against its own
- * frame as the rail scrolls, so the row reads with depth rather than sliding
- * as one flat strip. The drift is driven by each card's distance from the
- * centre of the viewport, which is what makes it track a drag or a flick
- * rather than running on a timer.
+ * A horizontal rail of cards that recede toward the edges: each card dims
+ * with its distance from the centre of the rail, so the row reads with depth
+ * rather than sliding as one flat strip. It is driven by scroll
+ * position, which is what makes it track a drag or a flick rather than
+ * running on a timer.
  *
  * Native equivalent of @reactbits-starter/parallax-carousel-tw, built on the
  * project's own tokens instead of Tailwind.
@@ -34,7 +34,7 @@ import './effects.css';
 
 interface ParallaxCarouselProps {
   children: ReactNode;
-  /** How far the card contents drift, in pixels, across a full pass. */
+  /** How far cards fade toward the rail edges, 0-1. */
   depth?: number;
   label?: string;
 }
@@ -45,7 +45,7 @@ const prefersReducedMotion = () =>
 
 const ParallaxCarousel = ({
   children,
-  depth = 28,
+  depth = 0.45,
   label = 'Carousel',
 }: ParallaxCarouselProps) => {
   const railRef = useRef<HTMLDivElement>(null);
@@ -54,7 +54,7 @@ const ParallaxCarousel = ({
   const [active, setActive] = useState(0);
   const items = Children.toArray(children);
 
-  // Offsets each card's inner layer by its distance from the rail's centre.
+  // Recedes each card by its distance from the rail's centre.
   // Written straight to the DOM rather than through state: this runs on every
   // scroll frame, and re-rendering the whole rail that often would stutter.
   const update = useCallback(() => {
@@ -87,12 +87,19 @@ const ParallaxCarousel = ({
 
     const mid = rail.clientWidth / 2;
     for (const card of Array.from(rail.children) as HTMLElement[]) {
-      const inner = card.querySelector<HTMLElement>('.pcarousel-inner');
-      if (!inner) continue;
       const centre = card.offsetLeft - rail.scrollLeft + card.offsetWidth / 2;
-      // -1 … 1 across the rail, clamped so off-screen cards do not run away.
-      const t = Math.max(-1, Math.min(1, (centre - mid) / mid));
-      inner.style.transform = `translate3d(${(-t * depth).toFixed(2)}px,0,0)`;
+      // 0 at the centre of the rail, 1 at either edge.
+      const t = Math.min(1, Math.abs(centre - mid) / mid);
+
+      // Depth is expressed as opacity alone, deliberately.
+      //
+      // Translating the card's contents moves the text relative to its own
+      // border, which reads as broken padding rather than parallax. Scaling
+      // the card instead fixes that but creates a different fault: cards
+      // scaled by different amounts no longer share a top edge, so a row of
+      // bordered cards looks ragged. Opacity is the only channel that conveys
+      // distance without disturbing the geometry of a card grid.
+      card.style.opacity = String(1 - t * depth);
     }
   }, [depth]);
 

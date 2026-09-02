@@ -23,7 +23,7 @@
   /* The card underneath shrinks toward its own top edge, so the stacked
      edges stay aligned as they pile up. */
   transform-origin: center top;
-  will-change: transform, opacity;
+  will-change: opacity;
 }
 
 /* --- ScrollMask ----------------------------------------------------------- */
@@ -173,23 +173,23 @@
 
 .pcarousel-card {
   flex: 0 0 auto;
+  will-change: transform, opacity;
   width: clamp(268px, 30vw, 360px);
   scroll-snap-align: start;
-  /* Clips the inner layer's drift so it never spills onto its neighbour. */
-  overflow: hidden;
+  overflow: hidden;              /* keeps the contents inside the rounded corner */
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
   background: var(--color-bg-primary);
   transition: border-color 0.3s;
 }
 .pcarousel-card:hover { border-color: var(--line-strong); }
+/* Opacity is written per frame by the component, so only the colour
+   transitions here — animating opacity too would fight the scroll handler. */
 
-/* The layer that drifts. Slightly wider than its frame so the movement never
-   exposes a bare edge. */
-.pcarousel-inner {
-  height: 100%;
-  will-change: transform;
-}
+/* Structural only: carries the full-height chain down to the card content.
+   It is deliberately not transformed — moving a bordered card's contents
+   inside its own frame reads as broken padding, not as depth. */
+.pcarousel-inner { height: 100%; }
 
 
 .pcarousel-btn {
@@ -212,7 +212,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pcarousel-rail { scroll-behavior: auto; }
-  .pcarousel-inner { transform: none !important; }
+  .pcarousel-card { opacity: 1 !important; }
 }
 
 @media (max-width: 700px) {
