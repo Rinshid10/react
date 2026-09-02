@@ -3,8 +3,7 @@
  *
  * This module exists to do *shape* work that only Appwrite requires, and to
  * keep it out of the React contexts. Appwrite has no nested-object column type,
- * so `PersonalInfo.social` is stored as five flat columns and `CaseStudy
- * .results` (a `Metric[]`) as an array of delimited strings. Both have to be
+ * so `PersonalInfo.social` is stored as five flat columns, which have to be
  * reassembled before the rest of the app sees them.
  *
  * `fetchPortfolioContent()` returns the exact JSON shape the old
@@ -14,10 +13,10 @@
  *
  * A useful consequence: keys are OMITTED for tables that failed or came back
  * empty, so the context's existing `Array.isArray(x) && x.length` guard gives
- * per-section fallback for free. A broken `case_studies` table yields live
- * services and default case studies.
+ * per-section fallback for free. A broken `testimonials` table yields live
+ * services and default testimonials.
  */
-import type { ContactForm, Metric } from '../types';
+import type { ContactForm } from '../types';
 import {
   APPWRITE_DATABASE_ID,
   APPWRITE_ENDPOINT,
@@ -35,20 +34,16 @@ export interface PortfolioPayload {
   personalInfo?: Record<string, unknown>;
   services?: Row[];
   projects?: Row[];
-  caseStudies?: Row[];
   testimonials?: Row[];
   experience?: Row[];
   stats?: Row[];
 
-  // Declared but never populated. These three have no Appwrite table: `skills`
-  // is 33 rows x 6 fields to hand-author for content that changes about twice a
-  // year, and `guarantees` / `process` are four rows each of editorial copy with
-  // no churn. They stay as defaults in PortfolioContext.
-  //
-  // The keys are kept here so the context's handling of them still typechecks
-  // and stays in place — adding any of these later is then a table plus a
-  // mapper, with no change to the consuming code.
   skills?: Row[];
+
+  // Declared but never populated: `guarantees` and `process` are four rows
+  // each of editorial copy with no churn, so they stay as defaults in
+  // PortfolioContext. The keys are kept so the context's handling of them
+  // still typechecks — adding a table later is then a mapper and nothing else.
   guarantees?: Row[];
   process?: Row[];
 }
@@ -108,27 +103,6 @@ const warn = (label: string, reason: unknown) => {
 // Row -> wire shape
 // ---------------------------------------------------------------------------
 
-/**
- * `Metric[]` cannot be a column, so each metric is one entry in a string array,
- * delimited as `label|value|note` with the note optional:
- *
- *   Return on ad spend|3.4x|up from 1.2x
- *   Keywords in top 10|4 -> 37
- *
- * Chosen over a JSON blob because these are authored by hand in the Appwrite
- * console, which offers a plain textarea with no JSON validation. A malformed
- * entry degrades to a label-only metric rather than throwing away the row.
- */
-const parseMetrics = (raw: unknown): Metric[] => {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .filter((entry): entry is string => typeof entry === 'string' && entry.trim() !== '')
-    .map((entry) => {
-      const [label = '', value = '', note = ''] = entry.split('|').map((part) => part.trim());
-      return { label, value, note: note || undefined };
-    });
-};
-
 /** Re-nests the flattened `social*` columns back into a `SocialLinks` object. */
 const assemblePersonalInfo = (row: Row): Record<string, unknown> => {
   const { socialGithub, socialLinkedin, socialTwitter, socialInstagram, socialBehance, ...rest } =
@@ -157,7 +131,7 @@ export const assemblePortfolio = (rows: {
   personalInfo?: Row | null;
   services?: Row[];
   projects?: Row[];
-  caseStudies?: Row[];
+  skills?: Row[];
   testimonials?: Row[];
   experience?: Row[];
   stats?: Row[];
@@ -167,16 +141,10 @@ export const assemblePortfolio = (rows: {
   if (rows.personalInfo) payload.personalInfo = assemblePersonalInfo(rows.personalInfo);
   if (rows.services?.length) payload.services = rows.services;
   if (rows.projects?.length) payload.projects = rows.projects;
+  if (rows.skills?.length) payload.skills = rows.skills;
   if (rows.testimonials?.length) payload.testimonials = rows.testimonials;
   if (rows.experience?.length) payload.experience = rows.experience;
   if (rows.stats?.length) payload.stats = rows.stats;
-
-  if (rows.caseStudies?.length) {
-    payload.caseStudies = rows.caseStudies.map((row) => ({
-      ...row,
-      results: parseMetrics(row.results),
-    }));
-  }
 
   return payload;
 };
@@ -189,7 +157,7 @@ export const assemblePortfolio = (rows: {
 const LIST_TABLES = [
   ['services', TABLES.services],
   ['projects', TABLES.projects],
-  ['caseStudies', TABLES.caseStudies],
+  ['skills', TABLES.skills],
   ['testimonials', TABLES.testimonials],
   ['experience', TABLES.experience],
   ['stats', TABLES.stats],

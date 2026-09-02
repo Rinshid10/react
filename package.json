@@ -11,7 +11,8 @@
     "appwrite:setup": "node scripts/setup-appwrite.mjs",
     "appwrite:check": "node scripts/setup-appwrite.mjs --check",
     "appwrite:verify": "node scripts/verify-appwrite.mjs",
-    "appwrite:seed": "node scripts/seed-appwrite.mjs"
+    "appwrite:seed": "node scripts/seed-appwrite.mjs",
+    "appwrite:admin": "node scripts/setup-admin.mjs"
   },
   "dependencies": {
     "appwrite": "^26.2.0",

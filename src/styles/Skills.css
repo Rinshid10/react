@@ -1,26 +1,186 @@
 .skills { padding: 6rem 2rem; background: var(--color-bg-primary); }
 .skills-container { max-width: 1200px; margin: 0 auto; }
-.skills-categories { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem; }
-.category-btn { padding: 0.5rem 1.5rem; background: var(--color-bg-tertiary); border: 1px solid transparent; border-radius: 50px; color: var(--color-text-secondary); font-size: 0.875rem; font-weight: 500; transition: all 0.3s; }
-.category-btn:hover { color: var(--color-text-primary); border-color: var(--color-accent); }
-.category-btn.active { background: var(--gradient-primary); color: var(--color-on-accent); }
-.skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
-.skill-item { background: var(--color-bg-secondary); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s; }
-.skill-item:hover { border-color: var(--color-accent); }
-.skill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-.skill-name { font-weight: 600; }
-.skill-level { font-size: 0.875rem; color: var(--color-accent); font-weight: 600; }
-.skill-progress-container { height: 8px; background: var(--color-bg-tertiary); border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem; }
-.skill-progress { height: 100%; border-radius: 4px; background: var(--gradient-primary); }
-.skill-category-tag { font-size: 0.75rem; color: var(--color-text-muted); }
-.tech-marquee { overflow: hidden; padding: 1rem 0; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
-.marquee-content { display: flex; gap: 3rem; animation: marquee 30s linear infinite; }
-.marquee-item { font-size: 1rem; color: var(--color-text-muted); font-weight: 500; white-space: nowrap; }
-@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-/* Track switch (Development / Marketing) */
-.skills-tracks { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; }
-.track-btn { position: relative; padding: 0.5rem 0.25rem; font-size: 1.05rem; font-weight: 700; color: var(--color-text-muted); transition: color 0.25s; }
-.track-btn:hover { color: var(--color-text-secondary); }
-.track-btn.active { color: var(--color-text-primary); }
-.track-underline { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: var(--radius-full); background: var(--gradient-primary); }
+/* --- Stack groups ----------------------------------------------------------
+   A labelled belt of chips per category. The label carries the meaning, so it
+   stays quiet; the chips scroll past underneath it.
+-------------------------------------------------------------------------- */
+
+.stack-groups {
+  --chip-gap: 0.55rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.stack-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--color-text-muted);
+}
+
+/* Clips the belt to the text column. The masked edges are what sell it as a
+   surface passing through rather than a list that happens to be sliding. */
+.stack-marquee {
+  overflow: hidden;
+  /* Fades both ends, so chips dissolve rather than being guillotined by the
+     container edge. */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 4rem,
+    #000 calc(100% - 4rem),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 4rem,
+    #000 calc(100% - 4rem),
+    transparent 100%
+  );
+}
+
+.stack-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: var(--chip-gap);
+  animation-name: stack-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Half the track, minus half a gap — see the note in Skills.tsx for why the
+   gap term is load-bearing. */
+@keyframes stack-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - (var(--chip-gap) / 2)));
+  }
+}
+
+/* Stop under the cursor so a name can actually be read, and so the hover state
+   below is not a moving target. */
+.stack-marquee:hover .stack-marquee-track,
+.stack-marquee:focus-within .stack-marquee-track {
+  animation-play-state: paused;
+}
+
+.stack-marquee--still .stack-marquee-track {
+  animation: none;
+}
+
+.stack-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.9rem 0.5rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-tertiary);
+  transition:
+    border-color 0.25s,
+    background 0.25s,
+    transform 0.25s;
+}
+
+.stack-chip:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-soft);
+  transform: translateY(-3px);
+}
+
+/* The mark leans in slightly as the chip lifts — enough to feel alive under the
+   cursor, not enough to read as a separate animation. */
+.stack-chip:hover .stack-chip-icon {
+  transform: scale(1.12) rotate(-5deg);
+}
+
+.stack-chip-icon {
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+  font-size: 1.05rem;
+  /* The marks are monochrome like everything else — the brand colours would be
+     the only hues on the page, and there are nineteen of them. */
+  color: var(--color-text-primary);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Fallback for tools with no brand mark: their initial, in a tile that reads as
+   deliberate rather than as a missing image. */
+.stack-chip-letter {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stack-chip-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .skills { padding: 4rem 1rem; }
+  .stack-groups { gap: 1.5rem; margin-top: 2.25rem; }
+  .stack-chip { padding: 0.55rem 0.85rem 0.55rem 0.6rem; }
+  .stack-chip-name { font-size: 0.9rem; }
+
+  /* Narrower fade: 4rem of a phone screen is most of the row. */
+  .stack-marquee {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 1.5rem,
+      #000 calc(100% - 1.5rem),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 1.5rem,
+      #000 calc(100% - 1.5rem),
+      transparent 100%
+    );
+  }
+}
+
+/* Framer's own motion is guarded in the component with `useReducedMotion`;
+   these are the CSS-driven parts it cannot see. A belt that scrolls forever is
+   the single worst thing on this page for anyone who asked for less movement,
+   so it stops outright rather than slowing down. */
+@media (prefers-reduced-motion: reduce) {
+  .stack-marquee-track {
+    animation: none;
+  }
+
+  .stack-chip,
+  .stack-chip-icon {
+    transition: none;
+  }
+
+  .stack-chip:hover {
+    transform: none;
+  }
+
+  .stack-chip:hover .stack-chip-icon {
+    transform: none;
+  }
+}

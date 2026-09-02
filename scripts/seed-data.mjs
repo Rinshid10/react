@@ -7,11 +7,10 @@
  * in the console. The defaults in PortfolioContext remain purely as the offline
  * fallback.
  *
- * `case_studies` and `testimonials` are deliberately absent. Their defaults are
- * invented placeholders — fictional clients, fabricated metrics and quotes — and
- * seeding them would turn obvious sample content in source into records that
- * look real in a production database. Add those by hand when you have genuine
- * ones.
+ * `testimonials` is deliberately absent: those defaults are invented
+ * placeholders — fictional people and fabricated quotes — and seeding them
+ * would turn obvious sample content in source into records that look real in a
+ * production database. Add those by hand when you have genuine ones.
  *
  * `order` is authored in tens so rows can be inserted between without
  * renumbering everything.
@@ -19,17 +18,15 @@
 
 export const personalInfo = {
   name: 'Rinshid',
-  title: 'Flutter Developer & Digital Marketer',
-  roles: ['Flutter Developer', 'Digital Marketer', 'Freelancer'],
-  tagline: 'I build apps — and the growth engine that fills them.',
-  taglineEmphasis: 'growth engine',
+  title: 'Flutter Developer',
+  roles: ['Flutter Developer', 'React Developer', 'Freelancer'],
+  tagline: 'I build cross-platform apps that ship and keep working.',
+  taglineEmphasis: 'and keep working',
   heroBadge: 'Building digital experiences that make an impact',
   heroScript: 'Freelance',
   email: 'rinshidch10@gmail.com',
   location: 'India · Working with clients worldwide',
-  bio: "I'm a Flutter developer who builds fast, good-looking cross-platform apps — and a digital marketer who makes sure people actually find them. On the build side I work with Flutter, React and Node.js, with Firebase and Supabase behind them, and I'm comfortable across Provider, Riverpod, Bloc and GetX.",
-  marketingBio:
-    'On the growth side I run SEO, Meta and Google Ads, content and social for founders who need traffic that converts, not vanity metrics. Most clients hire me for both: one person who ships the product and owns the funnel means no handoff, no finger-pointing, and a launch that lands.',
+  bio: "I'm a Flutter developer who builds fast, good-looking cross-platform apps for iOS and Android. I work with Flutter, React and Node.js, with Firebase and Supabase behind them, and I'm comfortable across Provider, Riverpod, Bloc and GetX.",
   socialGithub: 'https://github.com/Rinshid10',
   socialLinkedin: 'https://linkedin.com/in/rinshid',
   socialTwitter: 'https://twitter.com/rinshid',
@@ -70,12 +67,11 @@ export const services = [
     order: 20,
     title: 'Web Development',
     description:
-      'Fast, responsive marketing sites and web apps in React and TypeScript, built to rank and convert.',
+      'Fast, responsive websites and web apps in React and TypeScript, built to load quickly and stay maintainable.',
     deliverables: [
       'React + TypeScript build, mobile-first',
       'CMS or admin panel so you can edit content yourself',
-      'Core Web Vitals and on-page SEO baked in',
-      'Analytics and conversion tracking wired up',
+      'Core Web Vitals, accessibility and responsive layouts',
       'Deployment and domain setup',
     ],
     icon: 'code',
@@ -86,69 +82,15 @@ export const services = [
   },
   {
     order: 30,
-    title: 'SEO & Content',
+    title: 'End-to-end Product Build',
     description:
-      'Technical and on-page SEO plus a content plan that earns rankings you keep, not ones you rent.',
+      'The full stack: app, web and the backend behind them, taken from an empty repo to a live release.',
     deliverables: [
-      'Full technical SEO audit with a prioritised fix list',
-      'Keyword and competitor research',
-      '3-month content calendar mapped to search intent',
-      'On-page optimisation and internal linking',
-      'Monthly rankings and traffic report',
-    ],
-    icon: 'search',
-    track: 'Marketing',
-    startingPrice: 'From ₹20,000/mo',
-    timeline: 'Ongoing · 3-month minimum',
-    featured: true,
-  },
-  {
-    order: 40,
-    title: 'Paid Ads — Meta & Google',
-    description:
-      'Campaigns built around a tracked funnel, so every rupee of spend is attached to a number you can check.',
-    deliverables: [
-      'Account and campaign structure setup',
-      'Audience research and creative direction',
-      'Pixel, conversion and GA4 tracking',
-      'Weekly optimisation and A/B testing',
-      'Transparent spend and ROAS reporting',
-    ],
-    icon: 'target',
-    track: 'Marketing',
-    startingPrice: 'From ₹25,000/mo + ad spend',
-    timeline: 'Ongoing · 3-month minimum',
-    featured: true,
-  },
-  {
-    order: 50,
-    title: 'Social Media & Branding',
-    description:
-      'A consistent brand and a content engine that keeps your channels alive without you posting at midnight.',
-    deliverables: [
-      'Brand identity direction and visual guidelines',
-      'Monthly content calendar and post design',
-      'Reels / short-form video scripting',
-      'Community management and engagement',
-      'Growth and engagement reporting',
-    ],
-    icon: 'share',
-    track: 'Marketing',
-    startingPrice: 'From ₹18,000/mo',
-    timeline: 'Ongoing · monthly retainer',
-    featured: false,
-  },
-  {
-    order: 60,
-    title: 'Build + Grow Package',
-    description:
-      'The full stack: I ship the product and run the launch. One person accountable for both sides.',
-    deliverables: [
-      'App or website build, end to end',
-      'Launch campaign across paid and organic',
-      'Analytics, funnels and conversion tracking',
-      'First 90 days of growth work included',
-      'Fortnightly strategy calls',
+      'App and website build, end to end',
+      'Backend, database and third-party integrations',
+      'Deployment, store submission and domain setup',
+      'First 90 days of post-launch fixes included',
+      'Fortnightly progress calls',
     ],
     icon: 'zap',
     track: 'Development',
@@ -158,11 +100,34 @@ export const services = [
   },
 ];
 
+export const skills = [
+  { order: 10, name: 'Flutter', level: 95, category: 'Mobile' },
+  { order: 20, name: 'Dart', level: 92, category: 'Mobile' },
+  { order: 30, name: 'Provider', level: 90, category: 'State Management' },
+  { order: 40, name: 'Riverpod', level: 88, category: 'State Management' },
+  { order: 50, name: 'Bloc', level: 85, category: 'State Management' },
+  { order: 60, name: 'GetX', level: 88, category: 'State Management' },
+  { order: 70, name: 'React', level: 80, category: 'Frontend' },
+  { order: 80, name: 'TypeScript', level: 75, category: 'Frontend' },
+  { order: 90, name: 'JavaScript', level: 82, category: 'Frontend' },
+  { order: 100, name: 'Node.js', level: 78, category: 'Backend' },
+  { order: 110, name: 'Firebase', level: 85, category: 'Backend' },
+  { order: 120, name: 'Supabase', level: 82, category: 'Backend' },
+  { order: 130, name: 'Appwrite', level: 80, category: 'Backend' },
+  { order: 140, name: 'PostgreSQL', level: 75, category: 'Database' },
+  { order: 150, name: 'MySQL', level: 72, category: 'Database' },
+  { order: 160, name: 'MongoDB', level: 70, category: 'Database' },
+  { order: 170, name: 'Git', level: 88, category: 'Tools' },
+  { order: 180, name: 'Figma', level: 85, category: 'Tools' },
+  { order: 190, name: 'Claude / AI tooling', level: 90, category: 'AI' },
+  { order: 200, name: 'Cursor AI', level: 88, category: 'AI' },
+  { order: 210, name: 'Figma MCP', level: 75, category: 'AI' },
+];
+
 export const stats = [
   { order: 10, label: 'Apps shipped to stores', value: '10+', icon: 'smartphone' },
-  { order: 20, label: 'Campaigns managed', value: '15+', icon: 'target' },
-  { order: 30, label: 'Ad spend managed', value: '₹12L+', icon: 'trending' },
-  { order: 40, label: 'Client retention', value: '90%', icon: 'heart' },
+  { order: 20, label: 'Years building with Flutter', value: '2+', icon: 'trending' },
+  { order: 30, label: 'Client retention', value: '90%', icon: 'heart' },
 ];
 
 export const projects = [
@@ -253,24 +218,23 @@ export const projects = [
 export const experience = [
   {
     order: 10,
-    role: 'Freelance Developer & Digital Marketer',
+    role: 'Freelance Developer',
     company: 'Self-employed',
     location: 'Remote',
     period: '2024 - Present',
     startDate: '2024-01',
     current: true,
     description:
-      'Working directly with founders and small teams on app and web builds, and on the SEO, paid and social work that follows a launch.',
+      'Working directly with founders and small teams on app and web builds, from scoping through to store release and post-launch support.',
     responsibilities: [
       'Scoping and pricing projects with clients end to end',
       'Building Flutter and React products from design to store release',
-      'Running SEO audits, content plans and paid campaigns',
-      'Setting up analytics and conversion tracking so results are measurable',
-      'Reporting on performance and adjusting strategy monthly',
+      'Integrating REST and Firebase backends, and third-party SDKs',
+      'Maintaining and updating live apps after release',
     ],
-    technologies: ['Flutter', 'React', 'Meta Ads', 'Google Ads', 'GA4', 'SEO'],
+    technologies: ['Flutter', 'React', 'Firebase', 'Supabase', 'Node.js'],
     type: 'Freelance',
-    track: 'Marketing',
+    track: 'Development',
   },
   {
     order: 20,

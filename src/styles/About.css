@@ -21,9 +21,5 @@
 @media (max-width: 992px) { .about-content { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .specializations-grid { grid-template-columns: 1fr; } .quick-stats { grid-template-columns: 1fr; } }
 
-/* Track labelling on the specialisation cards */
+/* Icon row on the specialisation cards */
 .spec-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.85rem; }
-.spec-track { padding: 0.15rem 0.6rem; border-radius: var(--radius-full); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255, 255, 255, 0.12); color: var(--color-accent-light); }
-.spec-card.track-marketing .spec-track { background: rgba(255, 255, 255, 0.12); color: var(--color-success); }
-.spec-card.track-marketing .spec-icon { background: linear-gradient(135deg, #b8b8b8 0%, #9a9a9a 100%); }
-.about-bio + .about-bio { margin-top: 1rem; }

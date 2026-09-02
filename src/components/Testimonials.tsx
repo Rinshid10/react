@@ -82,7 +82,6 @@ const Testimonials = () => {
                     {t.role} · {t.company}
                   </span>
                 </span>
-                {t.track && <span className={`testimonial-track track-${t.track.toLowerCase()}`}>{t.track}</span>}
               </figcaption>
             </motion.figure>
           ))}

@@ -7,7 +7,6 @@ import Services from './components/Services';
 import About from './components/About';
 import Skills from './components/Skills';
 import Projects from './components/Projects';
-import CaseStudies from './components/CaseStudies';
 import Process from './components/Process';
 import Experience from './components/Experience';
 import Testimonials from './components/Testimonials';
@@ -23,15 +22,14 @@ import './styles/mobile.css';
 // stay in sync with what is rendered.
 //
 // The order follows a freelance funnel rather than a CV:
-//   who I am -> what you can buy -> why me -> proof (build) -> proof (growth)
-//   -> what working together looks like -> background -> social proof -> hire.
+//   who I am -> what you can buy -> why me -> proof -> what working together
+//   looks like -> background -> social proof -> hire.
 const SECTION_IDS = [
   'hero',
   'services',
   'about',
   'skills',
   'projects',
-  'case-studies',
   'process',
   'experience',
   'testimonials',
@@ -73,7 +71,6 @@ const AppContent = () => {
         <About />
         <Skills />
         <Projects />
-        <CaseStudies />
         <Process />
         <Experience />
         <Testimonials />

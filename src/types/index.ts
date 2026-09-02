@@ -1,16 +1,13 @@
 // TypeScript interfaces for the portfolio
 //
-// The site presents two tracks — Development and Marketing — sharing one
-// freelance funnel: Hero -> Services -> About -> Skills -> Work -> Case
-// Studies -> Process -> Experience -> Testimonials -> Contact.
+// The site is a freelance development funnel: Hero -> Services -> About ->
+// Skills -> Work -> Process -> Experience -> Testimonials -> Contact.
 
 import type { ComponentType, CSSProperties } from 'react';
 
-export type Track = 'Development' | 'Marketing';
-
 export interface PersonalInfo {
   name: string;
-  /** Primary headline role, e.g. "Flutter Developer & Digital Marketer". */
+  /** Primary headline role, e.g. "Flutter Developer". */
   title: string;
   /** Short role chips shown under the hero title. */
   roles: string[];
@@ -28,8 +25,6 @@ export interface PersonalInfo {
   phone?: string;
   location: string;
   bio: string;
-  /** Second paragraph covering the marketing side of the bio. */
-  marketingBio?: string;
   social: SocialLinks;
   resumeUrl?: string;
   /** Availability line shown in the hero badge, e.g. "Available for freelance". */
@@ -68,7 +63,6 @@ export interface Service {
   deliverables: string[];
   /** Icon key resolved to a react-icon in PortfolioContext. */
   icon: string;
-  track: Track;
   /** Indicative price, e.g. "From ₹25,000" or "Custom quote". */
   startingPrice?: string;
   /** Typical turnaround, e.g. "4–8 weeks". */
@@ -84,26 +78,17 @@ export interface Skill {
   name: string;
   level: number; // 0-100
   category: SkillCategory;
-  track: Track;
   icon?: string;
 }
 
 export type SkillCategory =
-  // Development
   | 'Mobile'
   | 'Frontend'
   | 'Backend'
   | 'Database'
   | 'State Management'
   | 'Tools'
-  | 'AI'
-  // Marketing
-  | 'SEO'
-  | 'Paid Ads'
-  | 'Social Media'
-  | 'Content'
-  | 'Analytics'
-  | 'Branding';
+  | 'AI';
 
 // ---------------------------------------------------------------------------
 // Work
@@ -126,40 +111,6 @@ export interface Project {
 
 export type ProjectCategory = 'Mobile' | 'Web' | 'Backend' | 'Full Stack';
 
-/**
- * Marketing case study — problem / approach / measurable result.
- * This is the format clients scan when judging a marketer, so every entry
- * should carry at least two hard metrics.
- */
-export interface CaseStudy {
-  id: number;
-  client: string;
-  industry: string;
-  /** Headline outcome, e.g. "3.4x return on ad spend in 90 days". */
-  title: string;
-  /** Channels used: SEO, Meta Ads, Google Ads, Content, Social. */
-  channels: string[];
-  /** What was going wrong before the engagement. */
-  problem: string;
-  /** What was done, in plain language. */
-  approach: string[];
-  /** Headline numbers rendered as metric tiles. */
-  results: Metric[];
-  duration: string;
-  image?: string;
-  featured?: boolean;
-  testimonialId?: number;
-}
-
-export interface Metric {
-  /** e.g. "Organic traffic" */
-  label: string;
-  /** e.g. "+186%" */
-  value: string;
-  /** Optional context, e.g. "vs. previous 6 months" */
-  note?: string;
-}
-
 // ---------------------------------------------------------------------------
 // Experience, process and social proof
 // ---------------------------------------------------------------------------
@@ -178,7 +129,6 @@ export interface Experience {
   responsibilities: string[];
   technologies: string[];
   type: ExperienceType;
-  track: Track;
 }
 
 export type ExperienceType = 'Full-time' | 'Internship' | 'Freelance' | 'Contract';
@@ -212,7 +162,6 @@ export interface Testimonial {
   quote: string;
   avatar?: string;
   rating?: number; // 1-5
-  track?: Track;
 }
 
 /** Headline numbers shown in the hero / about strip. */
@@ -255,7 +204,6 @@ export interface PortfolioContextType {
   personalInfo: PersonalInfo;
   skills: Skill[];
   projects: Project[];
-  caseStudies: CaseStudy[];
   services: Service[];
   guarantees: Guarantee[];
   experience: Experience[];

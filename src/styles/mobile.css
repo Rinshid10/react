@@ -79,10 +79,6 @@
 
   /* Text buttons and filter chips. */
   .filter-tab,
-  .service-filter,
-  .track-btn,
-  .category-btn,
-  .case-toggle,
   .service-cta,
   .art-cta,
   .btn,
@@ -96,19 +92,14 @@
 
   /* These are laid out with flex/inline-flex already; the ones that are not
      need it so `min-height` actually centres their label. */
-  .filter-tab,
-  .service-filter,
-  .track-btn,
-  .category-btn {
+  .filter-tab {
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
   /* A short label ("All") left the chip only 36px wide even at full height. */
-  .service-filter,
-  .filter-tab,
-  .category-btn { min-width: 44px; }
+  .filter-tab { min-width: 44px; }
 
   /* Plain text links in lists were the easiest thing to miss with a thumb —
      the footer navigation measured 17px tall. Each link becomes its own
@@ -139,10 +130,6 @@
   .case-industry,
   .metric-note,
   .process-duration,
-  .service-filter-count,
-  .service-track,
-  .spec-track,
-  .testimonial-track,
   .hero-stat-label,
   .stat-label,
   .skill-category-tag,
@@ -154,9 +141,6 @@
 
   /* Letter-spaced uppercase micro-labels get a touch less tracking at this
      size, so the extra font-size is not eaten by the gaps between letters. */
-  .service-track,
-  .spec-track,
-  .testimonial-track,
   .section-tag {
     letter-spacing: 0.1em;
   }

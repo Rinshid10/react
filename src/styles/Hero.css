@@ -88,10 +88,19 @@
      word rather than its end, where the script accent lives. */
   margin-left: 0.5cqw;              /* computed, not transform-centred */
   top: 50%;
-  width: 27cqw;
-  height: 27cqw;
-  margin-top: -22cqw;               /* head above the word, shoulders behind it */
-  max-width: 400px;
+  width: 33cqw;
+  height: 33cqw;
+  /* Lifts the head above the word. It deliberately does NOT scale with the box:
+     a bigger portrait pushed at the same ratio runs off the top of the screen
+     and behind the navbar, because the navbar does not move. The px term caps
+     how far up it can travel on a wide-but-short window, where `cqw` alone
+     would put the crown of the head off-screen. */
+  margin-top: max(-22cqw, -370px);
+  /* The source is 500x500. Past that the box would upscale it, so the cap is a
+     sharpness limit rather than a taste one — a larger portrait needs a larger
+     export, not a larger number here. */
+  max-width: 500px;
+  max-height: 500px;
   pointer-events: none;
 }
 .art-cutout img {

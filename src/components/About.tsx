@@ -5,8 +5,8 @@ import {
   FiMail,
   FiCode,
   FiSmartphone,
-  FiSearch,
-  FiTarget,
+  FiLayers,
+  FiUploadCloud,
 } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
 import '../styles/About.css';
@@ -16,8 +16,8 @@ import CountUp from './effects/CountUp';
 /**
  * About Component
  *
- * Two columns, one per track — the builder and the marketer — so a visitor
- * who only cares about one still finds their half immediately.
+ * A bio card beside a grid of what I actually build, so a visitor can place
+ * the offer without reading the prose.
  */
 const About = () => {
   const { personalInfo, stats } = usePortfolio();
@@ -34,35 +34,30 @@ const About = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  // Two specialisations per track, so the split reads at a glance.
   const specializations = [
     {
       icon: FiSmartphone,
-      track: 'Development',
       title: 'Mobile & Cross-Platform',
       description:
         'Flutter apps for iOS and Android from one codebase — clean architecture, real state management, shipped to the stores.',
     },
     {
       icon: FiCode,
-      track: 'Development',
       title: 'Web & Backend',
       description:
         'React and TypeScript front ends on Node, Firebase or Supabase, with the APIs and admin tooling behind them.',
     },
     {
-      icon: FiSearch,
-      track: 'Marketing',
-      title: 'SEO & Content',
+      icon: FiLayers,
+      title: 'State & Architecture',
       description:
-        'Technical fixes, keyword strategy and a content calendar built around what your buyers actually search for.',
+        'Provider, Riverpod, Bloc or GetX — chosen to fit the app, not the fashion, so the codebase survives its second year.',
     },
     {
-      icon: FiTarget,
-      track: 'Marketing',
-      title: 'Paid Ads & Analytics',
+      icon: FiUploadCloud,
+      title: 'Release & Maintenance',
       description:
-        'Meta and Google campaigns on a properly tracked funnel, so spend is always tied to a number you can verify.',
+        'Play Store and App Store submission, CI, crash reporting, and the unglamorous fixes that follow a first release.',
     },
   ];
 
@@ -79,12 +74,12 @@ const About = () => {
           <span className="section-tag">About Me</span>
           <h2 className="section-title">
             <TextReveal3D>
-              Developer Who <span className="highlight">Markets</span>. Marketer Who{' '}
-              <span className="highlight">Ships</span>.
+              A Developer Who <span className="highlight">Ships</span>, Then{' '}
+              <span className="highlight">Stays</span>.
             </TextReveal3D>
           </h2>
           <p className="section-subtitle">
-            Most teams hire two people for this. You can hire one.
+            One person accountable from the first call to the store listing.
           </p>
         </motion.div>
 
@@ -93,9 +88,6 @@ const About = () => {
           <motion.div className="about-bio-section" variants={itemVariants}>
             <div className="bio-card">
               <p className="about-bio">{personalInfo.bio}</p>
-              {personalInfo.marketingBio && (
-                <p className="about-bio">{personalInfo.marketingBio}</p>
-              )}
 
               <div className="about-info">
                 <div className="info-item">
@@ -131,7 +123,7 @@ const About = () => {
                 return (
                   <motion.div
                     key={spec.title}
-                    className={`spec-card track-${spec.track.toLowerCase()}`}
+                    className="spec-card"
                     initial={{ opacity: 0, y: 20 }}
                     animate={isInView ? { opacity: 1, y: 0 } : {}}
                     transition={{ delay: 0.3 + index * 0.1 }}
@@ -141,7 +133,6 @@ const About = () => {
                       <div className="spec-icon">
                         <Icon />
                       </div>
-                      <span className="spec-track">{spec.track}</span>
                     </div>
                     <h4>{spec.title}</h4>
                     <p>{spec.description}</p>

@@ -16,7 +16,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { Client, TablesDB, ID, Query } from 'node-appwrite';
-import { experience, personalInfo, projects, services, stats, theme } from './seed-data.mjs';
+import { experience, personalInfo, projects, services, skills, stats, theme } from './seed-data.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const FORCE = process.argv.includes('--force');
@@ -78,7 +78,7 @@ const seedSingleton = async (tableId, data) => {
   }
 };
 
-const seedList = async (tableId, rows, label = (r) => r.title ?? r.label ?? r.role) => {
+const seedList = async (tableId, rows, label = (r) => r.title ?? r.label ?? r.role ?? r.name) => {
   const existing = await db.listRows({
     databaseId: DATABASE_ID,
     tableId,
@@ -114,6 +114,7 @@ const main = async () => {
   await seedSingleton('theme', theme);
   await seedList('services', services);
   await seedList('projects', projects);
+  await seedList('skills', skills);
   await seedList('stats', stats);
   await seedList('experience', experience);
 
@@ -124,9 +125,9 @@ const main = async () => {
     process.exit(1);
   }
 
-  console.log('\ncase_studies and testimonials were deliberately NOT seeded — their');
-  console.log('defaults are invented placeholders. The site will keep showing those');
-  console.log('built-in samples until you add real rows in the console.\n');
+  console.log('\ntestimonials were deliberately NOT seeded — their defaults are');
+  console.log('invented placeholders. The site will keep showing those built-in');
+  console.log('samples until you add real rows in the console.\n');
   console.log('Check it worked:  npm run appwrite:verify\n');
 };
 

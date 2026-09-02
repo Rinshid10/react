@@ -8,10 +8,8 @@
    surface layers, hairline rules, and white fills that flip their label to
    black.
 
-   Because there is no colour to separate them, the two tracks are told apart
-   by VALUE rather than hue:
-     Development — white (the primary ink)
-     Marketing   — mid grey (--color-success), a step down the same scale
+   Where two things must be told apart, VALUE does it rather than hue —
+   white for the primary ink, mid grey a step down the same scale.
 =========================================================================== */
 
 :root {
@@ -29,7 +27,7 @@
   --color-accent: #ffffff;
   --color-accent-light: #ffffff;
   --color-warm: #8f8f8f;           /* de-emphasised word in headings */
-  --color-success: #b8b8b8;        /* availability, checks, Marketing track */
+  --color-success: #b8b8b8;        /* availability, checks */
   --color-warning: #d6d6d6;        /* ratings, mid skill levels */
   --color-info: #767676;           /* low skill levels */
 

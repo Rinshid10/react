@@ -177,7 +177,7 @@ const Contact = () => {
           >
             <h3>Get in Touch</h3>
             <p>
-              Open to freelance projects, retainers and build-plus-growth engagements.
+              Open to freelance projects, retainers and long-term build engagements.
             </p>
 
             <div className="contact-details">

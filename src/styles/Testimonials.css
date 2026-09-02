@@ -20,8 +20,6 @@
 .testimonial-identity strong { font-size: 0.92rem; }
 .testimonial-identity span { font-size: 0.78rem; color: var(--color-text-muted); }
 
-.testimonial-track { margin-left: auto; padding: 0.15rem 0.6rem; border-radius: var(--radius-full); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255, 255, 255, 0.12); color: var(--color-accent-light); }
-.testimonial-track.track-marketing { background: rgba(255, 255, 255, 0.12); color: var(--color-success); }
 
 @media (max-width: 640px) {
   .testimonials { padding: 4rem 1rem; }

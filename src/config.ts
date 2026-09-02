@@ -30,11 +30,12 @@ export const TABLES = {
   personalInfo: 'personal_info',
   services: 'services',
   projects: 'projects',
-  caseStudies: 'case_studies',
+  skills: 'skills',
   testimonials: 'testimonials',
   experience: 'experience',
   stats: 'stats',
   theme: 'theme',
+  settings: 'settings',
   contactSubmissions: 'contact_submissions',
 } as const;
 

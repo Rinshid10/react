@@ -1,11 +1,8 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   FiSmartphone,
   FiCode,
-  FiSearch,
-  FiTarget,
-  FiShare2,
   FiZap,
   FiCheck,
   FiArrowUpRight,
@@ -15,7 +12,6 @@ import {
   FiHeadphones,
 } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Track } from '../types';
 import ParallaxCarousel from './effects/ParallaxCarousel';
 import TextReveal3D from './effects/TextReveal3D';
 import '../styles/Services.css';
@@ -24,9 +20,6 @@ import '../styles/Services.css';
 const serviceIcons: Record<string, React.ComponentType> = {
   smartphone: FiSmartphone,
   code: FiCode,
-  search: FiSearch,
-  target: FiTarget,
-  share: FiShare2,
   zap: FiZap,
 };
 
@@ -37,13 +30,11 @@ const guaranteeIcons: Record<string, React.ComponentType> = {
   headphones: FiHeadphones,
 };
 
-type Filter = 'All' | Track;
-
 /**
  * Services Component
  *
  * The offer, top to bottom: an availability pill, the pitch as the headline,
- * a track filter, the packages in a parallax carousel, then a row of
+ * the packages in a parallax carousel, then a row of
  * reassurances answering the objections a client has before they enquire.
  *
  * Every card puts price and timeline in a fixed footer, so a visitor can flick
@@ -53,10 +44,7 @@ const Services = () => {
   const { services, guarantees, personalInfo } = usePortfolio();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const [filter, setFilter] = useState<Filter>('All');
 
-  const filters: Filter[] = ['All', 'Development', 'Marketing'];
-  const visible = filter === 'All' ? services : services.filter((s) => s.track === filter);
 
   // Send the visitor to the contact form with this service pre-selected.
   const enquire = (title: string) => {
@@ -84,50 +72,20 @@ const Services = () => {
               whether someone keeps reading. */}
           <h2 className="section-title services-title">
             <TextReveal3D>
-              Hire me for the <span className="highlight">build</span>, the{' '}
-              <span className="highlight">growth</span>, or both — one person accountable
+              Hire me to <span className="highlight">design</span>, {' '}
+              <span className="highlight">build</span> and ship it — one person accountable
               end to end.
             </TextReveal3D>
           </h2>
 
           <p className="section-subtitle">
-            From idea to launch and growth, I help businesses build, scale and keep
+            From idea to a live release, I help businesses build, scale and keep
             improving — all with one reliable partner.
           </p>
         </motion.div>
 
-        {/* Track filter, held in a bordered group rather than floating loose. */}
-        <motion.div
-          className="services-filters"
-          role="tablist"
-          aria-label="Filter services by track"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.2 }}
-        >
-          {filters.map((f) => (
-            <button
-              key={f}
-              role="tab"
-              aria-selected={filter === f}
-              className={`service-filter ${filter === f ? 'active' : ''}`}
-              onClick={() => setFilter(f)}
-            >
-              {f}
-              <span className="service-filter-count">
-                {f === 'All' ? services.length : services.filter((s) => s.track === f).length}
-              </span>
-              {filter === f && (
-                <motion.span className="service-filter-underline" layoutId="serviceFilter" />
-              )}
-            </button>
-          ))}
-        </motion.div>
-
-        {/* Keyed on the filter so switching tracks rebuilds the rail and resets
-            it to the first card, rather than leaving it scrolled into space. */}
-        <ParallaxCarousel key={filter} label="Services">
-          {visible.map((service, index) => {
+        <ParallaxCarousel label="Services">
+          {services.map((service, index) => {
             const Icon = serviceIcons[service.icon] ?? FiZap;
             return (
               <article className="service-card" key={service.id}>
@@ -139,10 +97,6 @@ const Services = () => {
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </header>
-
-                <span className={`service-track track-${service.track.toLowerCase()}`}>
-                  {service.track}
-                </span>
 
                 <h3 className="service-title">{service.title}</h3>
                 <p className="service-description">{service.description}</p>

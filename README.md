@@ -1,8 +1,8 @@
-# Rinshid — Freelance Developer & Digital Marketer Portfolio
+# Rinshid — Freelance Flutter Developer Portfolio
 
 A single-page freelance portfolio built with **React 19**, **TypeScript** and **Vite**, animated with **Framer Motion**.
 
-The site sells two tracks under one offer — **Development** (Flutter, React, backend) and **Marketing** (SEO, paid ads, social, branding) — and is structured as a client funnel rather than a CV. Content and theme colours are driven live from Appwrite Cloud; if Appwrite is unreachable or unconfigured, the site falls back to its built-in data, so it always renders.
+The site sells freelance development work — Flutter, React and the backends behind them — and is structured as a client funnel rather than a CV. Content and theme colours are driven live from Appwrite Cloud; if Appwrite is unreachable or unconfigured, the site falls back to its built-in data, so it always renders.
 
 ## Page flow
 
@@ -11,27 +11,24 @@ The section order is a deliberate freelance funnel — who I am → what you can
 | # | Section | Purpose |
 | --- | --- | --- |
 | 1 | **Hero** | One full screen: bright `Portfolio` wordmark with Rinshid's cut-out portrait cutting through it, name, description and `View My Work`, plus socials, an update pill and a scroll rail |
-| 2 | **Services** | Availability pill, the pitch as the headline, a track filter, six packages in a parallax carousel, then a row of guarantees |
-| 3 | **About** | The two tracks side by side — builder and marketer |
-| 4 | **Skills** | Track switch (Development / Marketing), then category filter within it |
+| 2 | **Services** | Availability pill, the pitch as the headline, three packages in a parallax carousel, then a row of guarantees |
+| 3 | **About** | Bio, headline stats and what I build |
+| 4 | **Skills** | Category filter over the whole stack |
 | 5 | **Projects** | Development work — apps and sites shipped |
-| 6 | **Case Studies** | Marketing work in problem → approach → metrics format |
 | 7 | **Process** | The four steps from first call to live results |
-| 8 | **Experience** | Career timeline, tagged by track |
+| 8 | **Experience** | Career timeline |
 | 9 | **Testimonials** | Social proof, placed right before the ask |
 | 10 | **Contact** | Enquiry form with project type + budget so leads self-qualify |
 
 ## Features
 
-- **Dual-track content model** — every skill, service, testimonial and experience entry carries a `track` of `Development` or `Marketing`
 - **Service cards that convert** — deliverables, price and timeline on each; `Enquire about this` scrolls to the contact form with that service pre-selected
-- **Case studies with metric tiles** — headline numbers up front, expandable problem/approach detail underneath
 - **Qualifying contact form** — service and budget dropdowns fed from the same data as the Services section
 - **Dark / light mode** persisted in `localStorage` (dark by default)
 - **Scroll spy** navbar with a persistent `Hire Me` CTA
 - **Remote content + theming** from Appwrite, with per-section graceful fallback
 - Animated custom cursor, tech carousel, scroll-reveal animations throughout
-- SEO and Open Graph meta, responsive mobile-first layout
+- Search and Open Graph meta, responsive mobile-first layout
 
 ## Tech Stack
 
@@ -69,14 +66,13 @@ Sections marked `TODO(real-data)` in `src/context/PortfolioContext.tsx` contain 
 
 | What | Where | Status |
 | --- | --- | --- |
-| Marketing case studies (clients, metrics) | `defaultCaseStudies` | **Entirely invented** — every number is a sample |
 | Testimonials (names, quotes) | `defaultTestimonials` | **Entirely invented** — attributed to fictional people |
 | Headline stats | `defaultStats` | Estimates — use numbers you can defend |
 | Service prices & timelines | `defaultServices` | Confirm they match what you actually quote |
-| Marketing skill levels | `defaultSkills` | Tune honestly; a client may test them |
+| Skill levels | `defaultSkills` | Tune honestly; a client may test them |
 | Booking link, WhatsApp number | `defaultPersonalInfo` | Empty — the related CTAs stay hidden until filled |
 
-Three honest case studies convert better than six you have to hedge about. If you don't have real numbers yet, delete `<CaseStudies />` and `<Testimonials />` from `src/App.tsx` until you do.
+If you don't have real client quotes yet, delete `<Testimonials />` from `src/App.tsx` until you do.
 
 The contact form writes to Appwrite, and falls back to a prefilled `mailto:` draft when Appwrite is unreachable or unconfigured.
 
@@ -107,14 +103,14 @@ Database `portfolio`. Every list table carries a required integer `order` and is
 | `personal_info` | `getRow('main')` | `personalInfo` — `social` is stored flat as `socialGithub` / `socialLinkedin` / … and re-nested by the adapter |
 | `services` | `listRows` | `services` |
 | `projects` | `listRows` | `projects` |
-| `case_studies` | `listRows` | `caseStudies` — `results` is a string array of `label\|value\|note` |
+| `skills` | `listRows` | `skills` — grouped by `category` into the Toolkit belts |
 | `testimonials` | `listRows` | `testimonials` |
 | `experience` | `listRows` | `experience` |
 | `stats` | `listRows` | `stats` |
 | `theme` | `getRow('main')` | CSS custom properties, via `ThemeContext` |
 | `contact_submissions` | `createRow` | **write-only** — enquiries |
 
-`skills`, `guarantees`, `process` and `budgetRanges` deliberately have no table; they stay as defaults in `PortfolioContext.tsx`, because the hand-authoring cost outweighs how rarely they change. `techIcons` cannot be stored at all — its `icon` field is a React component reference, not data.
+`guarantees`, `process` and `budgetRanges` deliberately have no table; they stay as defaults in `PortfolioContext.tsx`, because the hand-authoring cost outweighs how rarely they change. `techIcons` cannot be stored at all — its `icon` field is a React component reference, not data.
 
 **Permissions.** Content tables get Role `Any` → **Read** only. `contact_submissions` gets Role `Any` → **Create** only, Row Security off, and no `permissions` argument passed to `createRow`. Granting read on that table would expose every lead's name, email and message to anyone holding the public project id.
 
@@ -137,11 +133,10 @@ src/
 ├── components/
 │   ├── Navbar.tsx             # Nav with active-section highlight + Hire Me CTA
 │   ├── Hero.tsx               # Art screen + pitch below the fold
-│   ├── Services.tsx           # Service packages, filterable by track
-│   ├── About.tsx              # Bio + specializations across both tracks
-│   ├── Skills.tsx             # Track switch + category filter
+│   ├── Services.tsx           # Service packages in a parallax carousel
+│   ├── About.tsx              # Bio + what I build
+│   ├── Skills.tsx             # Category filter over the stack
 │   ├── Projects.tsx           # Development work grid
-│   ├── CaseStudies.tsx        # Marketing results, expandable detail
 │   ├── Process.tsx            # 4-step working process
 │   ├── Experience.tsx         # Work timeline
 │   ├── Testimonials.tsx       # Client quotes
@@ -165,12 +160,11 @@ Everything editable lives in the `default*` objects at the top of `src/context/P
 
 | Object | Controls |
 | --- | --- |
-| `defaultPersonalInfo` | Name, dual title, tagline + `taglineEmphasis` (the dimmed phrase), `heroBadge`, bio (dev + marketing), contacts, socials, availability, booking link, WhatsApp, `portraitUrl` |
+| `defaultPersonalInfo` | Name, title, tagline + `taglineEmphasis` (the dimmed phrase), `heroBadge`, bio, contacts, socials, availability, booking link, WhatsApp, `portraitUrl` |
 | `defaultServices` | The Services section and the contact form's service dropdown |
 | `defaultStats` | Hero stats card (each needs an `icon` key) and the About quick-stats |
-| `defaultSkills` | Skills grid — each entry needs a `track` and a `category` |
+| `defaultSkills` | Offline fallback for the Toolkit — each entry needs a `category` |
 | `defaultProjects` | Development work |
-| `defaultCaseStudies` | Marketing results |
 | `defaultProcess` | The "How I Work" steps |
 | `defaultGuarantees` | The reassurance row under the services (each needs an `icon` key: `shield`, `clock`, `chart`, `headphones`) |
 | `defaultTestimonials` | Client quotes |
@@ -195,7 +189,7 @@ On phones there is no room to dodge sideways, so the figure becomes a **watermar
 Three things to know if you edit it:
 
 - **Framer Motion silently overwrites CSS `transform` and `opacity`** on any element it animates. Centre by layout or a computed `left`, never `translateX(-50%)`; and put opacity on an inner element (the `<img>`, the `<span>`), not the animated wrapper. Both bugs happened here more than once.
-- The giant word is decorative (`aria-hidden`); the real `<h1>` is visually hidden so SEO and screen readers still get "Rinshid — Flutter Developer & Digital Marketer". Change the word via the `WORDMARK` constant in `Hero.tsx`.
+- The giant word is decorative (`aria-hidden`); the real `<h1>` is visually hidden so search engines and screen readers still get "Rinshid — Flutter Developer". Change the word via the `WORDMARK` constant in `Hero.tsx`.
 - The figure is positioned `absolute` with computed offsets so its height can never feed back into the column and push the hero past one viewport.
 
 **The cut-out** is driven by `personalInfo.portraitUrl` — currently `/rinshid-portrait.png`, a 500×500 head-and-shoulders crop with an alpha channel. Leave the field empty and the composition goes type-only, which still reads as finished.
@@ -219,7 +213,6 @@ Ten effects live in `src/components/effects/`:
 
 | Effect | Where | What it does |
 | --- | --- | --- |
-| `ScrollStack` | Case Studies | Each case pins and the previous one scales back and dims behind it, so every result gets the screen to itself |
 | `ParallaxCard` | Work grid | Cards drift at slightly different rates, staggered by column so rows still read as rows |
 | `CardModal` | Work grid | A card expands into a full detail view via a shared `layoutId`, showing the untruncated description and every store / repo / live link |
 | `ScrollMask` | Experience timeline | Fades the block's top and bottom edges with `mask-image`, so a long list stops ending in a hard cut |
@@ -285,12 +278,12 @@ Strictly monochrome — pure black ground, pure white ink, greys between. No hue
 | `--color-accent` | `#ffffff` | `#000000` | Fills and emphasis |
 | `--color-on-accent` | `#000000` | `#ffffff` | Text that sits **on** an accent fill |
 | `--color-warm` | `#8f8f8f` | `#8f8f8f` | De-emphasised word in headings |
-| `--color-success` | `#b8b8b8` | `#5a5a5a` | Availability, checks, Marketing track |
+| `--color-success` | `#b8b8b8` | `#5a5a5a` | Availability, checks |
 | `--line` / `--line-strong` | white at 14% / 32% | black at 14% / 32% | Hairline rules |
 
 Design rules that follow from it:
 
-- **Value, not hue, separates the two tracks.** With no colour available, Development reads as white and Marketing as a step down the same grey scale (`--color-success`). Track chips share the same tinted background; only the label's value differs.
+- **Value, not hue, separates things.** With no colour available, emphasis reads as white and secondary information as a step down the same grey scale (`--color-success`).
 - **Photographs are desaturated.** The hero cut-out carries `filter: grayscale(1)` — a colour photo would otherwise be the only hue on the page.
 - **No gradients or coloured glows.** `--gradient-primary` is kept as a variable (the `theme` table can override it) but resolves to near-flat white.
 - **Softly rounded.** `--radius-lg` is `10px` (buttons, icon tiles) and `--radius-xl` is `16px` (cards, panels).
@@ -299,17 +292,48 @@ Design rules that follow from it:
 Anything filled with `--color-accent` must take `color: var(--color-on-accent)`, never a literal `white` or `black` — one of the two modes will make it invisible. Light and dark are applied via a `dark-mode` / `light-mode` class on `<body>`.
 
 Note: `ThemeContext` applies `primaryColor` / `secondaryColor` from the Appwrite `theme` row as CSS variables at runtime, so populating them with an actual hue will visibly break this monochrome design. Every colour branch is guarded, so leaving those columns **empty** is a clean no-op — populate only `defaultDarkMode`.
+## Admin panel
+
+A small React panel for editing every table above lives at **`/admin`** (`npm run dev` → <http://localhost:5173/admin/>). It is a second Vite entry (`admin/index.html` → `src/admin/`), not a route in the site: the two share only the Appwrite config, and keeping them separate means no router dependency and none of the admin code is shipped to site visitors.
+
+**Access.** Sign in with an Appwrite account that belongs to the `admins` team. Being signed in is not enough — every table grants write and delete to `team:admins`, and the panel checks membership on every start, because access can be revoked while a session is still valid.
+
+There is **no API key in the panel**, and there must never be one: a web build is public, so a key there would hand anyone full control of the database. All authority comes from the signed-in user's team membership.
+
+First-time setup:
+
+1. **Create the account** — Appwrite console → Auth → Users → Create user. You choose the password there; the panel has no signup form on purpose.
+2. **Grant it access:**
+
+   ```bash
+   npm run appwrite:admin -- you@example.com
+   ```
+
+   Same email as step 1. This creates the `admins` team and adds the account to it.
+3. **Register the origin** — Appwrite console → Project → Settings → Platforms → Add Web App, with the host the panel is served from. A missing platform shows up as a CORS failure on sign-in.
+
+What it does: every form is generated from `src/admin/schema.ts`, which mirrors `scripts/schema.mjs` — adding a field to a table is one line there, not a new screen. Profile and Theme open straight into their form (single-row tables); the rest are ordered lists with search, create, edit and delete. Enquiries are read-only apart from their status.
+
+**Theme** is the exception to "generated from the schema": its four colour columns are presented as 12 ready-made palettes plus **Monochrome**, the default, which stores nothing and so leaves the site on the palette in `global.css`. Raw hexes are still editable under "Custom colours". Two things constrain what a palette can be, both documented in `src/admin/themePresets.ts`:
+
+- A palette only affects the site's **dark mode**. `ThemeContext` writes the values as inline custom properties on `<html>`, and `.light-mode` on `<body>` re-declares the same variables — the nearer declaration wins, so light mode stays black on white.
+- The site puts **black text** on accent-filled surfaces in dark mode, and `--color-on-accent` is not settable from this table. Every bundled accent therefore clears 7:1 against black (worst is Coral at 9.2:1). A dark custom accent makes its own button labels unreadable.
+
+Keep `src/admin/schema.ts` in step with `scripts/schema.mjs`. If they drift, the symptom is an Appwrite 400 on save naming the offending column — annoying, but loud.
+
 ## Build & Deploy
 
 ```bash
 npm run build
 ```
 
-Outputs a static bundle to `dist/`, deployable to any static host (Vercel, Netlify, GitHub Pages, Cloudflare Pages). Set the three `VITE_APPWRITE_*` variables in the host's environment — Vite inlines them at build time, so they must be present when you build, not just at runtime.
+Outputs a static bundle to `dist/`, deployable to any static host (Vercel, Netlify, GitHub Pages, Cloudflare Pages). Both entries build together: the site at `dist/index.html` and the panel at `dist/admin/index.html`, so `/admin` works with no rewrite rule.
+
+Set the three `VITE_APPWRITE_*` variables in the host's environment — Vite inlines them at build time, so they must be present when you build, not just at runtime.
 
 ## Notes
 
 - **The contact form writes to Appwrite** (`contact_submissions`). On failure it keeps the visitor's typed message, shows a non-dismissing error, and offers a `mailto:` link carrying the whole enquiry — so a submission is never silently lost. A honeypot field and a minimum fill time guard the endpoint, which necessarily accepts writes from anyone.
 - `npm run lint` currently reports 5 pre-existing errors (unused imports in `Experience.tsx` / `TechCarousel.tsx`, a `set-state-in-effect` warning in `AnimatedCursor.tsx`, and two `react-refresh/only-export-components` errors from the context files). None block the build.
-- Content is authored in the Appwrite console; there is no separate admin service in this repository.
+- Content can be authored either in the Appwrite console or in the built-in admin panel at `/admin` (see above).
 - Email notification on a new enquiry is not wired up. The right place for it is an Appwrite **Function** on the `rows.*.create` event, which keeps SMTP credentials server-side.

@@ -18,18 +18,52 @@
 /** Every list table is ordered by this column; see the note in setup-appwrite.mjs. */
 const ORDER = { key: 'order', type: 'integer', req: true, min: 0, max: 9999 };
 
-const TRACK = ['Development', 'Marketing'];
+// One value, since the site dropped its marketing track. The column is kept
+// rather than deleted because it is `req: true` on services and experience in
+// every database already created from this schema, and the setup script never
+// alters an existing column — so a write that omitted it would be rejected.
+const TRACK = ['Development'];
+
+/** Mirrors `SkillCategory` in src/types/index.ts and CATEGORY_ORDER in Skills.tsx. */
+const SKILL_CATEGORIES = [
+  'Mobile',
+  'State Management',
+  'Frontend',
+  'Backend',
+  'Database',
+  'Tools',
+  'AI',
+];
 
 export const DATABASE_NAME = 'Portfolio';
+
+/**
+ * Everything the admin panel writes is authorised through this team, never
+ * through an API key. The panel is a web app, so any key it shipped would be
+ * public — the same reason the React site cannot hold one.
+ *
+ * A team rather than a single user id, so adding a second admin later is a
+ * console click instead of a permissions migration. And deliberately not
+ * `users()`, which means *any* authenticated account: with signups open that
+ * would let a stranger register and then edit the site.
+ */
+export const ADMIN_TEAM_ID = 'admins';
+const ADMIN = [
+  `read("team:${ADMIN_TEAM_ID}")`,
+  `create("team:${ADMIN_TEAM_ID}")`,
+  `update("team:${ADMIN_TEAM_ID}")`,
+  `delete("team:${ADMIN_TEAM_ID}")`,
+];
 
 export const TABLES = [
   {
     id: 'contact_submissions',
     name: 'Contact submissions',
-    // Create-only for guests. No read, update or delete for ANY role: these are
-    // private enquiries, and the project id that reaches this table is public
-    // and sits in the bundled JS. You read them in the console.
-    permissions: ['create("any")'],
+    // Guests may CREATE and nothing else. Read stays restricted to the admin
+    // team: these are private enquiries, and the project id that reaches this
+    // table is public and sits in the bundled JS, so read("any") here would
+    // publish every lead to anyone who looks.
+    permissions: ['create("any")', ...ADMIN],
     columns: [
       { key: 'name', type: 'string', size: 100, req: true },
       { key: 'email', type: 'email', req: true },
@@ -51,7 +85,7 @@ export const TABLES = [
   {
     id: 'personal_info',
     name: 'Personal info',
-    permissions: ['read("any")'],
+    permissions: ['read("any")', ...ADMIN],
     singleton: true,
     columns: [
       { key: 'name', type: 'string', size: 100, req: true },
@@ -65,7 +99,6 @@ export const TABLES = [
       { key: 'phone', type: 'string', size: 32 },
       { key: 'location', type: 'string', size: 160, req: true },
       { key: 'bio', type: 'string', size: 2000, req: true },
-      { key: 'marketingBio', type: 'string', size: 2000 },
       // `social` is a nested object in TypeScript; Appwrite has no nested column
       // type, so it is stored flat and re-nested by src/lib/appwrite.ts.
       { key: 'socialGithub', type: 'string', size: 255 },
@@ -89,14 +122,14 @@ export const TABLES = [
   {
     id: 'services',
     name: 'Services',
-    permissions: ['read("any")'],
+    permissions: ['read("any")', ...ADMIN],
     columns: [
       ORDER,
       { key: 'title', type: 'string', size: 100, req: true },
       { key: 'description', type: 'string', size: 400, req: true },
       { key: 'deliverables', type: 'string', size: 200, array: true },
       // Resolved to a react-icon in Services.tsx. Valid keys today:
-      // smartphone, code, search, target, share, zap.
+      // smartphone, code, zap.
       { key: 'icon', type: 'string', size: 40, def: 'zap' },
       { key: 'track', type: 'enum', elements: TRACK, req: true },
       { key: 'startingPrice', type: 'string', size: 60 },
@@ -108,7 +141,7 @@ export const TABLES = [
   {
     id: 'projects',
     name: 'Projects',
-    permissions: ['read("any")'],
+    permissions: ['read("any")', ...ADMIN],
     columns: [
       ORDER,
       { key: 'title', type: 'string', size: 120, req: true },
@@ -131,32 +164,27 @@ export const TABLES = [
   },
 
   {
-    id: 'case_studies',
-    name: 'Case studies',
-    permissions: ['read("any")'],
+    id: 'skills',
+    name: 'Skills',
+    permissions: ['read("any")', ...ADMIN],
     columns: [
       ORDER,
-      { key: 'client', type: 'string', size: 120, req: true },
-      { key: 'industry', type: 'string', size: 60, req: true },
-      { key: 'title', type: 'string', size: 160, req: true },
-      { key: 'channels', type: 'string', size: 40, array: true },
-      { key: 'problem', type: 'string', size: 1500, req: true },
-      { key: 'approach', type: 'string', size: 300, array: true },
-      // Metric[] is an array of objects, which Appwrite cannot store. Each entry
-      // is one metric, pipe-delimited as `label|value|note` (note optional):
-      //   Return on ad spend|3.4x|up from 1.2x
-      // Never put a literal | inside a label or value.
-      { key: 'results', type: 'string', size: 255, array: true },
-      { key: 'duration', type: 'string', size: 40, req: true },
-      { key: 'image', type: 'string', size: 512 },
-      { key: 'featured', type: 'boolean', def: false },
+      { key: 'name', type: 'string', size: 60, req: true },
+      // Kept because the shape is shared with the admin panel, though the
+      // site stopped rendering it — a self-assessed percentage is not
+      // something a visitor can check. Safe to ignore when authoring.
+      { key: 'level', type: 'integer', min: 0, max: 100, def: 80 },
+      { key: 'category', type: 'enum', elements: SKILL_CATEGORIES, req: true },
+      // Optional override for the brand mark. Left empty, Skills.tsx matches
+      // on `name`, and falls back to a letter tile when there is no match.
+      { key: 'icon', type: 'string', size: 40 },
     ],
   },
 
   {
     id: 'testimonials',
     name: 'Testimonials',
-    permissions: ['read("any")'],
+    permissions: ['read("any")', ...ADMIN],
     columns: [
       ORDER,
       { key: 'name', type: 'string', size: 80, req: true },
@@ -165,14 +193,13 @@ export const TABLES = [
       { key: 'quote', type: 'string', size: 1000, req: true },
       { key: 'avatar', type: 'string', size: 512 },
       { key: 'rating', type: 'integer', min: 1, max: 5, def: 5 },
-      { key: 'track', type: 'enum', elements: TRACK },
     ],
   },
 
   {
     id: 'experience',
     name: 'Experience',
-    permissions: ['read("any")'],
+    permissions: ['read("any")', ...ADMIN],
     columns: [
       ORDER,
       { key: 'role', type: 'string', size: 120, req: true },
@@ -201,7 +228,7 @@ export const TABLES = [
   {
     id: 'stats',
     name: 'Stats',
-    permissions: ['read("any")'],
+    permissions: ['read("any")', ...ADMIN],
     columns: [
       ORDER,
       { key: 'label', type: 'string', size: 60, req: true },
@@ -211,9 +238,28 @@ export const TABLES = [
   },
 
   {
+    id: 'settings',
+    name: 'Settings',
+    // NO public read, unlike every other content table. This row holds the
+    // address enquiry notifications are sent to, and the project id that
+    // reaches Appwrite is public — read("any") here would publish an inbox
+    // to every scraper. The notifier reads it with a server-side key, and
+    // the site itself never needs it.
+    permissions: [...ADMIN],
+    singleton: true,
+    // No index: a single-row table has nothing to order, and the default
+    // `idx_order` would wait forever on an `order` column that does not exist.
+    indexes: [],
+    columns: [
+      { key: 'notifyEmail', type: 'email' },
+      { key: 'notifyEnabled', type: 'boolean', def: true },
+    ],
+  },
+
+  {
     id: 'theme',
     name: 'Theme',
-    permissions: ['read("any")'],
+    permissions: ['read("any")', ...ADMIN],
     singleton: true,
     columns: [
       // Leave these four EMPTY. ThemeContext writes them straight onto
