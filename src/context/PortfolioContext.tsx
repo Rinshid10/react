@@ -69,7 +69,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     // Must be a substring of `tagline`; it is rendered in a dimmer tone.
     taglineEmphasis: 'and keep working',
     heroBadge: 'Building digital experiences that make an impact',
-    heroScript: 'Freelance',
+    heroScript: "Hey, I'm",
     email: 'rinshidch10@gmail.com',
     location: 'India · Working with clients worldwide',
     bio: `I'm a Flutter developer who builds fast, good-looking cross-platform

@@ -9,17 +9,18 @@ import Magnetic from './effects/Magnetic';
  * Hero Component
  *
  * One full screen, laid out as a single centred column that shares a left
- * edge: the oversized wordmark, then the name, description and CTA beneath
- * it. A background-removed subject sits behind the word — head above the
- * letters, tail below — with a faint ring and dot grid behind that.
+ * edge: the greeting, the name set oversized, then the description and CTA
+ * beneath it. A background-removed subject sits behind the name — head above
+ * the letters, tail below — with a faint ring and dot grid behind that.
+ *
+ * The name is the wordmark rather than a generic word. That only works
+ * because `.art-wordmark` fades where the figure begins (see Hero.css), so
+ * the letters crossing the face stay readable instead of being covered.
  *
  * The corners carry the small stuff: socials bottom-left, an update pill
  * bottom-right, and a vertical scroll rail down the right edge.
  */
 
-// A generic word survives being intersected by the subject; a person's name
-// would just end up obscured. The name sits under it in full.
-const WORDMARK = 'Portfolio';
 
 const Hero = () => {
   const { personalInfo } = usePortfolio();
@@ -83,17 +84,9 @@ const Hero = () => {
               <span className="art-script">{personalInfo.heroScript}</span>
             )}
             <span className="art-wordmark" aria-hidden="true">
-              {WORDMARK}
+              {personalInfo.name}
             </span>
           </motion.div>
-
-          <motion.p
-            className="art-name"
-            variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
-            transition={{ duration: 0.6 }}
-          >
-            {personalInfo.name}
-          </motion.p>
 
           <motion.p
             className="art-desc"

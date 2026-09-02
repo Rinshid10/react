@@ -23,7 +23,7 @@ export const personalInfo = {
   tagline: 'I build cross-platform apps that ship and keep working.',
   taglineEmphasis: 'and keep working',
   heroBadge: 'Building digital experiences that make an impact',
-  heroScript: 'Freelance',
+  heroScript: "Hey, I'm",
   email: 'rinshidch10@gmail.com',
   location: 'India · Working with clients worldwide',
   bio: "I'm a Flutter developer who builds fast, good-looking cross-platform apps for iOS and Android. I work with Flutter, React and Node.js, with Firebase and Supabase behind them, and I'm comfortable across Provider, Riverpod, Bloc and GetX.",

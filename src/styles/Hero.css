@@ -140,15 +140,62 @@
   font-weight: 500;
   letter-spacing: -0.035em;
   color: var(--color-text-primary);
+
+  /* Optical alignment, not layout. Every box in this column already shares a
+     left edge — but a glyph is not flush with its own box: "R" in Inter carries
+     a left side bearing of ~0.077em, so at this size its ink started 13px right
+     of the description and the button and read as indented.
+
+     Pulling the box left by that bearing puts the INK on the shared edge, which
+     is the edge a reader actually sees. In `em` so it holds at every size, and
+     on the box rather than `text-indent` so the fade mask below travels with
+     the letters.
+
+     Tuned for a capital R. A name starting with a rounder or diagonal letter
+     (O, A, J, T) has a different bearing and would want a different value. */
+  margin-left: -0.077em;
+
+  /* The word runs over the portrait for its last ~half, and at full strength it
+     covers the face. Rather than reordering the layers — the word has to stay
+     in front, that overlap is the composition — the letters fade to ~38% from
+     the point the figure begins, so the face reads through them.
+
+     The stops are where the portrait's left edge falls across the word (51% at
+     desktop). Both scale in `cqw` and both hit a fixed cap on wide screens, so
+     the ratio holds; it is an approximation of the silhouette, not a trace of
+     it, which is why the fade starts a little early and settles rather than
+     continuing to nothing. */
+  --word-fade: 0.38;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0 46%,
+    rgba(0, 0, 0, var(--word-fade)) 64%,
+    rgba(0, 0, 0, var(--word-fade)) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0 46%,
+    rgba(0, 0, 0, var(--word-fade)) 64%,
+    rgba(0, 0, 0, var(--word-fade)) 100%
+  );
 }
 
 /* Sits above the START of the word, not the end. With a portrait in the
    composition the head occupies the top-right corner, and the script was
-   landing across the face; the space above the first letters is empty. */
+   landing across the face; the space above the first letters is empty.
+
+   `top` clears the wordmark's ink, not its box. A line box with `line-height: 1`
+   is shorter than the glyphs it contains, so the ascenders — and the dot of the
+   `i` especially — reach well above where the box says the text starts. At
+   -0.32em the underline cut straight through them.
+
+   `left: 0` puts the underline on the column's shared left edge, which is where
+   the wordmark's ink now sits after its optical correction above. Both values
+   are in the script's own `em`, so they scale with the wordmark. */
 .art-script {
   position: absolute;
-  left: 0.08em;
-  top: -0.32em;
+  left: 0;
+  top: -1.03em;
   font-family: 'Caveat', 'Segoe Script', cursive;
   font-size: 0.3em;
   font-weight: 500;
@@ -159,16 +206,10 @@
   white-space: nowrap;
 }
 
-.art-name {
-  margin-top: 1.1rem;
-  font-size: clamp(1.1rem, 1.65cqw, 1.5rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--color-text-primary);
-}
-
 .art-desc {
-  margin-top: 0.6rem;
+  /* Was 0.6rem when a separate name line sat between this and the wordmark.
+     With the name promoted into the wordmark itself, this carries that gap. */
+  margin-top: 1.4rem;
   font-size: clamp(0.9rem, 1.05cqw, 1.0625rem);
   line-height: 1.55;
   color: var(--color-text-secondary);
@@ -305,7 +346,6 @@
   }
   .art-cutout img { opacity: 0.3; }
 
-  .art-name { font-size: 1.15rem; }
   .art-desc { font-size: 0.9rem; }
   .art-cta { width: 100%; justify-content: center; }
 
