@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { FiPhone, FiFileText, FiZap, FiTrendingUp } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
+import ScrollStack, { ScrollStackItem } from './effects/ScrollStack';
 import '../styles/Process.css';
 import TextReveal3D from './effects/TextReveal3D';
 
@@ -46,37 +47,27 @@ const Process = () => {
           </p>
         </motion.div>
 
-        <div className="process-steps">
-          {/* Connecting line, drawn as the section scrolls into view */}
-          <motion.div
-            className="process-line"
-            initial={{ scaleX: 0 }}
-            animate={isInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
-          />
-
-          {process.map((step, index) => {
+        {/* The steps are a sequence meant to be read in order, so they pin and
+            pile up rather than sitting side by side — each one holds the screen
+            until the next slides over it. */}
+        <ScrollStack topOffset={130} itemOffset={18}>
+          {process.map((step) => {
             const Icon = iconMap[step.icon] ?? FiZap;
             return (
-              <motion.div
-                key={step.step}
-                className="process-step"
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.15 }}
-                whileHover={{ y: -6 }}
-              >
-                <div className="process-number">{String(step.step).padStart(2, '0')}</div>
-                <div className="process-icon">
-                  <Icon />
+              <ScrollStackItem key={step.step}>
+                <div className="process-step">
+                  <div className="process-number">{String(step.step).padStart(2, '0')}</div>
+                  <div className="process-icon">
+                    <Icon />
+                  </div>
+                  <h3>{step.title}</h3>
+                  {step.duration && <span className="process-duration">{step.duration}</span>}
+                  <p>{step.description}</p>
                 </div>
-                <h3>{step.title}</h3>
-                {step.duration && <span className="process-duration">{step.duration}</span>}
-                <p>{step.description}</p>
-              </motion.div>
+              </ScrollStackItem>
             );
           })}
-        </div>
+        </ScrollStack>
       </div>
     </section>
   );

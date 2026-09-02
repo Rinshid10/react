@@ -183,6 +183,17 @@ export interface Experience {
 
 export type ExperienceType = 'Full-time' | 'Internship' | 'Freelance' | 'Contract';
 
+/**
+ * A reassurance shown under the services — the objections a freelance client
+ * has before they enquire, answered up front.
+ */
+export interface Guarantee {
+  /** Icon key resolved to a react-icon in the Services component. */
+  icon: string;
+  title: string;
+  description: string;
+}
+
 /** A step in the "how we'll work together" timeline. */
 export interface ProcessStep {
   step: number;
@@ -246,6 +257,7 @@ export interface PortfolioContextType {
   projects: Project[];
   caseStudies: CaseStudy[];
   services: Service[];
+  guarantees: Guarantee[];
   experience: Experience[];
   testimonials: Testimonial[];
   process: ProcessStep[];

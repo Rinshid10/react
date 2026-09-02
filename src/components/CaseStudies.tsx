@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { FiTrendingUp, FiAlertCircle, FiCheckCircle, FiClock, FiChevronDown } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
-import ScrollStack from './effects/ScrollStack';
+import ScrollStack, { ScrollStackItem } from './effects/ScrollStack';
 import '../styles/CaseStudies.css';
 import TextReveal3D from './effects/TextReveal3D';
 import CountUp from './effects/CountUp';
@@ -50,8 +50,8 @@ const CaseStudies = () => {
           {caseStudies.map((study, index) => {
             const isOpen = expandedId === study.id;
             return (
+              <ScrollStackItem key={study.id}>
               <motion.article
-                key={study.id}
                 className={`case-card ${isOpen ? 'open' : ''}`}
                 initial={{ opacity: 0, y: 40 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -144,6 +144,7 @@ const CaseStudies = () => {
                   )}
                 </AnimatePresence>
               </motion.article>
+              </ScrollStackItem>
             );
           })}
         </ScrollStack>

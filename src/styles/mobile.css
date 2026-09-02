@@ -1,0 +1,163 @@
+/* Mobile refinements
+   ---------------------------------------------------------------------------
+   Imported last, so these win ties against the per-component stylesheets.
+
+   Everything here fixes a measured defect found by auditing the page in a real
+   390px viewport, not a guess:
+
+     - 43 controls were smaller than the 44px minimum comfortable touch target
+       (the hero's social icons were 17x27, which is close to unhittable)
+     - 103 text nodes rendered below 12px, at which point body text stops being
+       comfortably readable on a phone held at arm's length
+
+   Desktop is untouched: every rule is inside the phone breakpoint.
+--------------------------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  /* --- Hero -----------------------------------------------------------------
+     On a phone there is no room beside the copy, so the desktop composition
+     (portrait behind the wordmark) degraded to a 30%-opacity smudge sitting
+     underneath the name and description — unreadable as a photo and noise
+     behind the text. Stacked instead: a clean circular portrait, then the
+     wordmark, then the copy. Nothing overlaps, and the face is actually
+     visible, which on a freelance portfolio is the point. */
+
+  .hero { padding-top: 5.5rem; padding-bottom: 4rem; }
+
+  .hero-stage { flex-direction: column; align-items: center; }
+
+  .art-cutout {
+    position: static;
+    width: 128px;
+    height: 128px;
+    margin: 0 0 1.5rem;
+    max-width: none;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .art-cutout img {
+    opacity: 1;                 /* no longer a watermark */
+    mask-image: none;           /* the circle does the cropping now */
+    -webkit-mask-image: none;
+    object-fit: cover;
+    object-position: center 18%;
+  }
+
+  /* With a centred portrait above it, a left-aligned column reads lopsided. */
+  .art-column { align-items: center; text-align: center; }
+  .art-script { left: auto; right: 0; top: -0.34em; }
+  .art-desc { margin-left: auto; margin-right: auto; }
+
+  /* --- Touch targets ------------------------------------------------------
+     44px is the long-standing minimum for a finger (Apple HIG; WCAG 2.5.5).
+     `min-height` rather than `height` so nothing that is already taller gets
+     squashed, and inline-flex centring so the label stays put while the hit
+     area grows around it. */
+
+  .theme-toggle,
+  .mobile-menu-toggle {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Icon-only links: the hit area grows, the icon does not. */
+  .hero-socials a,
+  .footer-social a,
+  .contact-social .social-links a,
+  .social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  /* The gap tightens to compensate, so the row occupies the same space. */
+  .hero-socials { gap: 0.5rem; }
+  .footer-social,
+  .contact-social .social-links { gap: 0.4rem; }
+
+  /* Text buttons and filter chips. */
+  .filter-tab,
+  .service-filter,
+  .track-btn,
+  .category-btn,
+  .case-toggle,
+  .service-cta,
+  .art-cta,
+  .btn,
+  .nav-cta,
+  .mobile-nav-cta,
+  .mobile-nav-link,
+  .footer-cta-link,
+  .submit-btn {
+    min-height: 44px;
+  }
+
+  /* These are laid out with flex/inline-flex already; the ones that are not
+     need it so `min-height` actually centres their label. */
+  .filter-tab,
+  .service-filter,
+  .track-btn,
+  .category-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* A short label ("All") left the chip only 36px wide even at full height. */
+  .service-filter,
+  .filter-tab,
+  .category-btn { min-width: 44px; }
+
+  /* Plain text links in lists were the easiest thing to miss with a thumb —
+     the footer navigation measured 17px tall. Each link becomes its own
+     full-height row; the list gap closes up so the footer does not grow. */
+  .footer-section ul { gap: 0; }
+  .footer-section li { display: flex; }
+  .footer-section a,
+  .contact-item a,
+  .info-item a,
+  .rail-email {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  /* Full-width so the whole row is tappable, not just the few characters of
+     a short label like "Work". */
+  .footer-section a { width: 100%; }
+
+  /* --- Readable text ------------------------------------------------------
+     Small caps-and-letterspacing labels were the worst offenders — letter
+     spacing makes 10px read even smaller than it measures. */
+
+  .section-tag { font-size: 0.75rem; }
+
+  .tech-tag,
+  .tech-chip,
+  .category-pill,
+  .case-industry,
+  .metric-note,
+  .process-duration,
+  .service-filter-count,
+  .service-track,
+  .spec-track,
+  .testimonial-track,
+  .hero-stat-label,
+  .stat-label,
+  .skill-category-tag,
+  .rail-status,
+  .art-update,
+  .hero-update {
+    font-size: 0.75rem;
+  }
+
+  /* Letter-spaced uppercase micro-labels get a touch less tracking at this
+     size, so the extra font-size is not eaten by the gaps between letters. */
+  .service-track,
+  .spec-track,
+  .testimonial-track,
+  .section-tag {
+    letter-spacing: 0.1em;
+  }
+}

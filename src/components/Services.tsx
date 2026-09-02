@@ -9,15 +9,19 @@ import {
   FiZap,
   FiCheck,
   FiArrowUpRight,
+  FiShield,
+  FiClock,
+  FiBarChart2,
+  FiHeadphones,
 } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Track } from '../types';
-import ScrollMask from './effects/ScrollMask';
-import '../styles/Services.css';
+import ParallaxCarousel from './effects/ParallaxCarousel';
 import TextReveal3D from './effects/TextReveal3D';
+import '../styles/Services.css';
 
 // Icon keys used in PortfolioContext -> the actual component.
-const iconMap: Record<string, React.ComponentType> = {
+const serviceIcons: Record<string, React.ComponentType> = {
   smartphone: FiSmartphone,
   code: FiCode,
   search: FiSearch,
@@ -26,22 +30,27 @@ const iconMap: Record<string, React.ComponentType> = {
   zap: FiZap,
 };
 
+const guaranteeIcons: Record<string, React.ComponentType> = {
+  shield: FiShield,
+  clock: FiClock,
+  chart: FiBarChart2,
+  headphones: FiHeadphones,
+};
+
 type Filter = 'All' | Track;
 
 /**
  * Services Component
  *
- * An editorial index rather than a grid of boxed cards: each service is a row
- * — number, title, what you get, what it costs — separated by hairlines. Six
- * bordered cards competed with each other for attention and read nothing like
- * the rest of the site; a numbered list scans top to bottom, and the price
- * column lets someone rule themselves in or out without reading a word of the
- * copy.
+ * The offer, top to bottom: an availability pill, the pitch as the headline,
+ * a track filter, the packages in a parallax carousel, then a row of
+ * reassurances answering the objections a client has before they enquire.
  *
- * Each row ends in a CTA that pre-fills the contact form with that service.
+ * Every card puts price and timeline in a fixed footer, so a visitor can flick
+ * through comparing cost without reading the copy.
  */
 const Services = () => {
-  const { services } = usePortfolio();
+  const { services, guarantees, personalInfo } = usePortfolio();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [filter, setFilter] = useState<Filter>('All');
@@ -64,19 +73,30 @@ const Services = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <span className="section-tag">Services</span>
-          <h2 className="section-title">
+          {personalInfo.isAvailable && (
+            <span className="services-availability">
+              <span className="availability-dot" aria-hidden="true" />
+              {personalInfo.availability}
+            </span>
+          )}
+
+          {/* The pitch is the headline here — it is the sentence that decides
+              whether someone keeps reading. */}
+          <h2 className="section-title services-title">
             <TextReveal3D>
-              What I Can <span className="highlight">Build &amp; Grow</span> For You
+              Hire me for the <span className="highlight">build</span>, the{' '}
+              <span className="highlight">growth</span>, or both — one person accountable
+              end to end.
             </TextReveal3D>
           </h2>
+
           <p className="section-subtitle">
-            Hire me for the build, the growth, or both — one person accountable end to end.
+            From idea to launch and growth, I help businesses build, scale and keep
+            improving — all with one reliable partner.
           </p>
         </motion.div>
 
-        {/* Track filter — text tabs with an underline, matching the navbar
-            rather than the filled pills this section used to have. */}
+        {/* Track filter, held in a bordered group rather than floating loose. */}
         <motion.div
           className="services-filters"
           role="tablist"
@@ -104,63 +124,85 @@ const Services = () => {
           ))}
         </motion.div>
 
-        <ScrollMask fade={7}>
-          <ul className="services-list">
-            {visible.map((service, index) => {
-              const Icon = iconMap[service.icon] ?? FiZap;
-              return (
-                <motion.li
-                  key={service.id}
-                  className="service-row"
-                  layout
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: index * 0.06 }}
-                >
+        {/* Keyed on the filter so switching tracks rebuilds the rail and resets
+            it to the first card, rather than leaving it scrolled into space. */}
+        <ParallaxCarousel key={filter} label="Services">
+          {visible.map((service, index) => {
+            const Icon = serviceIcons[service.icon] ?? FiZap;
+            return (
+              <article className="service-card" key={service.id}>
+                <header className="service-card-top">
+                  <span className="service-icon" aria-hidden="true">
+                    <Icon />
+                  </span>
                   <span className="service-index">
                     {String(index + 1).padStart(2, '0')}
                   </span>
+                </header>
 
-                  <div className="service-main">
-                    <div className="service-eyebrow">
-                      <span className="service-icon" aria-hidden="true">
-                        <Icon />
+                <span className={`service-track track-${service.track.toLowerCase()}`}>
+                  {service.track}
+                </span>
+
+                <h3 className="service-title">{service.title}</h3>
+                <p className="service-description">{service.description}</p>
+
+                <ul className="service-deliverables">
+                  {service.deliverables.map((d) => (
+                    <li key={d}>
+                      <span className="deliverable-check" aria-hidden="true">
+                        <FiCheck />
                       </span>
-                      <span className={`service-track track-${service.track.toLowerCase()}`}>
-                        {service.track}
-                      </span>
-                    </div>
+                      <span>{d}</span>
+                    </li>
+                  ))}
+                </ul>
 
-                    <h3 className="service-title">{service.title}</h3>
-                    <p className="service-description">{service.description}</p>
-
-                    <ul className="service-deliverables">
-                      {service.deliverables.map((d) => (
-                        <li key={d}>
-                          <FiCheck className="deliverable-check" />
-                          <span>{d}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="service-aside">
+                {/* Price left, CTA right — pushed to the bottom of every card so
+                    the numbers line up across the rail. */}
+                <footer className="service-card-foot">
+                  <div className="service-pricing">
                     {service.startingPrice && (
                       <span className="service-price">{service.startingPrice}</span>
                     )}
                     {service.timeline && (
                       <span className="service-timeline">{service.timeline}</span>
                     )}
-                    <button className="service-cta" onClick={() => enquire(service.title)}>
-                      Enquire
-                      <FiArrowUpRight />
-                    </button>
                   </div>
-                </motion.li>
+                  <button className="service-cta" onClick={() => enquire(service.title)}>
+                    Enquire now
+                    <FiArrowUpRight />
+                  </button>
+                </footer>
+              </article>
+            );
+          })}
+        </ParallaxCarousel>
+
+        {/* The objections a freelance client has before they get in touch. */}
+        {guarantees.length > 0 && (
+          <motion.ul
+            className="services-guarantees"
+            initial={{ opacity: 0, y: 24 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            {guarantees.map((g) => {
+              const Icon = guaranteeIcons[g.icon] ?? FiShield;
+              return (
+                <li key={g.title}>
+                  <span className="guarantee-icon" aria-hidden="true">
+                    <Icon />
+                  </span>
+                  <span className="guarantee-text">
+                    <strong>{g.title}</strong>
+                    <span>{g.description}</span>
+                  </span>
+                </li>
               );
             })}
-          </ul>
-        </ScrollMask>
+          </motion.ul>
+        )}
       </div>
     </section>
   );

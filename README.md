@@ -11,7 +11,7 @@ The section order is a deliberate freelance funnel — who I am → what you can
 | # | Section | Purpose |
 | --- | --- | --- |
 | 1 | **Hero** | One full screen: bright `Portfolio` wordmark with Rinshid's cut-out portrait cutting through it, name, description and `View My Work`, plus socials, an update pill and a scroll rail |
-| 2 | **Services** | Editorial index of six packages — number, title, deliverables, price and timeline per row, filterable by track |
+| 2 | **Services** | Availability pill, the pitch as the headline, a track filter, six packages in a parallax carousel, then a row of guarantees |
 | 3 | **About** | The two tracks side by side — builder and marketer |
 | 4 | **Skills** | Track switch (Development / Marketing), then category filter within it |
 | 5 | **Projects** | Development work — apps and sites shipped |
@@ -94,7 +94,7 @@ Default when unset: `http://localhost:4000/api` (see `src/config.ts`).
 
 | Endpoint | Used by | Purpose |
 | --- | --- | --- |
-| `GET /portfolio` | `PortfolioContext` | `personalInfo`, `skills`, `services`, `projects`, `caseStudies`, `experience`, `testimonials`, `process`, `stats` |
+| `GET /portfolio` | `PortfolioContext` | `personalInfo`, `skills`, `services`, `guarantees`, `projects`, `caseStudies`, `experience`, `testimonials`, `process`, `stats` |
 | `GET /portfolio/theme` | `ThemeContext` | `primaryColor`, `secondaryColor`, `accentColor`, `darkBackground`, `defaultDarkMode` |
 
 Both requests fail silently. A missing or offline backend simply leaves the hardcoded defaults and the CSS palette in place. Each array in the `/portfolio` payload is optional and overrides its default independently. `defaultDarkMode` is only honored when the visitor has no saved preference yet.
@@ -118,14 +118,14 @@ src/
 │   ├── Experience.tsx         # Work timeline
 │   ├── Testimonials.tsx       # Client quotes
 │   ├── Contact.tsx            # Qualifying enquiry form
-│   ├── effects/               # 9 scroll, pointer and reveal effects
+│   ├── effects/               # 10 scroll, pointer and reveal effects
 │   ├── Footer.tsx
 │   ├── AnimatedCursor.tsx
 │   └── TechCarousel.tsx
 ├── context/
 │   ├── ThemeContext.tsx       # Dark mode, active section, remote theme vars
 │   └── PortfolioContext.tsx   # ALL content lives here
-├── styles/                    # global.css + one stylesheet per component
+├── styles/                    # global.css, mobile.css + one stylesheet per component
 └── types/index.ts             # Shared interfaces and union types
 ```
 
@@ -142,6 +142,7 @@ Everything editable lives in the `default*` objects at the top of `src/context/P
 | `defaultProjects` | Development work |
 | `defaultCaseStudies` | Marketing results |
 | `defaultProcess` | The "How I Work" steps |
+| `defaultGuarantees` | The reassurance row under the services (each needs an `icon` key: `shield`, `clock`, `chart`, `headphones`) |
 | `defaultTestimonials` | Client quotes |
 | `defaultExperience` | Career timeline |
 | `budgetRanges` | Budget options in the contact form |
@@ -184,7 +185,7 @@ Assets: `public/rinshid-portrait.png` is the hero cut-out. Typefaces are Inter, 
 
 ### Scroll and card effects
 
-Nine effects live in `src/components/effects/`:
+Ten effects live in `src/components/effects/`:
 
 | Effect | Where | What it does |
 | --- | --- | --- |
@@ -197,12 +198,23 @@ Nine effects live in `src/components/effects/`:
 | `Magnetic` | Hero and navbar CTAs | Pulls the control gently toward the cursor, then springs back |
 | `TiltCard` | Work grid | Tips a card toward the pointer in 3D, on top of the grid's parallax |
 | `ScrollProgress` | Fixed, page-wide | Hairline at the top of the viewport that fills as the page scrolls |
+| `ParallaxCarousel` | Services | Horizontal snap rail where each card's contents drift against its frame as it scrolls |
 
-These were requested as `@reactbits-starter/*` shadcn components (`scroll-mask-tw`, `scroll-stack-tw`, `parallax-cards-tw`, `modal-cards-tw`, `3d-text-reveal-tw`). That registry is **ReactBits Pro** — it needs a paid licence key in `.env.local` plus a Tailwind/shadcn setup this project does not have, and the components are Tailwind (`-tw`) builds. They are therefore written natively against Framer Motion (already a dependency) and this project's CSS custom properties. **No new dependencies were added.**
+These were requested as `@reactbits-starter/*` shadcn components (`scroll-mask-tw`, `scroll-stack-tw`, `parallax-cards-tw`, `modal-cards-tw`, `3d-text-reveal-tw`, `parallax-carousel-tw`). That registry is **ReactBits Pro** — it needs a paid licence key in `.env.local` plus a Tailwind/shadcn setup this project does not have, and the components are Tailwind (`-tw`) builds. They are therefore written natively against Framer Motion (already a dependency) and this project's CSS custom properties. **No new dependencies were added.**
 
 Notes for editing them:
 
-- `ScrollStack` pins with `position: sticky`. It dies silently if any ancestor sets `overflow: hidden` — keep that off the wrapping section.
+- `ScrollStack` pins with `position: sticky` and takes explicit item children:
+
+  ```jsx
+  <ScrollStack>
+    <ScrollStackItem>…</ScrollStackItem>
+    <ScrollStackItem>…</ScrollStackItem>
+  </ScrollStack>
+  ```
+
+  The parent passes its scroll progress down through context and injects each item's index by cloning, so an item can call `useTransform` at the top level of its own component — hooks cannot be called in a loop.
+- **Sticky dies silently if any ancestor is a scroll container**, and that includes `overflow-x: hidden` on `html` or `body`. This is why the root uses **`overflow-x: clip`**: it stops the page drifting sideways without creating a scroll container. Switching those to `hidden` breaks every stack on the site with no error and no warning.
 - The parent's scroll progress is passed down as a MotionValue so each item can call `useTransform` at the top level of its own component; hooks cannot be called in a loop.
 - `ScrollMask` uses `mask-image`, so it fades to transparency rather than to a colour — it works over any background and in both themes without a matching overlay.
 - `CardModal` locks body scroll (compensating for the scrollbar so the page doesn't shift), closes on Escape and on backdrop click, moves focus into the panel and returns it to the trigger, and carries `role="dialog"` + `aria-modal`.
@@ -212,7 +224,20 @@ Notes for editing them:
 - `Magnetic` and `TiltCard` attach their handlers only under `(hover: hover) and (pointer: fine)`. On touch, `mousemove` fires once on tap and would leave the element stuck displaced or at an angle.
 - `TiltCard` puts `perspective` on the wrapper and rotation on the child — an element cannot be the source of its own perspective, so both on one node renders flat.
 - `ScrollProgress` animates `scaleX`, not `width`, so it is composited rather than laying out on every frame.
-- All nine collapse to a plain static layout under `prefers-reduced-motion`.
+- `ParallaxCarousel` is built on native overflow scrolling with CSS scroll snapping, not a transform-driven track — that brings touch swiping, trackpad gestures, keyboard scrolling and correct scrollbar semantics for free. The arrows step by exactly one card + gap so they always land on a snap point, and it carries `overscroll-behavior-x: contain` so swiping past the last card cannot hand the scroll to the page. A snapped rail does not rest at scrollLeft 0 (the rail's own padding offsets the first snap point), so the end-detection uses a 16px tolerance rather than an exact comparison.
+- All ten collapse to a plain static layout under `prefers-reduced-motion`.
+
+### Mobile
+
+`src/styles/mobile.css` is imported **last** in `App.tsx`, so its phone-breakpoint rules win ties against the per-component stylesheets. Everything in it fixes a defect measured in a real 390px viewport, not a guess:
+
+- **Touch targets.** 43 controls were under the 44px minimum (Apple HIG, WCAG 2.5.5) — the hero's social icons were 17×27, and the footer navigation links 17px tall. All now ≥44px; footer links fill the row width so the whole line is tappable, not just a short word like "Work".
+- **Text size.** 103 text nodes rendered below 12px. The worst were letter-spaced uppercase micro-labels, where the tracking makes 10px read even smaller than it measures — those get a floor of 12px and slightly tighter tracking.
+- **The hero is restructured, not just scaled.** The desktop composition puts the portrait *behind* the wordmark; at 390px that degraded into a 30%-opacity smudge underneath the name and description. On phones it becomes a clean circular portrait stacked above the wordmark, with the copy centred below. Nothing overlaps and the face is actually visible.
+
+To re-audit after a change, serve the site and load it in a **390px-wide iframe** — an iframe establishes its own viewport, so media queries, `vw` and `cqw` all resolve genuinely. Narrowing an element on a desktop-width page does *not* work: `vw` still measures the desktop window and the numbers lie.
+
+Two caveats when auditing in an automated browser: a backgrounded tab throttles `requestAnimationFrame` to zero, so every entry animation freezes at `opacity: 0` (inject a `!important` stylesheet to force them visible — inline styles from Framer carry no `!important`), and an iframe cannot emulate touch, so `(hover: hover)` still matches and pointer-only effects stay active.
 
 ### Theming
 

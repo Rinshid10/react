@@ -74,13 +74,22 @@
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* `clip`, never `hidden`. Both stop the ~18px sideways drift on a phone,
+     but `hidden` makes the element a scroll container, and that silently
+     disables `position: sticky` for every descendant — it breaks the
+     ScrollStack sections. `clip` does not create a scroll container, so the
+     stacks keep pinning. It is also the one overflow value that may pair with
+     `visible` on the other axis without being computed to `auto`. */
+  overflow-x: clip;
+}
 body {
   font-family: 'Inter', sans-serif;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip;              /* `hidden` here would break sticky too */
   transition: background 0.3s, color 0.3s;
 }
 a { text-decoration: none; color: inherit; }

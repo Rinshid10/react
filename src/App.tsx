@@ -16,6 +16,8 @@ import Footer from './components/Footer';
 import AnimatedCursor from './components/AnimatedCursor';
 import ScrollProgress from './components/effects/ScrollProgress';
 import './styles/global.css';
+// Last, so the phone-breakpoint fixes win ties against component stylesheets.
+import './styles/mobile.css';
 
 // Section order, top to bottom. Also drives the scroll-spy below, so it must
 // stay in sync with what is rendered.

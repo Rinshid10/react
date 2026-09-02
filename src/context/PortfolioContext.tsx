@@ -28,6 +28,7 @@ import {
   Project,
   CaseStudy,
   Service,
+  Guarantee,
   Experience,
   Testimonial,
   ProcessStep,
@@ -220,6 +221,34 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       startingPrice: 'Custom quote',
       timeline: '3–6 months',
       featured: true,
+    },
+  ];
+
+  // ==========================================================================
+  // Guarantees - the objections a client has before enquiring
+  // ==========================================================================
+  // Shown under the services. These are promises about how you work, so they
+  // cost nothing to make and everything to break — keep them true.
+  const defaultGuarantees: Guarantee[] = [
+    {
+      icon: 'shield',
+      title: 'One person accountable',
+      description: 'Clear communication and ownership across the whole project.',
+    },
+    {
+      icon: 'clock',
+      title: 'On-time delivery',
+      description: 'Realistic timelines agreed up front, with milestone tracking.',
+    },
+    {
+      icon: 'chart',
+      title: 'Data-driven approach',
+      description: 'Decisions backed by numbers you can check, not guesswork.',
+    },
+    {
+      icon: 'headphones',
+      title: 'Post-launch support',
+      description: 'I stick around after release to support and keep improving.',
     },
   ];
 
@@ -649,6 +678,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   const [projects, setProjects] = useState<Project[]>(defaultProjects);
   const [caseStudies, setCaseStudies] = useState<CaseStudy[]>(defaultCaseStudies);
   const [services, setServices] = useState<Service[]>(defaultServices);
+  const [guarantees, setGuarantees] = useState<Guarantee[]>(defaultGuarantees);
   const [experience, setExperience] = useState<Experience[]>(defaultExperience);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
   const [process, setProcess] = useState<ProcessStep[]>(defaultProcess);
@@ -690,6 +720,15 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
               startingPrice: (s.startingPrice as string) || undefined,
               timeline: (s.timeline as string) || undefined,
               featured: Boolean(s.featured),
+            }))
+          );
+        }
+        if (Array.isArray(data.guarantees) && data.guarantees.length) {
+          setGuarantees(
+            data.guarantees.map((g: Record<string, unknown>) => ({
+              icon: (g.icon as string) ?? 'shield',
+              title: (g.title as string) ?? '',
+              description: (g.description as string) ?? '',
             }))
           );
         }
@@ -800,6 +839,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     projects,
     caseStudies,
     services,
+    guarantees,
     experience,
     testimonials,
     process,

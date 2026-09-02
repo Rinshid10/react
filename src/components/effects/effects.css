@@ -151,3 +151,123 @@
   .magnetic { transform: none !important; }
   .tilt-card-inner { transform: none !important; }
 }
+
+/* --- ParallaxCarousel ------------------------------------------------------ */
+
+.pcarousel { position: relative; }
+
+.pcarousel-rail {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* Swiping past the last card must not hand the scroll to the page. */
+  overscroll-behavior-x: contain;
+  /* Room for the cards' hover lift, and space so the first/last card can sit
+     against the section's normal margin rather than the viewport edge. */
+  padding: 0.5rem 0.25rem 1.5rem;
+  scrollbar-width: none;              /* the arrows and snapping carry it */
+}
+.pcarousel-rail::-webkit-scrollbar { display: none; }
+.pcarousel-rail:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+
+.pcarousel-card {
+  flex: 0 0 auto;
+  width: clamp(268px, 30vw, 360px);
+  scroll-snap-align: start;
+  /* Clips the inner layer's drift so it never spills onto its neighbour. */
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-primary);
+  transition: border-color 0.3s;
+}
+.pcarousel-card:hover { border-color: var(--line-strong); }
+
+/* The layer that drifts. Slightly wider than its frame so the movement never
+   exposes a bare edge. */
+.pcarousel-inner {
+  height: 100%;
+  will-change: transform;
+}
+
+
+.pcarousel-btn {
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  transition: background 0.25s, border-color 0.25s, color 0.25s, opacity 0.25s;
+}
+.pcarousel-btn:hover:not(:disabled) {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.pcarousel-btn:disabled { opacity: 0.3; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pcarousel-rail { scroll-behavior: auto; }
+  .pcarousel-inner { transform: none !important; }
+}
+
+@media (max-width: 700px) {
+  .pcarousel-rail { gap: 0.9rem; padding-bottom: 1.25rem; }
+  /* Nearly full width, with a sliver of the next card showing so it is
+     obvious the row scrolls. */
+  .pcarousel-card { width: 86vw; }
+  .pcarousel-dot { width: 28px; }
+  .pcarousel-dot.active::before { width: 18px; }
+}
+
+/* Arrows sit outside the rail, vertically centred against it. `top: 50%` with
+   a translate is safe here because these are plain buttons, not Framer-driven
+   elements whose transform would be overwritten. */
+.pcarousel-prev,
+.pcarousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.pcarousel-prev { left: -1.25rem; }
+.pcarousel-next { right: -1.25rem; }
+
+.pcarousel-dots {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* The button is a comfortable target; the visible dot is drawn inside it as a
+   pseudo-element. A 7px button would be a real control almost nobody could
+   hit with a thumb. */
+.pcarousel-dot {
+  display: grid;
+  place-items: center;
+  width: 32px; height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.pcarousel-dot::before {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--line-strong);
+  transition: background 0.25s, width 0.25s;
+}
+.pcarousel-dot.active::before {
+  width: 22px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+@media (max-width: 900px) {
+  /* No room to hang the arrows outside the rail at this width. */
+  .pcarousel-prev, .pcarousel-next { display: none; }
+}
