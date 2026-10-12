@@ -27,11 +27,32 @@ export const ADMIN_TEAM_ID = 'admins';
 /** A row plus whatever columns its table defines. */
 export type Row = Models.Row & Record<string, unknown>;
 
-const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID);
+/**
+ * Built on first use, not at import time. `setEndpoint('')` throws, so a
+ * deployment missing the env vars would take the whole panel down with a blank
+ * page before React ever mounted — defeating the "Appwrite is not configured"
+ * screen in `App` that exists for exactly that case. Same reason
+ * `src/lib/appwrite.ts` defers its own client.
+ */
+let sdk: { account: Account; teams: Teams; tables: TablesDB } | null = null;
 
-const account = new Account(client);
-const teams = new Teams(client);
-const tables = new TablesDB(client);
+const getSdk = () => {
+  if (!sdk) {
+    const client = new Client()
+      .setEndpoint(APPWRITE_ENDPOINT)
+      .setProject(APPWRITE_PROJECT_ID);
+    sdk = {
+      account: new Account(client),
+      teams: new Teams(client),
+      tables: new TablesDB(client),
+    };
+  }
+  return sdk;
+};
+
+const account = () => getSdk().account;
+const teams = () => getSdk().teams;
+const tables = () => getSdk().tables;
 
 // ---------------------------------------------------------------------------
 // Auth
@@ -43,16 +64,16 @@ const tables = new TablesDB(client);
  */
 export const currentUser = async (): Promise<Models.User<Models.Preferences> | null> => {
   try {
-    return await account.get();
+    return await account().get();
   } catch {
     return null;
   }
 };
 
 export const signIn = (email: string, password: string) =>
-  account.createEmailPasswordSession({ email, password });
+  account().createEmailPasswordSession({ email, password });
 
-export const signOut = () => account.deleteSession({ sessionId: 'current' });
+export const signOut = () => account().deleteSession({ sessionId: 'current' });
 
 export interface AdminCheck {
   isAdmin: boolean;
@@ -70,10 +91,10 @@ export interface AdminCheck {
  */
 export const checkAdmin = async (): Promise<AdminCheck> => {
   try {
-    const list = await teams.list();
+    const list = await teams().list();
     if (list.teams.some((team) => team.$id === ADMIN_TEAM_ID)) return { isAdmin: true };
 
-    // `teams.list()` returns only the teams this account belongs to, so an
+    // `teams().list()` returns only the teams this account belongs to, so an
     // empty result and a wrong-id result need different fixes. Naming what was
     // actually found turns a dead end into a diagnosis.
     if (list.teams.length === 0) {
@@ -110,7 +131,7 @@ export const checkAdmin = async (): Promise<AdminCheck> => {
 // ---------------------------------------------------------------------------
 
 export const listRows = async (tableId: string, ordered = true): Promise<Row[]> => {
-  const res = await tables.listRows({
+  const res = await tables().listRows({
     databaseId: APPWRITE_DATABASE_ID,
     tableId,
     // limit(100) is not optional — Appwrite's default page size is 25 and it
@@ -122,7 +143,7 @@ export const listRows = async (tableId: string, ordered = true): Promise<Row[]> 
 
 export const getSingleton = async (tableId: string): Promise<Row | null> => {
   try {
-    return (await tables.getRow({
+    return (await tables().getRow({
       databaseId: APPWRITE_DATABASE_ID,
       tableId,
       rowId: SINGLETON_ROW_ID,
@@ -137,7 +158,7 @@ export const getSingleton = async (tableId: string): Promise<Row | null> => {
 
 export const saveSingleton = async (tableId: string, data: Record<string, unknown>) => {
   try {
-    await tables.updateRow({
+    await tables().updateRow({
       databaseId: APPWRITE_DATABASE_ID,
       tableId,
       rowId: SINGLETON_ROW_ID,
@@ -145,7 +166,7 @@ export const saveSingleton = async (tableId: string, data: Record<string, unknow
     });
   } catch (error) {
     if (!(error instanceof AppwriteException) || error.code !== 404) throw error;
-    await tables.createRow({
+    await tables().createRow({
       databaseId: APPWRITE_DATABASE_ID,
       tableId,
       rowId: SINGLETON_ROW_ID,
@@ -155,7 +176,7 @@ export const saveSingleton = async (tableId: string, data: Record<string, unknow
 };
 
 export const createRow = (tableId: string, data: Record<string, unknown>) =>
-  tables.createRow({
+  tables().createRow({
     databaseId: APPWRITE_DATABASE_ID,
     tableId,
     rowId: ID.unique(),
@@ -163,10 +184,10 @@ export const createRow = (tableId: string, data: Record<string, unknown>) =>
   });
 
 export const updateRow = (tableId: string, rowId: string, data: Record<string, unknown>) =>
-  tables.updateRow({ databaseId: APPWRITE_DATABASE_ID, tableId, rowId, data });
+  tables().updateRow({ databaseId: APPWRITE_DATABASE_ID, tableId, rowId, data });
 
 export const deleteRow = (tableId: string, rowId: string) =>
-  tables.deleteRow({ databaseId: APPWRITE_DATABASE_ID, tableId, rowId });
+  tables().deleteRow({ databaseId: APPWRITE_DATABASE_ID, tableId, rowId });
 
 // ---------------------------------------------------------------------------
 // Enquiries
@@ -177,7 +198,7 @@ export const deleteRow = (tableId: string, rowId: string) =>
  * they arrived.
  */
 export const listEnquiries = async (): Promise<Row[]> => {
-  const res = await tables.listRows({
+  const res = await tables().listRows({
     databaseId: APPWRITE_DATABASE_ID,
     tableId: ENQUIRIES_TABLE,
     queries: [Query.limit(100), Query.orderDesc('$createdAt')],

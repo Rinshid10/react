@@ -1,0 +1,23 @@
+# Portfolio + admin panel. Vite emits two HTML entries:
+#   dist/index.html        →  /
+#   dist/admin/index.html  →  /admin/
+#
+# Do not add a catch-all SPA redirect. That would serve the portfolio at
+# /admin and hide the panel.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Vite inlines these at build time. Also set them in the Netlify UI
+# (Site settings → Environment variables) so Git-triggered builds work.
+# Never add APPWRITE_API_KEY here.
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin/"
+  status = 301
+  force = true

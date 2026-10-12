@@ -1,0 +1,3 @@
+# Pretty URL for the admin entry. Do not add /* → /index.html —
+# that would hide dist/admin/index.html behind the portfolio.
+/admin  /admin/  301!
