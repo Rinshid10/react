@@ -6,7 +6,7 @@ import {
   FiSend,
   FiGithub,
   FiLinkedin,
-  FiTwitter,
+  FiInstagram,
   FiCheck,
   FiClock,
   FiMessageCircle,
@@ -244,13 +244,13 @@ const Contact = () => {
                   <FiLinkedin />
                 </motion.a>
                 <motion.a
-                  href={personalInfo.social.twitter}
+                  href={personalInfo.social.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Twitter"
+                  aria-label="Instagram"
                   whileHover={{ scale: 1.2 }}
                 >
-                  <FiTwitter />
+                  <FiInstagram />
                 </motion.a>
               </div>
             </div>

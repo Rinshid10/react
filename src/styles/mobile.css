@@ -104,9 +104,9 @@
   /* Plain text links in lists were the easiest thing to miss with a thumb —
      the footer navigation measured 17px tall. Each link becomes its own
      full-height row; the list gap closes up so the footer does not grow. */
-  .footer-section ul { gap: 0; }
-  .footer-section li { display: flex; }
-  .footer-section a,
+  .footer-nav { gap: 0 1.5rem; }
+  .footer-nav li { display: flex; }
+  .footer-nav a,
   .contact-item a,
   .info-item a,
   .rail-email {
@@ -116,7 +116,7 @@
   }
   /* Full-width so the whole row is tappable, not just the few characters of
      a short label like "Work". */
-  .footer-section a { width: 100%; }
+  .footer-nav a { width: 100%; }
 
   /* --- Readable text ------------------------------------------------------
      Small caps-and-letterspacing labels were the worst offenders — letter
