@@ -256,26 +256,6 @@ export const projects = [
 
 export const experience = [
   {
-    order: 20,
-    role: 'Freelance Flutter Developer',
-    company: 'Self-employed',
-    location: 'Remote',
-    period: '2025 - Present',
-    startDate: '2025-07',
-    current: true,
-    description:
-      'Taking on freelance Flutter projects alongside my full-time role — working directly with founders and small teams from scoping through to store release and post-launch support.',
-    responsibilities: [
-      'Scoping and pricing projects with clients end to end',
-      'Building Flutter apps for Android and iOS from Figma designs to Play Store and App Store release',
-      'Integrating REST APIs, Firebase and third-party SDKs with Riverpod, BLoC or Provider',
-      'Maintaining and updating live apps after release',
-    ],
-    technologies: ['Flutter', 'Dart', 'Firebase', 'REST APIs', 'Figma'],
-    type: 'Freelance',
-    track: 'Development',
-  },
-  {
     order: 10,
     role: 'Flutter Developer',
     company: 'Zil Money',
