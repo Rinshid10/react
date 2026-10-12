@@ -256,6 +256,7 @@ const Projects = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="project-link"
+                            onClick={(e) => e.stopPropagation()}
                             initial={{ opacity: 0, y: 20 }}
                             animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                             transition={{ duration: 0.3, delay: 0.05 }}
@@ -273,6 +274,7 @@ const Projects = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="project-link"
+                            onClick={(e) => e.stopPropagation()}
                             initial={{ opacity: 0, y: 20 }}
                             animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                             transition={{ duration: 0.3, delay: 0.1 }}
@@ -290,6 +292,7 @@ const Projects = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="project-link"
+                            onClick={(e) => e.stopPropagation()}
                             initial={{ opacity: 0, y: 20 }}
                             animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                             transition={{ duration: 0.3, delay: 0.15 }}
@@ -298,7 +301,7 @@ const Projects = () => {
                             title="Play Store"
                           >
                             <SiGoogleplay />
-                            <span>Play</span>
+                            <span>Play Store</span>
                           </motion.a>
                         )}
                         {project.appStore && (
@@ -307,6 +310,7 @@ const Projects = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="project-link"
+                            onClick={(e) => e.stopPropagation()}
                             initial={{ opacity: 0, y: 20 }}
                             animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                             transition={{ duration: 0.3, delay: 0.2 }}
@@ -315,7 +319,7 @@ const Projects = () => {
                             title="App Store"
                           >
                             <SiAppstore />
-                            <span>Store</span>
+                            <span>App Store</span>
                           </motion.a>
                         )}
                       </div>

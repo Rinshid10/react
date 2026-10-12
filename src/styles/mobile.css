@@ -145,3 +145,80 @@
     letter-spacing: 0.1em;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Second mobile pass (Oct 2026), from a 390x844 audit
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  /* --- Section rhythm -------------------------------------------------------
+     6–7rem of padding top and bottom left near-empty screens between
+     sections on a phone. */
+  .services,
+  .about,
+  .skills,
+  .projects,
+  .process,
+  .experience,
+  .testimonials,
+  .contact {
+    padding: 3.5rem 1.25rem;
+  }
+
+  /* --- Process -------------------------------------------------------------
+     The pinned scroll-stack overlapped the four steps while scrolling and
+     dimmed the ones underneath, so their text bled through each other and
+     none was readable. On a phone they read best as a plain list. */
+  .scroll-stack-item { position: static !important; margin-bottom: 1rem; }
+  .scroll-stack-card { transform: none !important; opacity: 1 !important; }
+  .process-step { min-height: 0; padding: 1.5rem 1.25rem; }
+
+  /* --- Experience ----------------------------------------------------------
+     A narrower timeline gutter gives the card back its width, and the date
+     and location stack instead of squeezing into two thin columns. */
+  .timeline { padding-left: 1.25rem; }
+  .timeline-marker { left: -1.25rem; }
+  .timeline-content { padding: 1.25rem; }
+  .exp-role { font-size: 1.125rem; }
+  .exp-meta { flex-direction: column; gap: 0.35rem; }
+}
+
+/* --- Projects on touch screens ----------------------------------------------
+   The Code / Live / Play / App Store buttons lived in a hover overlay, so on a
+   phone they never appeared and the store links were unreachable from the
+   card. On touch devices the buttons sit in a visible row at the top of the
+   card, and the large placeholder phone icon (≈150px of empty space per card)
+   is dropped. */
+@media (hover: none), (max-width: 700px) {
+  .project-visual {
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+  .project-icon-bg { display: none; }
+
+  .project-overlay {
+    position: static;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    background: none;
+    justify-content: flex-start;
+    padding: 3.25rem 1.25rem 0;
+  }
+  .project-links { flex-wrap: wrap; gap: 0.5rem; }
+  .project-link {
+    opacity: 1 !important;
+    transform: none !important;
+    flex-direction: row;
+    gap: 0.4rem;
+    min-height: 40px;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.85rem;
+    color: var(--color-text-primary);
+    background: var(--color-bg-primary);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  .project-link span { opacity: 1 !important; font-size: 0.8rem; }
+
+  /* Cards with no links (nothing to show in the row) keep room for badges. */
+  .project-links:empty { display: none; }
+}
