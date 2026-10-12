@@ -146,14 +146,14 @@ const Contact = () => {
       return;
     }
 
-    const firstError = results.find((r): r is PromiseRejectedResult => r.status === 'rejected')
-      ?.reason;
+    // The services' own error text ("This form needs Activation…", Appwrite
+    // permission errors) is meant for the site owner, not a visitor, so it goes
+    // to the console and the visitor gets a plain message with a way through.
+    results.forEach((r) => {
+      if (r.status === 'rejected') console.warn('[enquiry] delivery failed:', r.reason);
+    });
     setStatus('error');
-    setErrorMessage(
-      firstError instanceof Error && firstError.message
-        ? `Couldn't send that — ${firstError.message}`
-        : "Couldn't send that."
-    );
+    setErrorMessage("Sorry, the message couldn't be sent right now.");
   };
 
   return (
