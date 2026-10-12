@@ -14,6 +14,7 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { isAppwriteConfigured } from '../config';
 import { submitEnquiry } from '../lib/appwrite';
+import { enquiryRecipient, sendEnquiryEmail } from '../lib/enquiryMail';
 import { ContactForm } from '../types';
 import '../styles/Contact.css';
 import TextReveal3D from './effects/TextReveal3D';
@@ -120,33 +121,39 @@ const Contact = () => {
       return;
     }
 
-    // With no Appwrite project configured, hand the enquiry to the visitor's
-    // mail client rather than pretending to send it. A fresh clone of this repo
-    // then has a contact form that genuinely works, with no setup at all.
-    if (!isAppwriteConfigured) {
-      window.location.href = mailtoHref;
-      setStatus('sent');
-      setTimeout(() => setStatus('idle'), 3000);
-      return;
-    }
-
     setStatus('sending');
     setErrorMessage(null);
-    try {
-      await submitEnquiry(formData);
+
+    // Two independent deliveries, run side by side:
+    //   1. email straight to the inbox (FormSubmit) — the one that matters
+    //   2. a row in Appwrite, when it is configured — a searchable backup
+    // The enquiry counts as sent if either lands, so a paused Appwrite project
+    // or a mail-service hiccup alone never loses a lead.
+    const deliveries: Promise<void>[] = [
+      sendEnquiryEmail(formData, enquiryRecipient(personalInfo.email)),
+    ];
+    if (isAppwriteConfigured) deliveries.push(submitEnquiry(formData));
+
+    const results = await Promise.allSettled(deliveries);
+    const delivered = results.some((r) => r.status === 'fulfilled');
+
+    if (delivered) {
       setStatus('sent');
       // Clearing only on success. Wiping someone's typed message because the
       // network failed would lose the very thing they came here to send.
       setFormData(emptyForm);
-      setTimeout(() => setStatus('idle'), 3000);
-    } catch (error) {
-      setStatus('error');
-      setErrorMessage(
-        error instanceof Error && error.message
-          ? `Couldn't send that — ${error.message}`
-          : "Couldn't send that."
-      );
+      setTimeout(() => setStatus('idle'), 4000);
+      return;
     }
+
+    const firstError = results.find((r): r is PromiseRejectedResult => r.status === 'rejected')
+      ?.reason;
+    setStatus('error');
+    setErrorMessage(
+      firstError instanceof Error && firstError.message
+        ? `Couldn't send that — ${firstError.message}`
+        : "Couldn't send that."
+    );
   };
 
   return (
