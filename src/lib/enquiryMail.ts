@@ -15,7 +15,7 @@ import type { ContactForm } from '../types';
  * Key" → the key arrives by email. Put it in WEB3FORMS_ACCESS_KEY below, or set
  * VITE_WEB3FORMS_KEY in the host's environment variables.
  */
-const WEB3FORMS_ACCESS_KEY = '';
+const WEB3FORMS_ACCESS_KEY = 'd5ff2588-e8de-46c4-93af-fb382d6fe20f';
 
 const accessKey = () =>
   (import.meta.env.VITE_WEB3FORMS_KEY as string | undefined)?.trim() || WEB3FORMS_ACCESS_KEY;
