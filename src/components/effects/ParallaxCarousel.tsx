@@ -37,7 +37,18 @@ interface ParallaxCarouselProps {
   /** How far cards fade toward the rail edges, 0-1. */
   depth?: number;
   label?: string;
+  /**
+   * Advance one card every N ms, looping back to the first. Off when unset.
+   * Only runs where `autoPlayQuery` matches, never under reduced motion,
+   * and pauses while the rail is off screen or being touched.
+   */
+  autoPlay?: number;
+  /** Media query that enables autoplay. Defaults to phone widths. */
+  autoPlayQuery?: string;
 }
+
+/** How long autoplay waits after the reader touches the rail. */
+const RESUME_AFTER_MS = 6000;
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
@@ -47,6 +58,8 @@ const ParallaxCarousel = ({
   children,
   depth = 0.45,
   label = 'Carousel',
+  autoPlay,
+  autoPlayQuery = '(max-width: 700px)',
 }: ParallaxCarouselProps) => {
   const railRef = useRef<HTMLDivElement>(null);
   const [atStart, setAtStart] = useState(true);
@@ -114,6 +127,60 @@ const ParallaxCarousel = ({
       window.removeEventListener('resize', update);
     };
   }, [update, items.length]);
+
+  // Autoplay. Each tick scrolls to the next card's snap point, or back to the
+  // first from the last one. Native scrolling stays the single source of
+  // truth, so a swipe mid-cycle just becomes the new position.
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail || !autoPlay || items.length < 2) return;
+    if (prefersReducedMotion() || !window.matchMedia(autoPlayQuery).matches) return;
+
+    let pausedUntil = 0;
+
+    // At least half the rail on screen. Measured per tick (every few seconds)
+    // rather than observed, which is cheaper than it sounds and has no
+    // observer lifecycle to get wrong.
+    const onScreen = () => {
+      const r = rail.getBoundingClientRect();
+      const shown = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+      return shown >= r.height / 2;
+    };
+
+    const pause = () => {
+      pausedUntil = Date.now() + RESUME_AFTER_MS;
+    };
+    rail.addEventListener('pointerdown', pause, { passive: true });
+    rail.addEventListener('touchstart', pause, { passive: true });
+    rail.addEventListener('wheel', pause, { passive: true });
+    rail.addEventListener('focusin', pause);
+
+    const timer = window.setInterval(() => {
+      if (document.hidden || Date.now() < pausedUntil || !onScreen()) return;
+      const cards = Array.from(rail.children) as HTMLElement[];
+      const EDGE = 16;
+      const atLast = rail.scrollLeft >= rail.scrollWidth - rail.clientWidth - EDGE;
+      let current = 0;
+      let best = Infinity;
+      cards.forEach((c, i) => {
+        const d = Math.abs(c.offsetLeft - rail.scrollLeft);
+        if (d < best) {
+          best = d;
+          current = i;
+        }
+      });
+      const next = atLast ? 0 : Math.min(current + 1, cards.length - 1);
+      rail.scrollTo({ left: cards[next].offsetLeft, behavior: 'smooth' });
+    }, autoPlay);
+
+    return () => {
+      window.clearInterval(timer);
+      rail.removeEventListener('pointerdown', pause);
+      rail.removeEventListener('touchstart', pause);
+      rail.removeEventListener('wheel', pause);
+      rail.removeEventListener('focusin', pause);
+    };
+  }, [autoPlay, autoPlayQuery, items.length]);
 
   const page = (direction: 1 | -1) => {
     const rail = railRef.current;

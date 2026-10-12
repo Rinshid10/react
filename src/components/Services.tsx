@@ -84,7 +84,7 @@ const Services = () => {
           </p>
         </motion.div>
 
-        <ParallaxCarousel label="Services">
+        <ParallaxCarousel label="Services" autoPlay={4000}>
           {services.map((service, index) => {
             const Icon = serviceIcons[service.icon] ?? FiZap;
             return (
