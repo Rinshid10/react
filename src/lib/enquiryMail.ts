@@ -1,52 +1,54 @@
 import type { ContactForm } from '../types';
 
 /**
- * Emails a contact-form enquiry straight to the owner's inbox via FormSubmit
- * (https://formsubmit.co).
+ * Emails a contact-form enquiry to the owner's inbox via Web3Forms
+ * (https://web3forms.com).
  *
- * Why FormSubmit: the site is static, so it cannot hold an SMTP password or a
- * mail-API key without publishing it to every visitor. FormSubmit's AJAX
- * endpoint needs neither — the recipient address is the only configuration.
+ * The site is static, so it cannot hold an SMTP password or a private API key.
+ * A Web3Forms access key is different: it is public by design (it only says
+ * "deliver to the inbox this key was created for"), so it is safe in the
+ * bundle. Unlike FormSubmit it is not tied to one website address, so the same
+ * key works on localhost, a Vercel URL and a custom domain with no
+ * re-activation.
  *
- * One-time activation: the very first submission to a new address does not
- * deliver the enquiry. FormSubmit instead emails that address an "Activate
- * Form" link; after it is clicked once, every later submission arrives as a
- * normal email. The visitor-facing request still succeeds either way.
- *
- * Set VITE_ENQUIRY_EMAIL to send somewhere other than the profile email, or to
- * the random alias FormSubmit offers after activation, which keeps the real
- * address out of the page source.
+ * Get a key: web3forms.com → enter rinshidch10@gmail.com → "Create Access
+ * Key" → the key arrives by email. Put it in WEB3FORMS_ACCESS_KEY below, or set
+ * VITE_WEB3FORMS_KEY in the host's environment variables.
  */
-export const enquiryRecipient = (fallback: string) =>
-  (import.meta.env.VITE_ENQUIRY_EMAIL as string | undefined)?.trim() || fallback;
+const WEB3FORMS_ACCESS_KEY = '';
 
-export const sendEnquiryEmail = async (form: ContactForm, to: string): Promise<void> => {
+const accessKey = () =>
+  (import.meta.env.VITE_WEB3FORMS_KEY as string | undefined)?.trim() || WEB3FORMS_ACCESS_KEY;
+
+export const isEnquiryMailConfigured = () => Boolean(accessKey());
+
+export const sendEnquiryEmail = async (form: ContactForm): Promise<void> => {
+  const key = accessKey();
+  if (!key) throw new Error('Enquiry email is not configured (no Web3Forms access key).');
+
   const subject = form.subject?.trim() || `${form.projectType || 'Project'} enquiry`;
 
-  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(to)}`, {
+  const res = await fetch('https://api.web3forms.com/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({
-      // Field names become the row labels in the email.
+      access_key: key,
+      subject: `New enquiry: ${subject} — ${form.name}`,
+      from_name: 'Portfolio contact form',
+      // Gmail's "Reply" goes to the visitor.
+      replyto: form.email,
+      // Each field below becomes a labelled row in the email.
       Name: form.name,
       Email: form.email,
       'Project type': form.projectType || '—',
       Budget: form.budget || '—',
       Subject: subject,
       Message: form.message,
-      // FormSubmit controls (underscore-prefixed, not shown in the email).
-      _subject: `New enquiry: ${subject} — ${form.name}`,
-      _replyto: form.email, // "Reply" in Gmail goes to the visitor
-      _template: 'table',
-      _captcha: 'false', // the form has its own honeypot and timing check
     }),
   });
 
-  // FormSubmit answers 200 with { success: "false" } for some failures, so the
-  // body is checked as well as the status.
-  const data = (await res.json().catch(() => null)) as { success?: string | boolean; message?: string } | null;
-  const ok = res.ok && data != null && String(data.success) === 'true';
-  if (!ok) {
+  const data = (await res.json().catch(() => null)) as { success?: boolean; message?: string } | null;
+  if (!res.ok || !data?.success) {
     throw new Error(data?.message || `Mail service responded ${res.status}`);
   }
 };

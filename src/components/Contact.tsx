@@ -14,7 +14,7 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { isAppwriteConfigured } from '../config';
 import { submitEnquiry } from '../lib/appwrite';
-import { enquiryRecipient, sendEnquiryEmail } from '../lib/enquiryMail';
+import { isEnquiryMailConfigured, sendEnquiryEmail } from '../lib/enquiryMail';
 import { ContactForm } from '../types';
 import '../styles/Contact.css';
 import TextReveal3D from './effects/TextReveal3D';
@@ -121,17 +121,25 @@ const Contact = () => {
       return;
     }
 
+    // Nothing configured to deliver to: hand the enquiry to the visitor's own
+    // mail app, prefilled, rather than showing an error.
+    if (!isEnquiryMailConfigured() && !isAppwriteConfigured) {
+      window.location.href = mailtoHref;
+      setStatus('sent');
+      setTimeout(() => setStatus('idle'), 4000);
+      return;
+    }
+
     setStatus('sending');
     setErrorMessage(null);
 
     // Two independent deliveries, run side by side:
-    //   1. email straight to the inbox (FormSubmit) — the one that matters
+    //   1. email straight to the inbox (Web3Forms) — the one that matters
     //   2. a row in Appwrite, when it is configured — a searchable backup
     // The enquiry counts as sent if either lands, so a paused Appwrite project
     // or a mail-service hiccup alone never loses a lead.
-    const deliveries: Promise<void>[] = [
-      sendEnquiryEmail(formData, enquiryRecipient(personalInfo.email)),
-    ];
+    const deliveries: Promise<void>[] = [];
+    if (isEnquiryMailConfigured()) deliveries.push(sendEnquiryEmail(formData));
     if (isAppwriteConfigured) deliveries.push(submitEnquiry(formData));
 
     const results = await Promise.allSettled(deliveries);
