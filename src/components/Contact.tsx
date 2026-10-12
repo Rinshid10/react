@@ -73,7 +73,7 @@ const buildMailto = (email: string, form: ContactForm) => {
  * being three emails of qualifying questions.
  */
 const Contact = () => {
-  const { personalInfo, services, budgetRanges } = usePortfolio();
+  const { personalInfo } = usePortfolio();
   const ref = useRef<HTMLElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
@@ -303,43 +303,6 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Qualifying fields */}
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="projectType">What do you need?</label>
-                <select
-                  id="projectType"
-                  value={formData.projectType}
-                  onChange={(e) => update('projectType', e.target.value)}
-                  required
-                >
-                  <option value="">Select a service</option>
-                  {services.map((s) => (
-                    <option key={s.id} value={s.title}>
-                      {s.title}
-                    </option>
-                  ))}
-                  <option value="Something else">Something else</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="budget">Budget</label>
-                <select
-                  id="budget"
-                  value={formData.budget}
-                  onChange={(e) => update('budget', e.target.value)}
-                  required
-                >
-                  <option value="">Select a range</option>
-                  {budgetRanges.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             <div className="form-group">
               <label htmlFor="subject">Subject</label>
               <input
@@ -348,7 +311,6 @@ const Contact = () => {
                 value={formData.subject}
                 onChange={(e) => update('subject', e.target.value)}
                 required
-                placeholder="Project discussion"
               />
             </div>
 
@@ -360,7 +322,6 @@ const Contact = () => {
                 onChange={(e) => update('message', e.target.value)}
                 required
                 rows={5}
-                placeholder="What are you building, who is it for, and when do you need it?"
               />
             </div>
 

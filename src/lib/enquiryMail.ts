@@ -26,7 +26,7 @@ export const sendEnquiryEmail = async (form: ContactForm): Promise<void> => {
   const key = accessKey();
   if (!key) throw new Error('Enquiry email is not configured (no Web3Forms access key).');
 
-  const subject = form.subject?.trim() || `${form.projectType || 'Project'} enquiry`;
+  const subject = form.subject?.trim() || 'Enquiry';
 
   const res = await fetch('https://api.web3forms.com/submit', {
     method: 'POST',
@@ -40,8 +40,6 @@ export const sendEnquiryEmail = async (form: ContactForm): Promise<void> => {
       // Each field below becomes a labelled row in the email.
       Name: form.name,
       Email: form.email,
-      'Project type': form.projectType || '—',
-      Budget: form.budget || '—',
       Subject: subject,
       Message: form.message,
     }),
