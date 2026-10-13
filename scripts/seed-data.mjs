@@ -242,7 +242,7 @@ export const projects = [
   },
   {
     order: 90,
-    title: 'Shop Easy — E-commerce',
+    title: 'Shop Easy — Meesho Dropshipping',
     description:
       "A modern storefront with secure payments, a fast checkout and product discovery that stays out of the shopper's way.",
     image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600',
