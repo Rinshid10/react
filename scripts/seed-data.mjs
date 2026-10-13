@@ -252,6 +252,20 @@ export const projects = [
     featured: false,
     category: 'Web',
   },
+  {
+    order: 100,
+    title: 'Pulse Clinic',
+    description:
+      'A clinic management app. Patients book appointments and browse doctors on the public site, while staff run the clinic from separate admin, HR, roster and payroll, billing and pharmacy consoles.',
+    longDescription:
+      'Pulse is a clinic management app. Patients book appointments and browse doctors on the public site. Staff run the clinic from separate consoles for admin, HR, roster and payroll, billing, and pharmacy. The website is React (Vite), and shared data lives in a Node, Express, and MongoDB API.',
+    image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600',
+    technologies: ['React', 'Vite', 'Node.js', 'Express', 'MongoDB'],
+    github: 'https://github.com/Rinshid10/Pulse_clinic',
+    live: 'https://pulseclinicpr.netlify.app/',
+    featured: false,
+    category: 'Full Stack',
+  },
 ];
 
 export const experience = [
