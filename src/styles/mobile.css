@@ -222,3 +222,12 @@
   /* Cards with no links (nothing to show in the row) keep room for badges. */
   .project-links:empty { display: none; }
 }
+
+/* Project cards that carry a photo (Full Stack / Backend) instead of an icon:
+   cap the photo so those cards stay in step with the icon-less ones, and
+   start the button row right under it — the extra top padding above exists
+   only to clear the badges on cards with no photo. */
+@media (hover: none), (max-width: 700px) {
+  .project-img { display: block; height: 140px; }
+  .project-img + .project-overlay { padding-top: 0.9rem; }
+}
