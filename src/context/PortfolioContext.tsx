@@ -358,7 +358,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600',
       technologies: ['React', 'TypeScript', 'Firebase', 'Stripe'],
       github: 'https://github.com/Rinshid10/shopeasy',
-      live: 'https://rinshdss.vercel.app/',
+      live: 'https://makeeasyshop.netlify.app/',
       featured: false,
       category: 'Web',
     },
