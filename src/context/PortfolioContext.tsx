@@ -374,7 +374,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       github: 'https://github.com/Rinshid10/Pulse_clinic',
       live: 'https://pulseclinicpr.netlify.app/',
       featured: false,
-      category: 'Full Stack',
+      category: 'Web',
     },
   ];
 

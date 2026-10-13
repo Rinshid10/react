@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo } from 'react';
 import { motion, useInView, AnimatePresence, Variants } from 'framer-motion';
-import { FiGithub, FiExternalLink, FiSmartphone, FiGlobe, FiArrowUpRight } from 'react-icons/fi';
+import { FiExternalLink, FiSmartphone, FiGlobe, FiArrowUpRight } from 'react-icons/fi';
 import { SiGoogleplay, SiAppstore } from 'react-icons/si';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Project } from '../types';
@@ -249,25 +249,9 @@ const Projects = () => {
                       transition={{ duration: 0.3 }}
                       style={{ pointerEvents: isHovered ? 'auto' : 'none' }}
                     >
+                      {/* Source-code links are intentionally not shown; the
+                          `github` field stays in the data for later use. */}
                       <div className="project-links">
-                        {project.github && (
-                          <motion.a
-                            href={project.github}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="project-link"
-                            onClick={(e) => e.stopPropagation()}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                            transition={{ duration: 0.3, delay: 0.05 }}
-                            whileHover={{ scale: 1.15, y: -2 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="View Code"
-                          >
-                            <FiGithub />
-                            <span>Code</span>
-                          </motion.a>
-                        )}
                         {project.live && (
                           <motion.a
                             href={project.live}
@@ -420,11 +404,6 @@ const Projects = () => {
             </div>
 
             <div className="project-modal-links">
-              {openProject.github && (
-                <a href={openProject.github} target="_blank" rel="noopener noreferrer">
-                  <FiGithub /> Source code
-                </a>
-              )}
               {openProject.live && (
                 <a href={openProject.live} target="_blank" rel="noopener noreferrer">
                   <FiExternalLink /> Live site
