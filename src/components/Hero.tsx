@@ -92,7 +92,7 @@ const Hero = () => {
             variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.6 }}
           >
-            Software engineer.
+            Software Engineer.
             <br />
             {personalInfo.tagline}
           </motion.p>
