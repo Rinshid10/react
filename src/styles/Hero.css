@@ -251,33 +251,11 @@
 .hero-socials a { color: var(--color-text-secondary); transition: color 0.25s, transform 0.25s; }
 .hero-socials a:hover { color: var(--color-text-primary); transform: translateY(-2px); }
 
-.hero-update {
-  position: absolute;
-  right: clamp(1.25rem, 4vw, 4rem);
-  bottom: clamp(1.5rem, 4vh, 2.75rem);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 1.15rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-full);
-  background: var(--surface-soft);
-  font-size: 0.82rem;
-  color: var(--color-text-secondary);
-}
-.update-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--color-success);
-  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5);
-  animation: pulse-dot 2.4s infinite;
-}
 @keyframes pulse-dot {
   0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.5); }
   70%  { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
 }
-.light-mode .update-dot { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); }
 
 /* --- Right-edge scroll rail ----------------------------------------------- */
 
@@ -350,5 +328,4 @@
   .art-cta { width: 100%; justify-content: center; }
 
   .hero-socials { gap: 1.25rem; font-size: 1.05rem; }
-  .hero-update { padding: 0.45rem 0.9rem; font-size: 0.72rem; }
 }

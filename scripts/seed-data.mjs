@@ -18,9 +18,9 @@
 
 export const personalInfo = {
   name: 'Rinshid',
-  title: 'Flutter Developer',
+  title: 'Software Engineer',
   roles: ['Flutter Developer', 'React Developer', 'Freelancer'],
-  tagline: 'I build cross-platform apps that ship and keep working.',
+  tagline: 'I build cross-platform apps and websites that ship and keep working.',
   taglineEmphasis: 'and keep working',
   heroBadge: 'Building digital experiences that make an impact',
   heroScript: "Hey, I'm",
@@ -236,7 +236,7 @@ export const projects = [
     image: 'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=600',
     technologies: ['Flutter', 'Provider', 'Firebase', 'WebSocket'],
     github: 'https://github.com/Rinshid10/chat-App',
-    live: 'https://rinshdss.vercel.app/',
+    live: 'https://letschatme.netlify.app/',
     featured: false,
     category: 'Web',
   },

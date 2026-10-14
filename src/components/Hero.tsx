@@ -17,15 +17,14 @@ import Magnetic from './effects/Magnetic';
  * because `.art-wordmark` fades where the figure begins (see Hero.css), so
  * the letters crossing the face stay readable instead of being covered.
  *
- * The corners carry the small stuff: socials bottom-left, an update pill
- * bottom-right, and a vertical scroll rail down the right edge.
+ * The corners carry the small stuff: socials bottom-left and a vertical
+ * scroll rail down the right edge.
  */
 
 
 const Hero = () => {
   const { personalInfo } = usePortfolio();
   const { setActiveSection } = useTheme();
-  const year = new Date().getFullYear();
 
   const scrollTo = (id: string) => {
     const element = document.getElementById(id);
@@ -93,7 +92,7 @@ const Hero = () => {
             variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.6 }}
           >
-            Flutter developer.
+            Software engineer.
             <br />
             {personalInfo.tagline}
           </motion.p>
@@ -133,17 +132,6 @@ const Hero = () => {
           </a>
         ))}
       </motion.div>
-
-      {/* Bottom-right update pill */}
-      <motion.span
-        className="hero-update"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.7, delay: 1 }}
-      >
-        <span className="update-dot" aria-hidden="true" />
-        Update : {year}
-      </motion.span>
 
       {/* Right-edge scroll rail */}
       <motion.div
