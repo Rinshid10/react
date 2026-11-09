@@ -129,7 +129,8 @@
   .category-pill,
   .case-industry,
   .metric-note,
-  .process-duration,
+  .journey-when,
+  .journey-index,
   .hero-stat-label,
   .stat-label,
   .skill-category-tag,
@@ -163,14 +164,6 @@
   .contact {
     padding: 3.5rem 1.25rem;
   }
-
-  /* --- Process -------------------------------------------------------------
-     The pinned scroll-stack overlapped the four steps while scrolling and
-     dimmed the ones underneath, so their text bled through each other and
-     none was readable. On a phone they read best as a plain list. */
-  .scroll-stack-item { position: static !important; margin-bottom: 1rem; }
-  .scroll-stack-card { transform: none !important; opacity: 1 !important; }
-  .process-step { min-height: 0; padding: 1.5rem 1.25rem; }
 
   /* --- Experience ----------------------------------------------------------
      A narrower timeline gutter gives the card back its width, and the date

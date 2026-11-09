@@ -1,30 +1,181 @@
 .process { padding: 6rem 2rem; }
 .process-container { max-width: 1200px; margin: 0 auto; }
 
+/* ---------------------------------------------------------------------------
+   Journey: the steps on one connected rule.
 
+   Wide screens: a horizontal row. Each step is a column; the node sits on a
+   rule that runs behind every node, with the duration above and the copy
+   below. Narrow screens: the same markup turned vertical, rule on the left,
+   so it reads like the Experience timeline that follows this section.
+--------------------------------------------------------------------------- */
 
-.process-step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 2rem 1.5rem; background: var(--color-bg-secondary); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--radius-xl); transition: border-color 0.3s, box-shadow 0.3s; }
-.process-step:hover { border-color: rgba(255, 255, 255, 0.4); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15); }
+.journey {
+  --node: 3.25rem;              /* node diameter; the rule is centred on it */
+  --rule: 1px;
+  --when-row: 2.4rem;           /* duration label height + gap below it */
 
-.process-number { position: absolute; top: 1rem; right: 1.25rem; font-size: 2.5rem; font-weight: 800; line-height: 1; color: var(--color-text-primary); opacity: 0.06; }
-.process-icon { display: grid; place-items: center; width: 3rem; height: 3rem; margin-bottom: 1.25rem; border-radius: var(--radius-lg); font-size: 1.25rem; color: var(--color-on-accent); background: var(--gradient-primary); }
-.process-step h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem; }
-.process-duration { display: inline-block; margin-bottom: 0.75rem; padding: 0.15rem 0.6rem; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255, 255, 255, 0.12); color: var(--color-accent-light); }
-.process-step p { color: var(--color-text-secondary); font-size: 0.9rem; }
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--steps, 4), minmax(0, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+  list-style: none;
+}
+
+/* The rule. Horizontally it spans from the first node's centre to the last
+   node's centre, so it never pokes out past the end points. */
+.journey-line {
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--when-row) + var(--node) / 2);
+  left: calc(100% / var(--steps, 4) / 2);
+  right: calc(100% / var(--steps, 4) / 2);
+  height: var(--rule);
+  background: var(--line-strong);
+  transform-origin: left center;
+}
+
+.journey-step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Duration label: a fixed-height row above the node so every node lines up
+   on the rule even when one step has no duration. */
+.journey-when {
+  display: inline-flex;
+  align-items: center;
+  height: 1.5rem;
+  margin-bottom: calc(var(--when-row) - 1.5rem);
+  padding: 0 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-primary);
+}
+.journey-step:not(:has(.journey-when)) { padding-top: var(--when-row); }
+
+/* The node. Opaque ground so it covers the rule passing behind it. */
+.journey-node {
+  display: grid;
+  place-items: center;
+  width: var(--node);
+  height: var(--node);
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  font-size: 1.15rem;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  /* A halo in the page colour pushes the rule back from the ring. */
+  box-shadow: 0 0 0 6px var(--color-bg-primary);
+  transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.journey-step:hover .journey-node,
+.journey-step.is-last .journey-node {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.journey-step:hover .journey-node { transform: translateY(-2px); }
+
+.journey-body { max-width: 240px; margin-top: 1.25rem; }
+
+.journey-index {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.journey-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.journey-copy {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+/* --- Call to action ------------------------------------------------------- */
+
+.journey-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 4rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.journey-cta p { font-size: 0.95rem; color: var(--color-text-secondary); }
+.journey-cta .btn svg { transition: transform 0.25s; }
+.journey-cta .btn:hover svg { transform: translateX(3px); }
+
+/* --- Narrow: vertical timeline --------------------------------------------
+   Below ~900px four columns squeeze the copy into slivers, so the row turns
+   into a column with the rule down the left. */
+@media (max-width: 900px) {
+  .journey {
+    --node: 2.75rem;
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-left: calc(var(--node) + 1.25rem);
+  }
+
+  .journey-line {
+    top: calc(var(--node) / 2);
+    bottom: calc(var(--node) / 2);
+    left: calc(var(--node) / 2);
+    right: auto;
+    width: var(--rule);
+    height: auto;
+    transform-origin: center top;
+  }
+
+  .journey-step {
+    align-items: flex-start;
+    text-align: left;
+    padding-bottom: 2.5rem;
+  }
+  .journey-step:last-child { padding-bottom: 0; }
+  .journey-step:not(:has(.journey-when)) { padding-top: 0; }
+
+  .journey-node {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * (var(--node) + 1.25rem));
+    font-size: 1rem;
+  }
+
+  /* Duration moves beside the step label rather than above the node. */
+  .journey-when { order: 1; height: auto; margin: 0 0 0.6rem; padding: 0.2rem 0.6rem; }
+  .journey-body { order: 2; max-width: none; margin-top: 0; }
+  .journey-index { margin-bottom: 0.3rem; }
+  .journey-title { font-size: 1.1rem; }
+}
 
 @media (max-width: 640px) {
   .process { padding: 4rem 1rem; }
-  
 }
 
-/* Stacked cards need an opaque ground so the card above fully covers the one
-   beneath, and a minimum height so each holds the screen while pinned. */
-.process-step {
-  background: var(--color-bg-secondary);
-  min-height: 260px;
-  padding: 2.5rem 2rem;
-}
-
-@media (max-width: 640px) {
-  .process-step { min-height: 220px; padding: 2rem 1.5rem; }
+@media (prefers-reduced-motion: reduce) {
+  .journey-node, .journey-cta .btn svg { transition: none; }
+  .journey-step:hover .journey-node { transform: none; }
 }
