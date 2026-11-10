@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, FormEvent } from 'react';
-import { motion, useInView } from 'framer-motion';
+import type { ComponentType } from 'react';
+import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion';
 import {
   FiMail,
   FiMapPin,
@@ -7,8 +8,10 @@ import {
   FiGithub,
   FiLinkedin,
   FiInstagram,
-  FiCheck,
   FiClock,
+  FiUser,
+  FiTag,
+  FiMessageSquare,
   FiMessageCircle,
 } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
@@ -43,6 +46,8 @@ const HONEYPOT_FIELD = 'company_website';
  */
 const MIN_FILL_MS = 2000;
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 /**
  * Builds a mailto: draft carrying the whole enquiry.
  *
@@ -66,17 +71,95 @@ const buildMailto = (email: string, form: ContactForm) => {
 };
 
 /**
+ * The paper plane and its looping trail. The trail draws itself when the
+ * section comes into view, then the plane keeps drifting on a slow loop so
+ * the corner never goes fully still.
+ */
+const PaperPlane = ({ play, reduce }: { play: boolean; reduce: boolean }) => (
+  <motion.div
+    className="contact-plane"
+    aria-hidden="true"
+    initial={{ opacity: 0, x: -24, y: 16 }}
+    animate={play ? { opacity: 1, x: 0, y: 0 } : {}}
+    transition={{ duration: 0.9, delay: 0.3, ease: EASE }}
+  >
+    <svg viewBox="0 0 200 170" fill="none">
+      {/* The loop of the trail, dashed, drawn on entry. */}
+      <motion.path
+        d="M120 92 C 70 160, -10 150, 14 110 C 38 72, 110 70, 132 60"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeDasharray="6 7"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={play ? { pathLength: 1, opacity: 0.85 } : {}}
+        transition={{ duration: reduce ? 0 : 1.4, delay: 0.5, ease: 'easeInOut' }}
+      />
+      <motion.g
+        animate={reduce ? {} : { y: [0, -7, 0], rotate: [0, 2, 0] }}
+        transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ transformOrigin: '150px 55px' }}
+      >
+        {/* Upper wing */}
+        <path d="M198 2 L68 62 L112 78 Z" fill="currentColor" opacity="0.95" />
+        {/* Lower wing, a shade darker so the fold reads */}
+        <path d="M198 2 L112 78 L118 112 Z" fill="currentColor" opacity="0.55" />
+        {/* The fold line */}
+        <path d="M198 2 L112 78" stroke="var(--color-bg-secondary)" strokeWidth="1.5" />
+        {/* Tail flap */}
+        <path d="M112 78 L96 100 L118 112 Z" fill="currentColor" opacity="0.35" />
+      </motion.g>
+    </svg>
+  </motion.div>
+);
+
+/** One of the three info cards: round icon, small label, the value. */
+const InfoCard = ({
+  Icon,
+  label,
+  children,
+  delay,
+  play,
+}: {
+  Icon: ComponentType;
+  label: string;
+  children: React.ReactNode;
+  delay: number;
+  play: boolean;
+}) => (
+  <motion.div
+    className="contact-item"
+    initial={{ opacity: 0, y: 18 }}
+    animate={play ? { opacity: 1, y: 0 } : {}}
+    transition={{ duration: 0.55, delay, ease: EASE }}
+    whileHover={{ y: -3 }}
+  >
+    <span className="contact-icon">
+      <Icon />
+    </span>
+    <span className="contact-item-text">
+      <span className="label">{label}</span>
+      {children}
+    </span>
+  </motion.div>
+);
+
+/**
  * Contact Component
  *
- * A freelance enquiry form, not a generic "say hi" box. Project type and
- * budget are asked up front so the first reply can be useful instead of
- * being three emails of qualifying questions.
+ * A freelance enquiry form, not a generic "say hi" box. Two columns under a
+ * centred header: on the left, how to reach me (email, hours, location, the
+ * socials) with a paper plane looping overhead; on the right, the message
+ * card with icon-led fields and one wide send button. A hairline divides
+ * the two, and the whole band sits on soft curved shapes and dot grids so
+ * the dark surface has depth without colour.
  */
 const Contact = () => {
   const { personalInfo } = usePortfolio();
   const ref = useRef<HTMLElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const reduce = useReducedMotion() ?? false;
   const [formData, setFormData] = useState<ContactForm>(emptyForm);
   const [status, setStatus] = useState<SubmitStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -164,14 +247,34 @@ const Contact = () => {
     setErrorMessage("Sorry, the message couldn't be sent right now.");
   };
 
+  const at = (i: number) => (reduce ? 0 : 0.2 + i * 0.1);
+
+  const socials = [
+    { href: personalInfo.social.github, label: 'GitHub', Icon: FiGithub },
+    { href: personalInfo.social.linkedin, label: 'LinkedIn', Icon: FiLinkedin },
+    { href: personalInfo.social.instagram, label: 'Instagram', Icon: FiInstagram },
+  ].filter((s) => s.href);
+
+  const buttonLabel =
+    status === 'sending' ? 'Sending…' : status === 'sent' ? 'Sent!' : status === 'error' ? 'Try again' : 'Send Enquiry';
+
   return (
     <section id="contact" className="contact" ref={ref}>
-      <motion.div
-        className="contact-container"
-        initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 1 } : {}}
-      >
-        <motion.div className="section-header">
+      {/* Backdrop: two big curved shapes and two dot grids, all decorative. */}
+      <div className="contact-backdrop" aria-hidden="true">
+        <span className="contact-arc contact-arc--tl" />
+        <span className="contact-arc contact-arc--br" />
+        <span className="contact-dots contact-dots--tl" />
+        <span className="contact-dots contact-dots--br" />
+      </div>
+
+      <div className="contact-container">
+        <motion.div
+          className="section-header"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+        >
           <span className="section-tag">Contact</span>
           <h2 className="section-title">
             <TextReveal3D>
@@ -179,151 +282,175 @@ const Contact = () => {
             </TextReveal3D>
           </h2>
           <p className="section-subtitle">
-            Tell me what you need and roughly what you can spend — I'll reply with whether
-            I'm the right fit and what it would take.
+            Tell me what you need and I'll get back to you as soon as possible — I'll reply
+            with whether I'm the right fit and what it would take.
           </p>
+          <motion.span
+            className="contact-rule"
+            initial={{ scaleX: 0 }}
+            animate={isInView ? { scaleX: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.4, ease: EASE }}
+          />
         </motion.div>
 
         <div className="contact-content">
-          <motion.div
-            className="contact-info"
-            initial={{ x: -50 }}
-            animate={isInView ? { x: 0 } : {}}
-          >
-            <h3>Get in Touch</h3>
-            <p>
-              Open to freelance projects, retainers and long-term build engagements.
-            </p>
+          {/* --- Get in touch ---------------------------------------------- */}
+          <div className="contact-info">
+            <PaperPlane play={isInView} reduce={reduce} />
+
+            <motion.h3
+              initial={{ opacity: 0, y: 18 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.55, delay: at(0), ease: EASE }}
+            >
+              Get in Touch
+            </motion.h3>
+            <motion.p
+              className="contact-intro"
+              initial={{ opacity: 0, y: 18 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.55, delay: at(1), ease: EASE }}
+            >
+              Open to freelance projects, retainers and long-term collaborations.
+            </motion.p>
 
             <div className="contact-details">
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <FiMail />
-                </div>
-                <div>
-                  <span className="label">Email</span>
-                  <a href={`mailto:${personalInfo.email}`}>{personalInfo.email}</a>
-                </div>
-              </div>
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <FiMapPin />
-                </div>
-                <div>
-                  <span className="label">Location</span>
-                  <span>{personalInfo.location}</span>
-                </div>
-              </div>
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <FiClock />
-                </div>
-                <div>
-                  <span className="label">Response time</span>
-                  <span>Usually within 24 hours</span>
-                </div>
-              </div>
+              <InfoCard Icon={FiMail} label="Email" delay={at(2)} play={isInView}>
+                <a href={`mailto:${personalInfo.email}`}>{personalInfo.email}</a>
+              </InfoCard>
+              {personalInfo.hours && (
+                <InfoCard Icon={FiClock} label="Hours" delay={at(3)} play={isInView}>
+                  <span>{personalInfo.hours}</span>
+                </InfoCard>
+              )}
+              <InfoCard Icon={FiMapPin} label="Location" delay={at(4)} play={isInView}>
+                <span>{personalInfo.location}</span>
+              </InfoCard>
             </div>
 
             {/* WhatsApp is the fastest route for most freelance leads */}
             {personalInfo.whatsapp && (
-              <a
+              <motion.a
                 className="btn btn-secondary whatsapp-btn"
                 href={`https://wa.me/${personalInfo.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 18 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.55, delay: at(5), ease: EASE }}
               >
                 <FiMessageCircle /> Message on WhatsApp
-              </a>
+              </motion.a>
             )}
 
-            <div className="contact-social">
-              <span>Follow me</span>
+            <motion.div
+              className="contact-social"
+              initial={{ opacity: 0, y: 18 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.55, delay: at(5), ease: EASE }}
+            >
+              <span className="contact-social-label">
+                Follow me <span className="contact-social-line" aria-hidden="true" />
+              </span>
               <div className="social-links">
-                <motion.a
-                  href={personalInfo.social.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GitHub"
-                  whileHover={{ scale: 1.2 }}
-                >
-                  <FiGithub />
-                </motion.a>
-                <motion.a
-                  href={personalInfo.social.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="LinkedIn"
-                  whileHover={{ scale: 1.2 }}
-                >
-                  <FiLinkedin />
-                </motion.a>
-                <motion.a
-                  href={personalInfo.social.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  whileHover={{ scale: 1.2 }}
-                >
-                  <FiInstagram />
-                </motion.a>
+                {socials.map(({ href, label, Icon }, i) => (
+                  <motion.a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20, delay: at(6) + i * 0.08 }}
+                    whileHover={reduce ? undefined : { y: -4 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Icon />
+                  </motion.a>
+                ))}
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
 
+          {/* --- Send a message -------------------------------------------- */}
           <motion.form
             ref={formRef}
             className="contact-form"
             onSubmit={handleSubmit}
-            initial={{ x: 50 }}
-            animate={isInView ? { x: 0 } : {}}
+            initial={{ opacity: 0, y: 28 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: at(1), ease: EASE }}
           >
+            <div className="contact-form-head">
+              <motion.span
+                className="contact-form-icon"
+                initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
+                animate={isInView ? { scale: 1, opacity: 1, rotate: 0 } : {}}
+                transition={{ type: 'spring', stiffness: 260, damping: 18, delay: at(2) }}
+              >
+                <FiMail />
+              </motion.span>
+              <div>
+                <h3>Send a Message</h3>
+                <p>Have a question or a project in mind? Let's talk.</p>
+              </div>
+            </div>
+
             <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
+              <label className="field" htmlFor="name">
+                <FiUser className="field-icon" aria-hidden="true" />
                 <input
                   type="text"
                   id="name"
+                  autoComplete="name"
                   value={formData.name}
                   onChange={(e) => update('name', e.target.value)}
                   required
                   placeholder="Your name"
+                  aria-label="Your name"
                 />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
+              </label>
+              <label className="field" htmlFor="email">
+                <FiMail className="field-icon" aria-hidden="true" />
                 <input
                   type="email"
                   id="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={(e) => update('email', e.target.value)}
                   required
-                  placeholder="your@email.com"
+                  placeholder="Your email"
+                  aria-label="Your email"
                 />
-              </div>
+              </label>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="subject">Subject</label>
+            <label className="field" htmlFor="subject">
+              <FiTag className="field-icon" aria-hidden="true" />
               <input
                 type="text"
                 id="subject"
                 value={formData.subject}
                 onChange={(e) => update('subject', e.target.value)}
                 required
+                placeholder="Subject"
+                aria-label="Subject"
               />
-            </div>
+            </label>
 
-            <div className="form-group">
-              <label htmlFor="message">Message</label>
+            <label className="field field--area" htmlFor="message">
+              <FiMessageSquare className="field-icon" aria-hidden="true" />
               <textarea
                 id="message"
                 value={formData.message}
                 onChange={(e) => update('message', e.target.value)}
                 required
-                rows={5}
+                rows={4}
+                placeholder="Your message..."
+                aria-label="Your message"
               />
-            </div>
+            </label>
 
             {/* Off-screen rather than `display:none` — some bots skip hidden
                 inputs but fill positioned ones. Never focusable or announced. */}
@@ -343,39 +470,55 @@ const Contact = () => {
                 visitor's job is done; an error asks them to do something, so it
                 stays until they do. The mailto link means the enquiry is never
                 actually lost. */}
-            {status === 'error' && (
-              <p className="form-error" role="alert">
-                {errorMessage} Your message is still here — try again, or email me
-                directly at <a href={mailtoHref}>{personalInfo.email}</a>.
-              </p>
-            )}
+            <AnimatePresence>
+              {status === 'error' && (
+                <motion.p
+                  className="form-error"
+                  role="alert"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {errorMessage} Your message is still here — try again, or email me
+                  directly at <a href={mailtoHref}>{personalInfo.email}</a>.
+                </motion.p>
+              )}
+            </AnimatePresence>
 
             <motion.button
               type="submit"
-              className={`btn btn-primary submit-btn ${submitted ? 'submitted' : ''}`}
+              className={`btn btn-primary submit-btn is-${status}`}
               disabled={isSubmitting || submitted}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={reduce || isSubmitting || submitted ? undefined : { scale: 1.01 }}
+              whileTap={reduce ? undefined : { scale: 0.985 }}
             >
-              {isSubmitting ? (
-                <span className="spinner" />
-              ) : submitted ? (
-                <>
-                  <FiCheck /> Sent!
-                </>
-              ) : status === 'error' ? (
-                <>
-                  <FiSend /> Try again
-                </>
-              ) : (
-                <>
-                  <FiSend /> Send Enquiry
-                </>
-              )}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={status}
+                  className="submit-state"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {status === 'sending' ? (
+                    <motion.span
+                      className="submit-plane"
+                      animate={reduce ? {} : { x: [0, 8, 0], y: [0, -5, 0] }}
+                      transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <FiSend />
+                    </motion.span>
+                  ) : (
+                    <FiSend className="submit-plane" />
+                  )}
+                  {buttonLabel}
+                </motion.span>
+              </AnimatePresence>
             </motion.button>
           </motion.form>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };

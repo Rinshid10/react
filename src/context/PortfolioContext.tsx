@@ -89,6 +89,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     bookingUrl: '',
     // TODO(real-data): international format, digits only, e.g. '919876543210'.
     whatsapp: '',
+    hours: '9:00 AM – 6:00 PM (GMT+5:30)',
     // Layered over the hero wordmark. Set to '' for a type-only hero.
     // Square head-and-shoulders cut-out; the hero sizes its box to suit that
     // crop, so swapping in a full-length figure would need the box re-tuned.

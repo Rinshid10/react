@@ -34,6 +34,8 @@ export interface PersonalInfo {
   /** Optional booking link (Calendly, Cal.com) used by the primary hero CTA. */
   bookingUrl?: string;
   whatsapp?: string;
+  /** Working hours shown in the contact section, e.g. "9:00 AM – 6:00 PM (GMT+5:30)". */
+  hours?: string;
   /**
    * Optional background-removed portrait. When set, it layers over the hero
    * wordmark the way the Figma composition does. Left empty the hero is

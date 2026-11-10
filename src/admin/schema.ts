@@ -145,6 +145,7 @@ export const CONTENT_TABLES: readonly TableDef[] = [
       { key: 'email', label: 'Email', maxLength: 255, required: true },
       { key: 'phone', label: 'Phone', maxLength: 32 },
       { key: 'location', label: 'Location', maxLength: 160, required: true },
+      { key: 'hours', label: 'Working hours', maxLength: 80, help: 'e.g. 9:00 AM – 6:00 PM (GMT+5:30)' },
       { key: 'bio', label: 'Bio', type: 'multiline', maxLength: 2000, required: true },
       { key: 'socialGithub', label: 'GitHub URL', maxLength: 255 },
       { key: 'socialLinkedin', label: 'LinkedIn URL', maxLength: 255 },
