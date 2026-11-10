@@ -1,386 +1,299 @@
-import { useRef, useState, useMemo } from 'react';
-import { motion, useInView, AnimatePresence, Variants } from 'framer-motion';
-import { FiExternalLink, FiSmartphone, FiGlobe, FiArrowUpRight } from 'react-icons/fi';
+import { useMemo, useRef, useState } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
+import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion';
+import { FiExternalLink, FiArrowUpRight } from 'react-icons/fi';
 import { SiGoogleplay, SiAppstore } from 'react-icons/si';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Project } from '../types';
-import ParallaxCard from './effects/ParallaxCard';
+import type { Project } from '../types';
 import CardModal from './effects/CardModal';
 import TiltCard from './effects/TiltCard';
-import '../styles/Projects.css';
 import TextReveal3D from './effects/TextReveal3D';
+import '../styles/Projects.css';
+
+/**
+ * Projects ("Work")
+ *
+ * A grid of cards, each showing the project inside a device drawn in CSS: a
+ * phone for mobile apps, a browser window for web projects. The screen holds
+ * a generated, monochrome layout of the kind of app it is — app bar with the
+ * project's name, a hero figure, a list of rows, a tab bar — rather than a
+ * stock photo or a generic icon. It reads as a product shot without
+ * pretending to be a screenshot.
+ *
+ * The device rises into the frame when the card enters, lifts on hover, and
+ * its screen content nudges upward as if scrolled. Store and live links sit
+ * under the copy, always visible, so touch users can reach them. Clicking
+ * anywhere else on the card opens the detail modal.
+ */
+
+const ALL = 'All';
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/** Deterministic 0–1 from the project id, so skeleton bar widths vary per card but never jitter. */
+const vary = (id: number, n: number) => ((id * 37 + n * 53) % 100) / 100;
+const pct = (id: number, n: number, min: number, max: number) =>
+  `${Math.round(min + (max - min) * vary(id, n))}%`;
+
+const host = (url?: string) => {
+  if (!url) return 'localhost';
+  try {
+    return new URL(url).host.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+};
+
+/** A phone with a generated finance-app style screen. */
+const PhoneMock = ({ project }: { project: Project }) => (
+  <div className="mock mock-phone" aria-hidden="true">
+    <span className="mock-notch" />
+    <div className="mock-screen">
+      <div className="mock-status">
+        <span className="mock-time">9:41</span>
+        <span className="mock-signal" />
+      </div>
+      <div className="mock-appbar">
+        <span className="mock-avatar">{project.title[0]}</span>
+        <span className="mock-appname">{project.title}</span>
+      </div>
+      <div className="mock-scroll">
+        <div className="mock-hero">
+          <span className="mock-line mock-line--xs" style={{ width: pct(project.id, 1, 30, 45) }} />
+          <span className="mock-figure" style={{ width: pct(project.id, 2, 50, 70) }} />
+          <div className="mock-pills">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div className="mock-row" key={i}>
+            <span className="mock-dot" />
+            <span className="mock-row-text">
+              <span className="mock-line" style={{ width: pct(project.id, 10 + i, 45, 80) }} />
+              <span className="mock-line mock-line--xs" style={{ width: pct(project.id, 20 + i, 25, 45) }} />
+            </span>
+            <span className="mock-amt" style={{ width: pct(project.id, 30 + i, 14, 22) }} />
+          </div>
+        ))}
+      </div>
+      <div className="mock-tabs">
+        <span className="is-on" />
+        <span />
+        <span />
+        <span />
+      </div>
+    </div>
+  </div>
+);
+
+/** A browser window with a generated landing-page layout. */
+const BrowserMock = ({ project }: { project: Project }) => (
+  <div className="mock mock-browser" aria-hidden="true">
+    <div className="mock-chrome">
+      <span className="mock-wdot" />
+      <span className="mock-wdot" />
+      <span className="mock-wdot" />
+      <span className="mock-url">{host(project.live)}</span>
+    </div>
+    <div className="mock-page">
+      <div className="mock-nav">
+        <span className="mock-logo">{project.title[0]}</span>
+        <span className="mock-line mock-line--xs" />
+        <span className="mock-line mock-line--xs" />
+        <span className="mock-line mock-line--xs" />
+        <span className="mock-cta" />
+      </div>
+      <div className="mock-scroll">
+        <div className="mock-web-hero">
+          <span className="mock-h1" style={{ width: pct(project.id, 3, 55, 75) }} />
+          <span className="mock-h1" style={{ width: pct(project.id, 4, 35, 55) }} />
+          <span className="mock-line mock-line--xs" style={{ width: pct(project.id, 5, 40, 60) }} />
+          <span className="mock-btn" />
+        </div>
+        <div className="mock-cards">
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const DeviceMock = ({ project }: { project: Project }) =>
+  project.category === 'Web' ? <BrowserMock project={project} /> : <PhoneMock project={project} />;
+
+/** Outbound buttons. `stop` keeps a link click from also opening the modal. */
+const ProjectLinks = ({ project }: { project: Project }) => {
+  const stop = (e: MouseEvent) => e.stopPropagation();
+  const links = [
+    project.playStore && { href: project.playStore, label: 'Play Store', Icon: SiGoogleplay },
+    project.appStore && { href: project.appStore, label: 'App Store', Icon: SiAppstore },
+    project.live && { href: project.live, label: 'Live site', Icon: FiExternalLink },
+  ].filter(Boolean) as { href: string; label: string; Icon: React.ComponentType }[];
+
+  if (!links.length) return null;
+  return (
+    <div className="shot-links">
+      {links.map(({ href, label, Icon }) => (
+        <a
+          key={label}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shot-link"
+          onClick={stop}
+        >
+          <Icon />
+          <span>{label}</span>
+        </a>
+      ))}
+    </div>
+  );
+};
 
 const Projects = () => {
   const { projects } = usePortfolio();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
-  const [hoveredProject, setHoveredProject] = useState<number | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>('All');
-  // The card the reader has expanded into a modal, if any.
+  const reduce = useReducedMotion();
+
+  const [activeFilter, setActiveFilter] = useState<string>(ALL);
   const [openProject, setOpenProject] = useState<Project | null>(null);
 
-  const categories = useMemo(() => {
-    return ['All', ...new Set(projects.map((p) => p.category))];
-  }, [projects]);
+  const categories = useMemo(() => [ALL, ...new Set(projects.map((p) => p.category))], [projects]);
+  const visible = useMemo(
+    () => (activeFilter === ALL ? projects : projects.filter((p) => p.category === activeFilter)),
+    [projects, activeFilter],
+  );
 
-  const filteredProjects = useMemo(() => {
-    if (activeFilter === 'All') return projects;
-    return projects.filter((p) => p.category === activeFilter);
-  }, [projects, activeFilter]);
-
-  // ---- Entrance Animation Variants ----
-
-  const sectionVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.1 },
-    },
+  const openOnKey = (project: Project) => (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setOpenProject(project);
+    }
   };
 
-  const tagVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.6, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 200, damping: 15 },
-    },
-  };
-
-  const titleVariants: Variants = {
-    hidden: { opacity: 0, y: 50, clipPath: 'inset(100% 0 0 0)' },
-    visible: {
-      opacity: 1,
-      y: 0,
-      clipPath: 'inset(0% 0 0 0)',
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-
-  const subtitleVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' },
-    },
-  };
-
-  const lineVariants: Variants = {
-    hidden: { scaleX: 0 },
-    visible: {
-      scaleX: 1,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-
-  const filtersVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.06, delayChildren: 0.1 },
-    },
-  };
-
-  const filterItemVariants: Variants = {
-    hidden: { opacity: 0, y: 15, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 20 },
-    },
-  };
-
-  const gridVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.05 },
-    },
-  };
-
-  const cardVariants: Variants = {
-    hidden: { opacity: 0, y: 60, scale: 0.92 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-    },
-    exit: { opacity: 0, scale: 0.9, y: 20, transition: { duration: 0.3 } },
-  };
+  const d = (i: number) => (reduce ? 0 : 0.1 + i * 0.07);
 
   return (
     <section id="projects" className="projects" ref={ref}>
-      <motion.div
-        className="projects-container"
-        variants={sectionVariants}
-        initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
-      >
-        {/* ---- Section Header with staggered children ---- */}
-        <motion.div className="section-header" variants={sectionVariants}>
-          <motion.span className="section-tag" variants={tagVariants}>
-            Portfolio
-          </motion.span>
-
-          <motion.h2 className="section-title" variants={titleVariants}>
+      <div className="projects-container">
+        <motion.div
+          className="section-header"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="section-tag">Portfolio</span>
+          <h2 className="section-title">
             <TextReveal3D>
               Featured <span className="highlight">Projects</span>
             </TextReveal3D>
-          </motion.h2>
-
-          <motion.p className="section-subtitle" variants={subtitleVariants}>
+          </h2>
+          <p className="section-subtitle">
             A selection of my recent work showcasing my skills and expertise
-          </motion.p>
-
-          {/* Animated decorative line */}
-          <motion.div className="section-line" variants={lineVariants} />
+          </p>
         </motion.div>
 
-        {/* ---- Filter Tabs with per-tab stagger ---- */}
-        <motion.div className="project-filters" variants={filtersVariants}>
-          {categories.map((cat) => (
-            <motion.div key={cat} variants={filterItemVariants}>
+        <motion.div
+          className="work-filters"
+          role="tablist"
+          aria-label="Filter projects by category"
+          initial={{ opacity: 0, y: 10 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          {categories.map((cat) => {
+            const selected = activeFilter === cat;
+            return (
               <button
-                className={`filter-tab ${activeFilter === cat ? 'active' : ''}`}
+                key={cat}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                className={`work-filter${selected ? ' is-active' : ''}`}
                 onClick={() => setActiveFilter(cat)}
               >
-                {cat}
-                {activeFilter === cat && (
-                  <motion.div
-                    className="filter-tab-indicator"
-                    layoutId="activeFilter"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                {selected && (
+                  <motion.span
+                    className="work-filter-bg"
+                    layoutId="work-filter-bg"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                   />
                 )}
+                <span className="work-filter-label">{cat}</span>
               </button>
-            </motion.div>
-          ))}
+            );
+          })}
         </motion.div>
 
-        {/* ---- Projects Grid ---- */}
-        <motion.div className="projects-grid" variants={gridVariants} layout>
+        <ul className="shots">
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, index) => {
-              const isHovered = hoveredProject === project.id;
-
-              return (
-                // Parallax drift staggered by column, not at random, so rows
-                // still read as rows. Columns 1/2/3 lag by different amounts.
-                <ParallaxCard key={`${project.id}-${project.title}`} offset={[26, 46, 34][index % 3]}>
-                {/* Two axes of depth: parallax from scrolling, tilt from pointing. */}
-                <TiltCard>
-                <motion.article
-                  className={`project-card ${project.featured ? 'featured' : ''}`}
-                  layoutId={`project-${project.id}`}
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  transition={{ delay: index * 0.08 }}
-                  onMouseEnter={() => setHoveredProject(project.id)}
-                  onMouseLeave={() => setHoveredProject(null)}
-                  onClick={() => setOpenProject(project)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${project.title} — open details`}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setOpenProject(project);
-                    }
-                  }}
-                >
-                  {/* Card Glow */}
-                  <motion.div
-                    className="card-glow"
-                    animate={{ opacity: isHovered ? 1 : 0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-
-                  {/* Project Visual */}
-                  <div className="project-visual">
-                    {project.category === 'Mobile' ? (
+            {visible.map((project, i) => (
+              <motion.li
+                key={project.id}
+                layout
+                initial={{ opacity: 0, y: 32 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.6, delay: d(i), ease: EASE, layout: { duration: 0.45, ease: EASE } }}
+              >
+                <TiltCard max={5}>
+                  <motion.article
+                    className={`shot${project.featured ? ' is-featured' : ''}`}
+                    layoutId={`project-${project.id}`}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${project.title} — open details`}
+                    onClick={() => setOpenProject(project)}
+                    onKeyDown={openOnKey(project)}
+                    style={{ borderRadius: 16 }}
+                  >
+                    {/* The stage: a lit backdrop the device rises into. */}
+                    <div className="shot-stage">
                       <motion.div
-                        className="project-icon-bg"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.2 + index * 0.08 }}
+                        className="shot-device"
+                        initial={{ y: 56, opacity: 0 }}
+                        animate={isInView ? { y: 0, opacity: 1 } : {}}
+                        transition={{ duration: reduce ? 0 : 0.9, delay: d(i) + 0.15, ease: EASE }}
                       >
-                        <motion.div
-                          animate={isHovered ? { scale: 1.15, rotate: 5 } : { scale: 1, rotate: 0 }}
-                          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                        >
-                          <FiSmartphone className="project-type-icon" />
-                        </motion.div>
+                        <DeviceMock project={project} />
                       </motion.div>
-                    ) : project.category === 'Web' ? (
-                      <motion.div
-                        className="project-icon-bg"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.2 + index * 0.08 }}
-                      >
-                        <motion.div
-                          animate={isHovered ? { scale: 1.15, rotate: -5 } : { scale: 1, rotate: 0 }}
-                          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                        >
-                          <FiGlobe className="project-type-icon" />
-                        </motion.div>
-                      </motion.div>
-                    ) : (
-                      <motion.img
-                        src={project.image}
-                        alt={project.title}
-                        className="project-img"
-                        animate={{ scale: isHovered ? 1.08 : 1 }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    )}
 
-                    {/* Overlay */}
-                    <motion.div
-                      className="project-overlay"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: isHovered ? 1 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ pointerEvents: isHovered ? 'auto' : 'none' }}
-                    >
-                      {/* Source-code links are intentionally not shown; the
-                          `github` field stays in the data for later use. */}
-                      <div className="project-links">
-                        {project.live && (
-                          <motion.a
-                            href={project.live}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="project-link"
-                            onClick={(e) => e.stopPropagation()}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                            whileHover={{ scale: 1.15, y: -2 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="Live Demo"
-                          >
-                            <FiExternalLink />
-                            <span>Live</span>
-                          </motion.a>
-                        )}
-                        {project.playStore && (
-                          <motion.a
-                            href={project.playStore}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="project-link"
-                            onClick={(e) => e.stopPropagation()}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                            transition={{ duration: 0.3, delay: 0.15 }}
-                            whileHover={{ scale: 1.15, y: -2 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="Play Store"
-                          >
-                            <SiGoogleplay />
-                            <span>Play Store</span>
-                          </motion.a>
-                        )}
-                        {project.appStore && (
-                          <motion.a
-                            href={project.appStore}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="project-link"
-                            onClick={(e) => e.stopPropagation()}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                            transition={{ duration: 0.3, delay: 0.2 }}
-                            whileHover={{ scale: 1.15, y: -2 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="App Store"
-                          >
-                            <SiAppstore />
-                            <span>App Store</span>
-                          </motion.a>
-                        )}
+                      {project.featured && (
+                        <span className="shot-badge">
+                          <span className="shot-badge-dot" aria-hidden="true" />
+                          Featured
+                        </span>
+                      )}
+                      <span className="shot-cat">{project.category}</span>
+                    </div>
+
+                    <div className="shot-body">
+                      <div className="shot-head">
+                        <h3 className="shot-title">{project.title}</h3>
+                        <FiArrowUpRight className="shot-arrow" aria-hidden="true" />
                       </div>
-                    </motion.div>
-
-                    {/* Featured Badge */}
-                    {project.featured && (
-                      <motion.span
-                        className="featured-badge"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: 0.4 + index * 0.08 }}
-                      >
-                        <span className="featured-dot" />
-                        Featured
-                      </motion.span>
-                    )}
-
-                    {/* Category Pill */}
-                    <motion.span
-                      className="category-pill"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.4, delay: 0.4 + index * 0.08 }}
-                    >
-                      {project.category}
-                    </motion.span>
-                  </div>
-
-                  {/* Project Info */}
-                  <div className="project-info">
-                    <div className="project-info-header">
-                      <h3 className="project-title">{project.title}</h3>
-                      <motion.div
-                        className="project-arrow"
-                        animate={{
-                          x: isHovered ? 4 : 0,
-                          y: isHovered ? -4 : 0,
-                          opacity: isHovered ? 1 : 0.4,
-                        }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <FiArrowUpRight />
-                      </motion.div>
+                      <p className="shot-desc">{project.description}</p>
+                      <div className="shot-tech">
+                        {project.technologies.map((tech) => (
+                          <span key={tech} className="tech-chip">{tech}</span>
+                        ))}
+                      </div>
+                      <ProjectLinks project={project} />
                     </div>
-                    <p className="project-description">{project.description}</p>
-
-                    {/* Tech Stack */}
-                    <div className="project-tech-stack">
-                      {project.technologies.map((tech, techIndex) => (
-                        <motion.span
-                          key={tech}
-                          className="tech-chip"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{
-                            duration: 0.3,
-                            delay: 0.5 + index * 0.08 + techIndex * 0.04,
-                          }}
-                        >
-                          {tech}
-                        </motion.span>
-                      ))}
-                    </div>
-                  </div>
-                </motion.article>
+                  </motion.article>
                 </TiltCard>
-                </ParallaxCard>
-              );
-            })}
+              </motion.li>
+            ))}
           </AnimatePresence>
-        </motion.div>
-      </motion.div>
+        </ul>
+      </div>
 
-      {/* Card expands into a full detail view. The grid truncates
-          descriptions at three lines, so this is where the whole thing —
-          and every store / repo / live link — actually becomes readable. */}
+      {/* The grid clamps descriptions; the modal is where the whole text and
+          every link become readable. */}
       <CardModal
         layoutId={openProject ? `project-${openProject.id}` : ''}
         open={Boolean(openProject)}
@@ -389,37 +302,17 @@ const Projects = () => {
       >
         {openProject && (
           <div className="project-modal">
-            <span className="category-pill project-modal-pill">{openProject.category}</span>
+            <span className="shot-cat project-modal-pill">{openProject.category}</span>
             <h3 className="project-modal-title">{openProject.title}</h3>
             <p className="project-modal-desc">
               {openProject.longDescription || openProject.description}
             </p>
-
             <div className="project-modal-tech">
               {openProject.technologies.map((tech) => (
-                <span key={tech} className="tech-chip">
-                  {tech}
-                </span>
+                <span key={tech} className="tech-chip">{tech}</span>
               ))}
             </div>
-
-            <div className="project-modal-links">
-              {openProject.live && (
-                <a href={openProject.live} target="_blank" rel="noopener noreferrer">
-                  <FiExternalLink /> Live site
-                </a>
-              )}
-              {openProject.playStore && (
-                <a href={openProject.playStore} target="_blank" rel="noopener noreferrer">
-                  <SiGoogleplay /> Play Store
-                </a>
-              )}
-              {openProject.appStore && (
-                <a href={openProject.appStore} target="_blank" rel="noopener noreferrer">
-                  <SiAppstore /> App Store
-                </a>
-              )}
-            </div>
+            <ProjectLinks project={openProject} />
           </div>
         )}
       </CardModal>

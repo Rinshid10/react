@@ -271,3 +271,22 @@
   /* No room to hang the arrows outside the rail at this width. */
   .pcarousel-prev, .pcarousel-next { display: none; }
 }
+
+/* --- Typewriter ------------------------------------------------------------- */
+
+/* The untyped remainder is laid out invisibly so the line never reflows. */
+.tw-ghost { visibility: hidden; }
+
+/* A block caret the height of the text. Solid while typing, blinking at
+   rest, so "still typing" and "waiting" read differently. */
+.tw-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.15em;
+  vertical-align: -0.12em;
+  background: var(--color-accent);
+  animation: tw-blink 1.1s steps(1) infinite;
+}
+.tw-caret.is-typing { animation: none; }
+@keyframes tw-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
