@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { scrollToId } from '../lib/scroll';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { FiPhone, FiFileText, FiZap, FiTrendingUp, FiArrowRight } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
@@ -34,7 +35,7 @@ const Process = () => {
   const stepDelay = (i: number) => (reduceMotion ? 0 : 0.35 + i * 0.18);
 
   const startProject = () => {
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    scrollToId('contact');
   };
 
   return (

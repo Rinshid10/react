@@ -1,4 +1,6 @@
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { scrollToId } from '../lib/scroll';
 import { FiArrowUpRight, FiArrowDown, FiGithub, FiLinkedin, FiInstagram } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
 import { useTheme } from '../context/ThemeContext';
@@ -25,11 +27,22 @@ import Magnetic from './effects/Magnetic';
 const Hero = () => {
   const { personalInfo } = usePortfolio();
   const { setActiveSection } = useTheme();
+  const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+
+  // Scroll-linked exit: as the hero scrolls away the composition sinks,
+  // shrinks a touch and fades, while the glow behind it drifts the other
+  // way. Tied to scroll position, so it reverses when you scroll back up.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
+  const stageY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 140]);
+  const stageScale = useTransform(scrollYProgress, [0, 1], reduce ? [1, 1] : [1, 0.94]);
+  const stageOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
+  const decoY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, -120]);
 
   const scrollTo = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      scrollToId(id);
       setActiveSection(id);
     }
   };
@@ -41,19 +54,19 @@ const Hero = () => {
   ];
 
   return (
-    <section id="hero" className="hero">
+    <section id="hero" className="hero" ref={ref}>
       {/* The visible wordmark is decorative, so the real heading is here. */}
       <h1 className="sr-only">
         {personalInfo.name} — {personalInfo.title}
       </h1>
 
       {/* Background decoration, all purely visual. */}
-      <div className="hero-deco" aria-hidden="true">
+      <motion.div className="hero-deco" aria-hidden="true" style={{ y: decoY }}>
         <span className="deco-glow" />
         <span className="deco-dots" />
-      </div>
+      </motion.div>
 
-      <div className="hero-stage">
+      <motion.div className="hero-stage" style={{ y: stageY, scale: stageScale, opacity: stageOpacity }}>
         {/* Behind the word: head above the letters, tail below. */}
         {personalInfo.portraitUrl && (
           <motion.div
@@ -111,7 +124,7 @@ const Hero = () => {
           </motion.button>
           </Magnetic>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Bottom-left socials */}
       <motion.div

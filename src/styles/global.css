@@ -177,3 +177,25 @@ ul { list-style: none; }
   letter-spacing: 0.03em;
   color: var(--color-text-secondary);
 }
+
+/* --- Scroll-driven drift ----------------------------------------------------
+   Section headers and the big decorative shapes move slightly against the
+   page as they pass through the viewport, so the long page reads as layers
+   rather than one flat sheet. Uses the `translate` property, which composes
+   with the `transform` Framer sets for the entrance animations instead of
+   overriding it. Scroll-timeline only: browsers without it get a static
+   page, and reduced motion turns it off. */
+@supports (animation-timeline: view()) {
+  .section-header {
+    animation: drift-header linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .section-header { animation: none; }
+  }
+}
+@keyframes drift-header {
+  from { translate: 0 28px; }
+  to   { translate: 0 -28px; }
+}

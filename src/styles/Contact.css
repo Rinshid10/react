@@ -310,3 +310,15 @@
   .contact-icon, .submit-plane, .field, .field-icon, .contact-item { transition: none; }
   .contact-item:hover .contact-icon { transform: none; }
 }
+
+/* The backdrop shapes move against the page: the arcs slowly, the dots a
+   little faster, so the band gains depth as it scrolls past. */
+@supports (animation-timeline: view()) {
+  .contact-arc { animation: contact-drift-slow linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
+  .contact-dots { animation: contact-drift-fast linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    .contact-arc, .contact-dots { animation: none; }
+  }
+}
+@keyframes contact-drift-slow { from { translate: 0 80px; } to { translate: 0 -80px; } }
+@keyframes contact-drift-fast { from { translate: 0 140px; } to { translate: 0 -140px; } }

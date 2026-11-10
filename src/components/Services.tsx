@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { scrollToId } from '../lib/scroll';
 import { motion, useInView } from 'framer-motion';
 import {
   FiSmartphone,
@@ -49,7 +50,7 @@ const Services = () => {
   // Send the visitor to the contact form with this service pre-selected.
   const enquire = (title: string) => {
     window.dispatchEvent(new CustomEvent('portfolio:enquire', { detail: title }));
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    scrollToId('contact');
   };
 
   return (

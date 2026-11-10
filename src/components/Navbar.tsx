@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { scrollToId } from '../lib/scroll';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSun, FiMoon, FiMenu, FiX, FiArrowUpRight } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
@@ -38,7 +39,7 @@ const Navbar = () => {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      scrollToId(sectionId);
       setActiveSection(sectionId);
       setIsMobileMenuOpen(false);
     }

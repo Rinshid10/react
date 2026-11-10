@@ -13,6 +13,7 @@ import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AnimatedCursor from './components/AnimatedCursor';
 import ScrollProgress from './components/effects/ScrollProgress';
+import SmoothScroll from './components/effects/SmoothScroll';
 import './styles/global.css';
 // Last, so the phone-breakpoint fixes win ties against component stylesheets.
 import './styles/mobile.css';
@@ -60,6 +61,7 @@ const AppContent = () => {
 
   return (
     <>
+      <SmoothScroll />
       <AnimatedCursor />
       <ScrollProgress />
       <Navbar />
