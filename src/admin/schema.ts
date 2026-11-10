@@ -214,6 +214,8 @@ export const CONTENT_TABLES: readonly TableDef[] = [
       { key: 'live', label: 'Live URL', maxLength: 512 },
       { key: 'playStore', label: 'Play Store URL', maxLength: 512 },
       { key: 'appStore', label: 'App Store URL', maxLength: 512 },
+      { key: 'icon', label: 'App icon URL', maxLength: 512, help: 'Square image' },
+      { key: 'screenshots', label: 'Screenshots', type: 'stringList', maxLength: 512, help: 'One per line as "Label | url"; the first is shown on the card' },
       { key: 'featured', label: 'Featured', type: 'boolean' },
       {
         key: 'category',
@@ -284,6 +286,7 @@ export const CONTENT_TABLES: readonly TableDef[] = [
       { key: 'role', label: 'Role', maxLength: 120, required: true },
       { key: 'company', label: 'Company', maxLength: 120, required: true },
       { key: 'companyUrl', label: 'Company URL', maxLength: 512 },
+      { key: 'logo', label: 'Logo URL', maxLength: 512, help: 'Square image; leave empty for a monogram' },
       { key: 'location', label: 'Location', maxLength: 80, required: true },
       {
         key: 'period',

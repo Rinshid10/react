@@ -252,7 +252,9 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
         'B2B payments app for a platform serving 1M+ business users and 22,000+ banks. Multi-rail payment flows — printable checks, eChecks, check mailing, ACH/RTP, wire and wallet-to-wallet transfers.',
       longDescription:
         'Online Check Writer is the flagship Zil Money payments app. I build and ship features across its multi-rail payment flows — printable checks, eChecks, check mailing, ACH/RTP, wire transfers and wallet-to-wallet transfers — plus wallet management, payment links, statement downloads, transaction history and accounts payable/receivable workflows. The platform serves over 1M business users and connects to 22,000+ banks.',
-      image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600',
+      image: '/projects/online-check-writer/icon.png',
+      icon: '/projects/online-check-writer/icon.png',
+      screenshots: ['/projects/online-check-writer/shot-1.jpg', '/projects/online-check-writer/shot-2.jpg', '/projects/online-check-writer/shot-3.jpg', '/projects/online-check-writer/shot-4.jpg', '/projects/online-check-writer/shot-5.jpg'],
       technologies: ['Flutter', 'Riverpod', 'Clean Architecture', 'REST APIs', 'WebSocket'],
       featured: true,
       playStore: 'https://play.google.com/store/apps/details?id=com.onlinecheckwriter.m',
@@ -266,7 +268,9 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
         'Cross-border remittance for U.S. businesses — recipient management, real-time transfer tracking and wallet-to-bank payouts to 9+ countries, on phone and tablet.',
       longDescription:
         'Zil Remit moves money wallet-to-bank across 9+ countries — UK, France, Germany, India, China, Australia and more — in minutes. I built the recipient management, transaction history and real-time transfer tracking features, with go_router navigation that adapts across phone and iPad layouts.',
-      image: 'https://images.unsplash.com/photo-1611606063065-ee7946f0787a?w=600',
+      image: '/projects/zil-remit/icon.png',
+      icon: '/projects/zil-remit/icon.png',
+      screenshots: ['/projects/zil-remit/shot-1.jpg', '/projects/zil-remit/shot-2.jpg', '/projects/zil-remit/shot-3.jpg', '/projects/zil-remit/shot-4.jpg', '/projects/zil-remit/shot-5.jpg'],
       technologies: ['Flutter', 'BLoC', 'go_router', 'REST APIs', 'Responsive UI'],
       playStore: 'https://play.google.com/store/apps/details?id=com.internationalpayments.app',
       appStore: 'https://apps.apple.com/us/app/id6748254326',
@@ -280,7 +284,9 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
         'Instant virtual cards for business spend — card creation, spend controls, freeze/unfreeze and transaction tracking, funded straight from the Zil wallet.',
       longDescription:
         'Virtual Cards lets businesses issue a card in seconds, set spending limits and vendor locks, freeze or cancel it at any time and track every transaction. I developed the card creation, spend-control, transaction tracking and secure online payment features for business expense management.',
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600',
+      image: '/projects/virtual-card/icon.png',
+      icon: '/projects/virtual-card/icon.png',
+      screenshots: ['/projects/virtual-card/shot-1.jpg', '/projects/virtual-card/shot-2.jpg', '/projects/virtual-card/shot-3.jpg', '/projects/virtual-card/shot-4.jpg', '/projects/virtual-card/shot-5.jpg'],
       technologies: ['Flutter', 'BLoC', 'REST APIs', 'Secure Storage'],
       playStore: 'https://play.google.com/store/apps/details?id=com.virtualcard.app',
       appStore: 'https://apps.apple.com/us/app/virtual-cards/id6748954269',
@@ -294,7 +300,9 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
         'Send and manage checks by mail straight from bank accounts, cards and wallets — automated delivery workflows, payment tracking and transaction management.',
       longDescription:
         'Check Mail prints, envelopes and mails a check in one tap, with USPS/FedEx delivery and tracking. I built the check-mailing features with automated delivery workflows, payment tracking and transaction management, backed by secure payment flows from bank accounts, credit cards and wallets.',
-      image: '/app_logo.svg',
+      image: '/projects/check-mail/icon.jpg',
+      icon: '/projects/check-mail/icon.jpg',
+      screenshots: ['/projects/check-mail/shot-1.jpg', '/projects/check-mail/shot-2.jpg', '/projects/check-mail/shot-3.jpg', '/projects/check-mail/shot-4.jpg', '/projects/check-mail/shot-5.jpg'],
       technologies: ['Flutter', 'GetX', 'REST APIs', 'Push Notifications'],
       playStore: 'https://play.google.com/store/apps/details?id=com.checkmail.app',
       appStore: 'https://apps.apple.com/us/app/check-mail/id6748264295',
@@ -308,7 +316,9 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
         'Payment links for businesses of any size. Create one-time or recurring links, send them by email or SMS, and let clients pay from a bank account or card — no invoicing software needed.',
       longDescription:
         'GetPaid Link generates secure payment links a client can pay from their bank account or card without installing anything. I built the payment-link generation, online payment acceptance and transaction tracking features used for customer collections.',
-      image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600',
+      image: '/projects/getpaid-link/icon.png',
+      icon: '/projects/getpaid-link/icon.png',
+      screenshots: ['/projects/getpaid-link/shot-1.jpg', '/projects/getpaid-link/shot-2.jpg', '/projects/getpaid-link/shot-3.jpg', '/projects/getpaid-link/shot-4.jpg', '/projects/getpaid-link/shot-5.jpg'],
       technologies: ['Flutter', 'GetX', 'REST APIs', 'Firebase'],
       playStore: 'https://play.google.com/store/apps/details?id=com.getpaidlink.app',
       appStore: 'https://apps.apple.com/us/app/id6755234489',
@@ -343,7 +353,11 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       title: 'Chat Flow — Web & Mobile',
       description:
         'A real-time chat platform with instant delivery, live presence and a consistent experience across web and mobile.',
-      image: 'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=600',
+      image: '/projects/chat-flow/home.jpg',
+      screenshots: [
+        { label: 'Home', src: '/projects/chat-flow/home.jpg' },
+        { label: 'Conversation', src: '/projects/chat-flow/chat.jpg' },
+      ],
       technologies: ['Flutter', 'Provider', 'Firebase', 'WebSocket'],
       github: 'https://github.com/Rinshid10/chat-App',
       live: 'https://letschatme.netlify.app/',
@@ -355,7 +369,12 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       title: 'Shop Easy — Meesho Dropshipping',
       description:
         "A modern storefront with secure payments, a fast checkout and product discovery that stays out of the shopper's way.",
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600',
+      image: '/projects/shop-easy/home.jpg',
+      screenshots: [
+        { label: 'Storefront', src: '/projects/shop-easy/home.jpg' },
+        { label: 'Product page', src: '/projects/shop-easy/product.jpg' },
+        { label: 'Deals', src: '/projects/shop-easy/deals.jpg' },
+      ],
       technologies: ['React', 'TypeScript', 'Firebase', 'Stripe'],
       github: 'https://github.com/Rinshid10/shopeasy',
       live: 'https://makeeasyshop.netlify.app/',
@@ -369,7 +388,22 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
         'A clinic management app. Patients book appointments and browse doctors on the public site, while staff run the clinic from separate admin, HR, roster and payroll, billing and pharmacy consoles.',
       longDescription:
         'Pulse is a clinic management app. Patients book appointments and browse doctors on the public site. Staff run the clinic from separate consoles for admin, HR, roster and payroll, billing, and pharmacy. The website is React (Vite), and shared data lives in a Node, Express, and MongoDB API.',
-      image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600',
+      image: '/projects/pulse-clinic/public.jpg',
+      screenshots: [
+        { label: 'Patient site', src: '/projects/pulse-clinic/public.jpg' },
+        { label: 'Admin console', src: '/projects/pulse-clinic/admin.jpg' },
+        { label: 'HR console', src: '/projects/pulse-clinic/hr.jpg' },
+        { label: 'Staff portal', src: '/projects/pulse-clinic/staff.jpg' },
+        { label: 'Billing desk', src: '/projects/pulse-clinic/billing.jpg' },
+        { label: 'Pharmacy desk', src: '/projects/pulse-clinic/pharmacy.jpg' },
+        { label: 'Admin · Appointments', src: '/projects/pulse-clinic/admin-appointments.jpg' },
+        { label: 'Admin · Analytics', src: '/projects/pulse-clinic/admin-analytics.jpg' },
+        { label: 'HR · Duty roster', src: '/projects/pulse-clinic/hr-roster.jpg' },
+        { label: 'HR · Payroll', src: '/projects/pulse-clinic/hr-payroll.jpg' },
+        { label: 'Staff · Salary', src: '/projects/pulse-clinic/staff-salary.jpg' },
+        { label: 'Billing · New bill', src: '/projects/pulse-clinic/billing-new.jpg' },
+        { label: 'Pharmacy · Sell', src: '/projects/pulse-clinic/pharmacy-sell.jpg' },
+      ],
       technologies: ['React', 'Vite', 'Node.js', 'Express', 'MongoDB'],
       github: 'https://github.com/Rinshid10/Pulse_clinic',
       live: 'https://pulseclinicpr.netlify.app/',
@@ -443,6 +477,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       role: 'Flutter Developer',
       company: 'Zil Money',
       companyUrl: 'https://zilmoney.com',
+      logo: '/logos/zil-money.jpg',
       location: 'Manjeri, Kerala, India',
       period: 'July 2025 - Present',
       startDate: '2025-07',
@@ -463,6 +498,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
       id: 2,
       role: 'Flutter Developer Intern',
       company: 'Bridgeon',
+      logo: '/logos/bridgeon.jpg',
       location: 'Calicut, Kerala, India',
       period: 'June 2024 - June 2025',
       startDate: '2024-06',
@@ -562,6 +598,15 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
               live: (p.live as string) || undefined,
               playStore: (p.playStore as string) || undefined,
               appStore: (p.appStore as string) || undefined,
+              icon: (p.icon as string) || undefined,
+              // The admin stores these as strings; "Label | url" carries a caption.
+              screenshots: Array.isArray(p.screenshots)
+                ? (p.screenshots as (string | { src: string; label?: string })[]).map((s) => {
+                    if (typeof s !== 'string') return s;
+                    const [a, b] = s.split('|').map((x) => x.trim());
+                    return b ? { label: a, src: b } : { src: a };
+                  })
+                : undefined,
               featured: Boolean(p.featured),
               category: (p.category as Project['category']) ?? 'Mobile',
             }))
@@ -574,6 +619,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
               role: (e.role as string) ?? '',
               company: (e.company as string) ?? '',
               companyUrl: (e.companyUrl as string) || undefined,
+              logo: (e.logo as string) || undefined,
               location: (e.location as string) ?? '',
               period: (e.period as string) ?? '',
               startDate: (e.startDate as string) ?? '',

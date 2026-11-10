@@ -105,11 +105,25 @@ export interface Project {
   live?: string;
   playStore?: string;
   appStore?: string;
+  /** Square app icon. Shown beside the title and used to tint the card's stage. */
+  icon?: string;
+  /**
+   * Real screenshots. Phones show the first one inside the device; web projects
+   * show the first three as a collage. All of them appear in the modal, with
+   * their labels as captions.
+   */
+  screenshots?: (string | ProjectShot)[];
   featured: boolean;
   category: ProjectCategory;
 }
 
 export type ProjectCategory = 'Mobile' | 'Web' | 'Backend' | 'Full Stack';
+
+/** One screenshot. The label names the screen ("Admin console", "HR · Payroll"). */
+export interface ProjectShot {
+  src: string;
+  label?: string;
+}
 
 // ---------------------------------------------------------------------------
 // Experience, process and social proof
@@ -120,6 +134,8 @@ export interface Experience {
   role: string;
   company: string;
   companyUrl?: string;
+  /** Square logo image URL. Without one, a monogram tile is drawn from the company initial. */
+  logo?: string;
   location: string;
   period: string;
   startDate: string;

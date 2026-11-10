@@ -53,18 +53,32 @@ const tenure = (exp: ExperienceEntry) => formatSpan(endIndex(exp) - monthIndex(e
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 /**
+ * The company's mark: its logo if one is set, otherwise a monogram tile drawn
+ * from the first letter. The tile is the node on the journey's rail, so every
+ * entry gets one whether or not a logo exists.
+ */
+const CompanyMark = ({ exp }: { exp: ExperienceEntry }) =>
+  exp.logo ? (
+    <img className="xp-logo-img" src={exp.logo} alt="" loading="lazy" />
+  ) : (
+    <span className="xp-monogram" aria-hidden="true">
+      {exp.company.trim()[0]?.toUpperCase()}
+    </span>
+  );
+
+/**
  * Experience Component
  *
- * A ledger rather than a card timeline: each role is a wide row split by a
- * hairline, with the dates and tenure down the left and the role, company and
- * what was actually done on the right.
+ * A vertical journey, newest first. Each stop opens with the company the way
+ * a profile does: a square mark, the company name, and where it is. Then the
+ * role held there, the dates, and what was actually done. The marks sit on a
+ * rail that runs down the section, so the list reads as one path.
  *
- * The motion tells one story — the ledger being typeset in front of you. Each
- * row's rule draws across, the role title rises from behind it, the dates
- * type out in mono with a caret that keeps blinking on the current role
- * (that line is still being written), the tenure counts up, and the bullet
- * points brighten and extend their dashes as they scroll past, like a finger
- * following the text.
+ * Motion: the rail draws down from each mark to the next, the mark pops in
+ * and the company name follows it, the role title rises from behind its
+ * baseline, the dates type out in mono (the caret keeps blinking on the
+ * current role), the tenure counts up, and the bullet points brighten as
+ * they scroll past.
  */
 const Experience = () => {
   const { experience } = usePortfolio();
@@ -84,8 +98,8 @@ const Experience = () => {
     anyCurrent ? 'Present' : formatYM(sorted.find((e) => endIndex(e) === lastEnd)!.endDate!)
   }`;
 
-  // Each row's sequence starts a beat after the one above it.
-  const rowStart = (i: number) => (reduceMotion ? 0 : 0.15 + i * 0.25);
+  // Each stop's sequence starts a beat after the one above it.
+  const stopStart = (i: number) => (reduceMotion ? 0 : 0.15 + i * 0.3);
 
   return (
     <section id="experience" className="experience" ref={ref}>
@@ -107,10 +121,10 @@ const Experience = () => {
 
         {/* Derived from the entries, so it stays true when the admin edits. */}
         <motion.p
-          className="ledger-summary"
+          className="xp-summary"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: rowStart(0) }}
+          transition={{ duration: 0.5, delay: stopStart(0) }}
         >
           <span>{sorted.length} {sorted.length === 1 ? 'role' : 'roles'}</span>
           <span>{spanLabel}</span>
@@ -119,69 +133,84 @@ const Experience = () => {
           </span>
         </motion.p>
 
-        <ol className="ledger" aria-label="Work history, newest first">
+        <ol className="xp" aria-label="Work history, newest first">
           {sorted.map((exp, i) => {
-            const t = rowStart(i + 1);
+            const t = stopStart(i + 1);
+            const last = i === sorted.length - 1;
             return (
               <motion.li
                 key={exp.id}
-                className={`ledger-row${exp.current ? ' is-current' : ''}`}
+                className={`xp-stop${exp.current ? ' is-current' : ''}`}
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: 1 } : {}}
                 transition={{ duration: 0.4, delay: t }}
               >
-                {/* The row's rule, drawn left to right. */}
-                <motion.span
-                  className="ledger-rule"
-                  aria-hidden="true"
-                  initial={{ scaleX: 0 }}
-                  animate={isInView ? { scaleX: 1 } : {}}
-                  transition={{ duration: reduceMotion ? 0 : 0.9, delay: t, ease: EASE }}
-                />
-
-                <div className="ledger-when">
+                {/* The rail from this mark down to the next one. */}
+                {!last && (
                   <motion.span
-                    className="ledger-type"
-                    initial={{ opacity: 0, y: 8 }}
+                    className="xp-rail"
+                    aria-hidden="true"
+                    initial={{ scaleY: 0 }}
+                    animate={isInView ? { scaleY: 1 } : {}}
+                    transition={{ duration: reduceMotion ? 0 : 1.1, delay: t + 0.5, ease: EASE }}
+                  />
+                )}
+
+                {/* --- Company header: mark, name, place --------------------- */}
+                <div className="xp-head">
+                  <motion.div
+                    className="xp-logo"
+                    initial={{ scale: 0.4, opacity: 0 }}
+                    animate={isInView ? { scale: 1, opacity: 1 } : {}}
+                    transition={
+                      reduceMotion
+                        ? { duration: 0 }
+                        : { type: 'spring', stiffness: 320, damping: 22, delay: t }
+                    }
+                  >
+                    <CompanyMark exp={exp} />
+                    {exp.current && <span className="xp-live" aria-hidden="true" />}
+                  </motion.div>
+
+                  <motion.div
+                    className="xp-org"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.5, delay: t + 0.15, ease: EASE }}
+                  >
+                    {exp.companyUrl ? (
+                      <a
+                        className="xp-company"
+                        href={exp.companyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {exp.company} <FiArrowUpRight aria-hidden="true" />
+                      </a>
+                    ) : (
+                      <span className="xp-company">{exp.company}</span>
+                    )}
+                    <span className="xp-place">
+                      <FiMapPin aria-hidden="true" /> {exp.location}
+                    </span>
+                  </motion.div>
+
+                  <motion.span
+                    className="xp-type"
+                    initial={{ opacity: 0, y: 6 }}
                     animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.45, delay: t + 0.2, ease: EASE }}
+                    transition={{ duration: 0.45, delay: t + 0.3, ease: EASE }}
                   >
                     {exp.type}
                   </motion.span>
-
-                  <time className="ledger-period" dateTime={exp.startDate}>
-                    <Typewriter
-                      text={exp.period}
-                      delay={reduceMotion ? 0 : t + 0.35}
-                      keepCaret={exp.current}
-                    />
-                  </time>
-
-                  <motion.span
-                    className="ledger-tenure"
-                    initial={{ opacity: 0 }}
-                    animate={isInView ? { opacity: 1 } : {}}
-                    transition={{ duration: 0.4, delay: t + 0.5 }}
-                  >
-                    <CountUp value={tenure(exp)} duration={1.2} />
-                  </motion.span>
-
-                  <motion.span
-                    className="ledger-place"
-                    initial={{ opacity: 0 }}
-                    animate={isInView ? { opacity: 1 } : {}}
-                    transition={{ duration: 0.4, delay: t + 0.6 }}
-                  >
-                    <FiMapPin aria-hidden="true" /> {exp.location}
-                  </motion.span>
                 </div>
 
-                <div className="ledger-what">
-                  {/* The title rises from behind the rule above it. */}
-                  <h3 className="ledger-role">
-                    <span className="ledger-role-mask">
+                {/* --- The role held there ----------------------------------- */}
+                <div className="xp-body">
+                  <h3 className="xp-role">
+                    <span className="xp-role-mask">
                       <motion.span
-                        className="ledger-role-text"
+                        className="xp-role-text"
                         initial={{ y: '110%' }}
                         animate={isInView ? { y: 0 } : {}}
                         transition={{ duration: reduceMotion ? 0 : 0.8, delay: t + 0.3, ease: EASE }}
@@ -191,29 +220,34 @@ const Experience = () => {
                     </span>
                   </h3>
 
+                  <p className="xp-meta">
+                    <time className="xp-period" dateTime={exp.startDate}>
+                      <Typewriter
+                        text={exp.period}
+                        delay={reduceMotion ? 0 : t + 0.45}
+                        keepCaret={exp.current}
+                      />
+                    </time>
+                    <motion.span
+                      className="xp-tenure"
+                      initial={{ opacity: 0 }}
+                      animate={isInView ? { opacity: 1 } : {}}
+                      transition={{ duration: 0.4, delay: t + 0.6 }}
+                    >
+                      <CountUp value={tenure(exp)} duration={1.2} />
+                    </motion.span>
+                  </p>
+
                   <motion.div
-                    className="ledger-body"
+                    className="xp-detail"
                     initial={{ opacity: 0, y: 14 }}
                     animate={isInView ? { opacity: 1, y: 0 } : {}}
-                    transition={{ duration: 0.55, delay: t + 0.55, ease: EASE }}
+                    transition={{ duration: 0.55, delay: t + 0.6, ease: EASE }}
                   >
-                    {exp.companyUrl ? (
-                      <a
-                        className="ledger-company"
-                        href={exp.companyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {exp.company} <FiArrowUpRight aria-hidden="true" />
-                      </a>
-                    ) : (
-                      <span className="ledger-company">{exp.company}</span>
-                    )}
-
-                    <p className="ledger-summary-copy">{exp.description}</p>
+                    <p className="xp-desc">{exp.description}</p>
 
                     {exp.responsibilities.length > 0 && (
-                      <ul className="ledger-points">
+                      <ul className="xp-points">
                         {exp.responsibilities.map((item, j) => (
                           <li key={j}>{item}</li>
                         ))}
@@ -221,7 +255,7 @@ const Experience = () => {
                     )}
 
                     {exp.technologies.length > 0 && (
-                      <div className="ledger-stack">
+                      <div className="xp-stack">
                         {exp.technologies.map((tech) => (
                           <span key={tech} className="tech-tag">{tech}</span>
                         ))}
