@@ -72,9 +72,9 @@
 
 .contact-plane {
   position: absolute;
-  left: -120px;
-  top: -70px;
-  width: 200px;
+  left: -24px;                   /* tucked into the column's margin, never past the viewport */
+  top: -96px;
+  width: 170px;
   color: var(--color-text-primary);
   pointer-events: none;
 }

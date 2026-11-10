@@ -71,7 +71,7 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     heroBadge: 'Building digital experiences that make an impact',
     heroScript: "Hey, I'm",
     email: 'rinshidch10@gmail.com',
-    location: 'India · Working with clients worldwide',
+    location: 'Manjeri, Kerala, India',
     bio: `I'm a Flutter developer who builds fast, good-looking cross-platform
     apps for iOS and Android. I work with Flutter, React and Node.js, with
     Firebase and Supabase behind them, and I'm comfortable across Provider,
@@ -188,8 +188,8 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   // TODO(real-data): replace with numbers you can defend if a client asks.
   const defaultStats: Stat[] = [
     { label: 'Apps shipped to stores', value: '10+', icon: 'smartphone' },
-    { label: 'Years building with Flutter', value: '2+', icon: 'trending' },
-    { label: 'Client retention', value: '90%', icon: 'heart' },
+    { label: 'Years with Flutter', value: '2+', icon: 'trending' },
+    { label: 'Apps on both stores', value: '5', icon: 'heart' },
   ];
 
   // ==========================================================================
@@ -217,10 +217,10 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
   const defaultSkills: Skill[] = [
     { name: 'Flutter', level: 95, category: 'Mobile' },
     { name: 'Dart', level: 92, category: 'Mobile' },
-    { name: 'Provider', level: 90, category: 'State Management' },
-    { name: 'Riverpod', level: 88, category: 'State Management' },
-    { name: 'Bloc', level: 85, category: 'State Management' },
-    { name: 'GetX', level: 88, category: 'State Management' },
+    { name: 'Provider', level: 90, category: 'Mobile' },
+    { name: 'Riverpod', level: 88, category: 'Mobile' },
+    { name: 'Bloc', level: 85, category: 'Mobile' },
+    { name: 'GetX', level: 88, category: 'Mobile' },
     { name: 'React', level: 80, category: 'Frontend' },
     { name: 'TypeScript', level: 75, category: 'Frontend' },
     { name: 'JavaScript', level: 82, category: 'Frontend' },
@@ -233,9 +233,9 @@ export const PortfolioProvider = ({ children }: PortfolioProviderProps) => {
     { name: 'MongoDB', level: 70, category: 'Database' },
     { name: 'Git', level: 88, category: 'Tools' },
     { name: 'Figma', level: 85, category: 'Tools' },
-    { name: 'Claude / AI tooling', level: 90, category: 'AI' },
-    { name: 'Cursor AI', level: 88, category: 'AI' },
-    { name: 'Figma MCP', level: 75, category: 'AI' },
+    { name: 'Claude / AI tooling', level: 90, category: 'Tools' },
+    { name: 'Cursor AI', level: 88, category: 'Tools' },
+    { name: 'Figma MCP', level: 75, category: 'Tools' },
 
   ];
 

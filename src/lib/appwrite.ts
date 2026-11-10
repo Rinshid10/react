@@ -93,10 +93,30 @@ const getSdk = () =>
  * likely way this integration breaks. This warning is the only signal, so it
  * stays dev-only and never reaches the UI.
  */
+const failed: { label: string; reason: unknown }[] = [];
+let flushScheduled = false;
+
 const warn = (label: string, reason: unknown) => {
-  if (import.meta.env.DEV) {
-    console.warn(`[appwrite] "${label}" failed — falling back to defaults.`, reason);
-  }
+  if (!import.meta.env.DEV) return;
+  // The tables are fetched in parallel, so when the project is down every
+  // one of them fails at once. One summary line instead of one per table.
+  failed.push({ label, reason });
+  if (flushScheduled) return;
+  flushScheduled = true;
+  setTimeout(() => {
+    const first = failed[0].reason;
+    const message = first instanceof Error ? first.message : String(first);
+    const hint = /paused/i.test(message)
+      ? '\nThe project is paused: restore it in the Appwrite console to load live content again.'
+      : '';
+    console.warn(
+      `[appwrite] ${failed.length} table(s) failed — falling back to defaults: ${failed
+        .map((f) => f.label)
+        .join(', ')}.\n${message}${hint}`,
+    );
+    failed.length = 0;
+    flushScheduled = false;
+  }, 0);
 };
 
 // ---------------------------------------------------------------------------
