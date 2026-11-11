@@ -47,11 +47,12 @@ const Hero = () => {
     }
   };
 
+  // Empty profiles are dropped, like the footer does, so no icon links to nowhere.
   const socials = [
     { icon: FiLinkedin, link: personalInfo.social.linkedin, label: 'LinkedIn' },
     { icon: FiGithub, link: personalInfo.social.github, label: 'GitHub' },
-    { icon: FiInstagram, link: personalInfo.social.instagram || '#', label: 'Instagram' },
-  ];
+    { icon: FiInstagram, link: personalInfo.social.instagram, label: 'Instagram' },
+  ].filter((s): s is typeof s & { link: string } => Boolean(s.link));
 
   return (
     <section id="hero" className="hero" ref={ref}>
@@ -105,7 +106,7 @@ const Hero = () => {
             variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.6 }}
           >
-            Software Engineer.
+            {personalInfo.title}.
             <br />
             {personalInfo.tagline}
           </motion.p>

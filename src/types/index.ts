@@ -115,6 +115,12 @@ export interface Project {
    * their labels as captions.
    */
   screenshots?: (string | ProjectShot)[];
+  /**
+   * One line on what the work achieved rather than what it contains: store
+   * status, scale, a rating, a number. Shown under the description on the
+   * card and as its own block in the modal.
+   */
+  outcome?: string;
   featured: boolean;
   category: ProjectCategory;
 }

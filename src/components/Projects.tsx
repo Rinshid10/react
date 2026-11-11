@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion';
-import { FiExternalLink, FiArrowUpRight } from 'react-icons/fi';
+import { FiExternalLink, FiArrowUpRight, FiTrendingUp } from 'react-icons/fi';
 import { SiGoogleplay, SiAppstore } from 'react-icons/si';
 import { usePortfolio } from '../context/PortfolioContext';
 import type { Project, ProjectShot } from '../types';
@@ -44,6 +44,24 @@ const host = (url?: string) => {
   }
 };
 
+/**
+ * Intrinsic sizes for the two capture shapes, so the browser reserves the
+ * box before the file arrives and nothing jumps when it lands. Phone shots
+ * are App Store exports; web shots are the capture viewport. A shot that is
+ * a different size still renders — CSS sets the displayed width — it just
+ * loses the reservation.
+ */
+const SHOT_SIZE = { phone: { width: 638, height: 1386 }, web: { width: 1568, height: 772 } };
+
+/** The line that says what the work achieved. Same markup on the card and in the modal. */
+const Outcome = ({ text, className = '' }: { text?: string; className?: string }) =>
+  text ? (
+    <p className={`shot-outcome ${className}`}>
+      <FiTrendingUp aria-hidden="true" />
+      <span>{text}</span>
+    </p>
+  ) : null;
+
 /** Screenshots may be bare URLs or labelled; everything downstream wants the object. */
 const shotsOf = (project: Project): ProjectShot[] =>
   (project.screenshots ?? []).map((s) => (typeof s === 'string' ? { src: s } : s));
@@ -58,7 +76,7 @@ const PhoneMock = ({ project }: { project: Project }) => {
       <div className="mock-screen">
         {shot ? (
           <div className="mock-scroll">
-            <img className="mock-shot" src={shot} alt="" loading="lazy" />
+            <img className="mock-shot" src={shot} alt="" loading="lazy" decoding="async" {...SHOT_SIZE.phone} />
           </div>
         ) : (
           <>
@@ -123,7 +141,7 @@ const BrowserFrame = ({
     </div>
     <div className="mock-page">
       <div className="mock-scroll">
-        <img className="mock-shot" src={shot.src} alt="" loading="lazy" />
+        <img className="mock-shot" src={shot.src} alt="" loading="lazy" decoding="async" {...SHOT_SIZE.web} />
       </div>
     </div>
   </div>
@@ -237,7 +255,9 @@ const Gallery = ({ project }: { project: Project }) => {
             src={shot.src}
             alt={shot.label ?? `${project.title} screenshot ${i + 1} of ${shots.length}`}
             loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
             draggable={false}
+            {...(web ? SHOT_SIZE.web : SHOT_SIZE.phone)}
           />
           {shot.label && (
             <figcaption>
@@ -384,6 +404,7 @@ const Projects = () => {
                           <FiArrowUpRight className="shot-arrow" aria-hidden="true" />
                         </div>
                         <p className="shot-desc">{project.description}</p>
+                        <Outcome text={project.outcome} />
                         <div className="shot-tech">
                           {project.technologies.map((tech) => (
                             <span key={tech} className="tech-chip">{tech}</span>
@@ -425,6 +446,7 @@ const Projects = () => {
             <p className="project-modal-desc">
               {openProject.longDescription || openProject.description}
             </p>
+            <Outcome text={openProject.outcome} className="project-modal-outcome" />
             <div className="project-modal-tech">
               {openProject.technologies.map((tech) => (
                 <span key={tech} className="tech-chip">{tech}</span>

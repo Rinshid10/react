@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { PortfolioProvider } from './context/PortfolioContext';
 import Navbar from './components/Navbar';
@@ -6,12 +6,35 @@ import Hero from './components/Hero';
 import Services from './components/Services';
 import About from './components/About';
 import Skills from './components/Skills';
-import Projects from './components/Projects';
-import Process from './components/Process';
-import Experience from './components/Experience';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AnimatedCursor from './components/AnimatedCursor';
+
+// Below-the-fold sections are split out of the first bundle. The hero paints
+// without their code; the chunks are then fetched during the first idle
+// moment (see `prefetchSections`), so by the time anyone scrolls they are
+// already here. The fallbacks reserve roughly a screen each so the page
+// length — and the scroll-spy that reads it — does not jump as they land.
+const loaders = {
+  Projects: () => import('./components/Projects'),
+  Process: () => import('./components/Process'),
+  Experience: () => import('./components/Experience'),
+  Contact: () => import('./components/Contact'),
+};
+const Projects = lazy(loaders.Projects);
+const Process = lazy(loaders.Process);
+const Experience = lazy(loaders.Experience);
+const Contact = lazy(loaders.Contact);
+
+const prefetchSections = () => {
+  const run = () => Object.values(loaders).forEach((load) => void load());
+  // Safari still has no requestIdleCallback; a short timer stands in for it.
+  if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(run, { timeout: 2000 });
+  else window.setTimeout(run, 300);
+};
+
+const Placeholder = ({ id }: { id: string }) => (
+  <section id={id} aria-busy="true" style={{ minHeight: '80vh' }} />
+);
 import ScrollProgress from './components/effects/ScrollProgress';
 import SmoothScroll from './components/effects/SmoothScroll';
 import './styles/global.css';
@@ -59,6 +82,8 @@ const AppContent = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [setActiveSection]);
 
+  useEffect(prefetchSections, []);
+
   return (
     <>
       <SmoothScroll />
@@ -70,10 +95,18 @@ const AppContent = () => {
         <Services />
         <About />
         <Skills />
-        <Projects />
-        <Process />
-        <Experience />
-        <Contact />
+        <Suspense fallback={<Placeholder id="projects" />}>
+          <Projects />
+        </Suspense>
+        <Suspense fallback={<Placeholder id="process" />}>
+          <Process />
+        </Suspense>
+        <Suspense fallback={<Placeholder id="experience" />}>
+          <Experience />
+        </Suspense>
+        <Suspense fallback={<Placeholder id="contact" />}>
+          <Contact />
+        </Suspense>
       </main>
       <Footer />
     </>

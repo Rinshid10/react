@@ -209,6 +209,7 @@ export const CONTENT_TABLES: readonly TableDef[] = [
         required: true,
       },
       { key: 'longDescription', label: 'Long description', type: 'multiline', maxLength: 2000 },
+      { key: 'outcome', label: 'Outcome', maxLength: 160, help: 'What it achieved, e.g. "50k+ downloads · 4.8★ on Play Store"' },
       { key: 'image', label: 'Image URL', maxLength: 512 },
       { key: 'technologies', label: 'Technologies', type: 'stringList', maxLength: 40 },
       { key: 'github', label: 'GitHub URL', maxLength: 512 },

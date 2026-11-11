@@ -188,6 +188,20 @@
   overflow: hidden;
 }
 
+/* Outcome: the one line that says what the work achieved. Set in the primary
+   tone against the secondary description so it is the line the eye lands on,
+   with the icon kept to the first line when the text wraps. */
+.shot-outcome {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+.shot-outcome svg { flex-shrink: 0; margin-top: 0.2em; font-size: 0.9rem; color: var(--color-text-secondary); }
+
 .shot-tech { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .tech-chip {
   padding: 0.2rem 0.6rem;
@@ -511,6 +525,15 @@
 .is-web .project-gallery-item { width: min(100%, 86%); }
 .is-web .project-gallery-item img { width: 100%; height: auto; }
 .project-modal-desc { color: var(--color-text-secondary); line-height: 1.7; }
+/* In the modal the outcome becomes a small callout under the long text. */
+.project-modal-outcome {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--color-text-primary);
+  border-radius: 0 10px 10px 0;
+  background: var(--surface-soft);
+  font-size: 0.9rem;
+}
 .project-modal-tech { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 .project-modal .shot-links { margin-top: 0.25rem; }
 
